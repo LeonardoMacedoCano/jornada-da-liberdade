@@ -12,4 +12,4 @@ RUN npx prisma generate && npm run build
 
 EXPOSE 3001
 
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]

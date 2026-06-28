@@ -5,7 +5,6 @@ config({ path: resolve(__dirname, '../../.env') })
 import express, { Request, Response, NextFunction } from 'express'
 import cors from 'cors'
 import { prisma } from './lib/prisma'
-import { runMigrations } from './migrate'
 import { router } from './routes'
 
 const app = express()
@@ -29,7 +28,6 @@ async function main(): Promise<void> {
     process.exit(1)
   }
 
-  await runMigrations()
   await runSeedIfEmpty()
 
   const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',')
