@@ -1,0 +1,113 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  username     String   @unique
+  avatarType   String   @default("warrior")
+
+  sharePublicProfile   Boolean @default(true)
+  showFinancialValues  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  progress          UserProgress?
+  missionProgresses UserMissionProgress[]
+  phaseHistory      UserPhaseHistory[]
+}
+
+model UserProgress {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  currentPhaseId Int @default(0)
+
+  investedAmount       Decimal @default(0) @db.Decimal(15, 2)
+  monthlyPassiveIncome Decimal @default(0) @db.Decimal(10, 2)
+  monthlyContribution  Decimal @default(0) @db.Decimal(10, 2)
+  annualReturnRate     Decimal @default(11) @db.Decimal(5, 2)
+
+  updatedAt DateTime @updatedAt
+}
+
+model Phase {
+  id             Int    @id
+  slug           String @unique
+  name           String
+  title          String
+  subtitle       String
+  description    String
+  flavorText     String
+  orderIndex     Int
+  achievementName String
+  achievementIcon String
+  color          String
+
+  missions     Mission[]
+  phaseHistory UserPhaseHistory[]
+}
+
+model Mission {
+  id      Int    @id @default(autoincrement())
+  phaseId Int
+  phase   Phase  @relation(fields: [phaseId], references: [id])
+
+  slug        String @unique
+  title       String
+  description String
+
+  missionType          String
+  targetValue          Decimal? @db.Decimal(15, 2)
+  targetSmMultiple     Decimal? @db.Decimal(5, 2)
+  requiredDurationDays Int?
+
+  isRequiredForPhase Boolean @default(true)
+  orderIndex         Int
+
+  userProgresses UserMissionProgress[]
+}
+
+model UserMissionProgress {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  missionId Int
+  mission  Mission @relation(fields: [missionId], references: [id])
+
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  startedAt   DateTime?
+
+  @@unique([userId, missionId])
+}
+
+model UserPhaseHistory {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phaseId Int
+  phase   Phase  @relation(fields: [phaseId], references: [id])
+
+  completedAt                DateTime @default(now())
+  portfolioValueAtCompletion Decimal? @db.Decimal(15, 2)
+
+  @@unique([userId, phaseId])
+}
+
+model AppConfig {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

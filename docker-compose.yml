@@ -1,0 +1,28 @@
+services:
+  jornada-backend:
+    container_name: jornada_backend
+    build:
+      context: ${BACKEND_PATH:-./backend}
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=${BACKEND_PORT:-3001}
+      - NODE_ENV=${NODE_ENV:-production}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:5173}
+    restart: unless-stopped
+
+  jornada-frontend:
+    container_name: jornada_frontend
+    build:
+      context: ${FRONTEND_PATH:-./frontend}
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    environment:
+      - BACKEND_URL=http://jornada-backend:${BACKEND_PORT:-3001}
+      - FRONTEND_PORT=${FRONTEND_PORT:-5173}
+      - FRONTEND_ALLOWED_HOSTS=${FRONTEND_ALLOWED_HOSTS:-}
+    depends_on:
+      - jornada-backend
+    restart: unless-stopped
