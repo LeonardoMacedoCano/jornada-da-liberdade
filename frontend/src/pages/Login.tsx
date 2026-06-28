@@ -1,6 +1,114 @@
 import { useState, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import styled from 'styled-components'
+import { Button } from 'lcano-react-ui'
 import { useAuth } from '../contexts/AuthContext'
+
+const Page = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  background: ${p => p.theme.colors.primary};
+`
+
+const Wrapper = styled.div`
+  width: 100%;
+  max-width: 448px;
+  animation: fadeIn 0.3s ease-out;
+`
+
+const Hero = styled.div`
+  text-align: center;
+  margin-bottom: 32px;
+`
+
+const HeroIcon = styled.div`
+  font-size: 56px;
+  margin-bottom: 16px;
+`
+
+const HeroTitle = styled.h1`
+  font-size: 24px;
+  font-weight: 700;
+  color: ${p => p.theme.colors.white};
+`
+
+const HeroSub = styled.p`
+  color: ${p => p.theme.colors.gray};
+  margin-top: 8px;
+`
+
+const Card = styled.div`
+  background: ${p => p.theme.colors.secondary};
+  border: 1px solid ${p => p.theme.colors.tertiary};
+  border-radius: 16px;
+  padding: 32px;
+`
+
+const CardTitle = styled.h2`
+  font-size: 20px;
+  font-weight: 600;
+  color: ${p => p.theme.colors.white};
+  margin-bottom: 24px;
+`
+
+const ErrorBox = styled.div`
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  font-size: 14px;
+`
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`
+
+const Field = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`
+
+const Label = styled.label`
+  font-size: 14px;
+  color: #9ca3af;
+`
+
+const Input = styled.input`
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: ${p => p.theme.colors.primary};
+  border: 1px solid ${p => p.theme.colors.tertiary};
+  color: ${p => p.theme.colors.white};
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &::placeholder { color: #374151; }
+  &:focus { border-color: ${p => p.theme.colors.quaternary}; }
+`
+
+const Footer = styled.p`
+  text-align: center;
+  color: ${p => p.theme.colors.gray};
+  font-size: 14px;
+  margin-top: 24px;
+`
+
+const FooterLink = styled(Link)`
+  color: #a78bfa;
+  text-decoration: none;
+
+  &:hover { color: #c4b5fd; }
+`
 
 export default function Login() {
   const { login } = useAuth()
@@ -24,50 +132,52 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#0f0f1a' }}>
-      <div className="w-full max-w-md animate-fade-in">
-        <div className="text-center mb-8">
-          <div className="text-6xl mb-4">💎</div>
-          <h1 className="text-2xl font-bold text-white">Jornada da Liberdade</h1>
-          <p className="text-gray-500 mt-2">Sua jornada rumo à independência financeira</p>
-        </div>
-        <div className="rounded-2xl p-8" style={{ background: '#1a1a2e', border: '1px solid #2d2d4e' }}>
-          <h2 className="text-xl font-semibold text-white mb-6">Entrar</h2>
-          {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">{error}</div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">E-mail</label>
-              <input
-                type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                className="w-full px-4 py-3 rounded-lg text-white placeholder-gray-600 outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                style={{ background: '#0f0f1a', border: '1px solid #2d2d4e' }}
+    <Page>
+      <Wrapper>
+        <Hero>
+          <HeroIcon>💎</HeroIcon>
+          <HeroTitle>Jornada da Liberdade</HeroTitle>
+          <HeroSub>Sua jornada rumo à independência financeira</HeroSub>
+        </Hero>
+        <Card>
+          <CardTitle>Entrar</CardTitle>
+          {error && <ErrorBox>{error}</ErrorBox>}
+          <Form onSubmit={handleSubmit}>
+            <Field>
+              <Label>E-mail</Label>
+              <Input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
                 placeholder="seu@email.com"
               />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Senha</label>
-              <input
-                type="password" value={password} onChange={e => setPassword(e.target.value)} required
-                className="w-full px-4 py-3 rounded-lg text-white placeholder-gray-600 outline-none focus:ring-2 focus:ring-violet-500 transition-all"
-                style={{ background: '#0f0f1a', border: '1px solid #2d2d4e' }}
+            </Field>
+            <Field>
+              <Label>Senha</Label>
+              <Input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
                 placeholder="••••••••"
               />
-            </div>
-            <button
-              type="submit" disabled={loading}
-              className="w-full py-3 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white font-semibold transition-colors"
-            >
-              {loading ? 'Entrando...' : 'Entrar'}
-            </button>
-          </form>
-          <p className="text-center text-gray-500 text-sm mt-6">
+            </Field>
+            <Button
+              type="submit"
+              variant="quaternary"
+              width="100%"
+              description={loading ? 'Entrando...' : 'Entrar'}
+              disabled={loading}
+              style={{ borderRadius: '8px', padding: '12px 16px', fontSize: '14px', fontWeight: '600' }}
+            />
+          </Form>
+          <Footer>
             Não tem conta?{' '}
-            <Link to="/register" className="text-violet-400 hover:text-violet-300">Criar conta</Link>
-          </p>
-        </div>
-      </div>
-    </div>
+            <FooterLink to="/register">Criar conta</FooterLink>
+          </Footer>
+        </Card>
+      </Wrapper>
+    </Page>
   )
 }

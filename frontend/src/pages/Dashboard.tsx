@@ -1,27 +1,203 @@
 import { useState, useEffect, FormEvent } from 'react'
+import styled from 'styled-components'
+import { Button, Loading, useMessage } from 'lcano-react-ui'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
-import { Phase, UserProgress } from '../types'
+import { Phase, UserProgress, PHASE_HEX_COLORS } from '../types'
 import AvatarDisplay from '../components/AvatarDisplay'
 import ProgressBar from '../components/ProgressBar'
 import MissionItem from '../components/MissionItem'
 import ShareButton from '../components/ShareButton'
 
-const PROGRESS_BAR_COLORS: Record<string, string> = {
-  gray: 'bg-gray-400', green: 'bg-green-400', blue: 'bg-blue-400',
-  teal: 'bg-teal-400', purple: 'bg-violet-500', orange: 'bg-orange-400',
-  yellow: 'bg-yellow-400', amber: 'bg-amber-400', red: 'bg-red-400',
-}
+const Page = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.3s ease-out;
+`
+
+const Header = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`
+
+const HeaderText = styled.div``
+
+const UserName = styled.h1`
+  font-size: 24px;
+  font-weight: 700;
+  color: ${p => p.theme.colors.white};
+`
+
+const UserPhase = styled.p`
+  color: ${p => p.theme.colors.gray};
+`
+
+const UserHandle = styled.p`
+  font-size: 14px;
+  color: #4b5563;
+  margin-top: 4px;
+`
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+`
+
+const MainCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media (min-width: 1024px) {
+    grid-column: span 2;
+  }
+`
+
+const SideCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`
+
+const Card = styled.div`
+  background: ${p => p.theme.colors.secondary};
+  border: 1px solid ${p => p.theme.colors.tertiary};
+  border-radius: 12px;
+  padding: 20px;
+`
+
+const SectionLabel = styled.span`
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: ${p => p.theme.colors.quaternary};
+`
+
+const PhaseTitle = styled.h2`
+  font-size: 18px;
+  font-weight: 700;
+  color: ${p => p.theme.colors.white};
+`
+
+const PhaseSubtitle = styled.p`
+  font-size: 14px;
+  color: ${p => p.theme.colors.gray};
+`
+
+const FlavorText = styled.p`
+  font-size: 14px;
+  color: ${p => p.theme.colors.gray};
+  margin-top: 12px;
+  font-style: italic;
+`
+
+const MissionsSectionLabel = styled.h3`
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+  margin-bottom: 12px;
+`
+
+const MissionList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
+const FormLabel = styled.label`
+  display: block;
+  font-size: 12px;
+  color: ${p => p.theme.colors.gray};
+  margin-bottom: 4px;
+`
+
+const Input = styled.input`
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: ${p => p.theme.colors.primary};
+  border: 1px solid ${p => p.theme.colors.tertiary};
+  color: ${p => p.theme.colors.white};
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &::placeholder { color: #374151; }
+  &:focus { border-color: ${p => p.theme.colors.quaternary}; }
+`
+
+const FormFields = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`
+
+const IndicatorRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`
+
+const IndicatorLabel = styled.span`
+  font-size: 12px;
+  color: ${p => p.theme.colors.gray};
+`
+
+const IndicatorValue = styled.span<{ $accent?: boolean; $success?: boolean }>`
+  font-size: 14px;
+  font-weight: 600;
+  color: ${p => p.$success ? p.theme.colors.success : p.$accent ? p.theme.colors.quaternary : p.theme.colors.white};
+`
+
+const Divider = styled.div`
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 8px;
+  margin-top: 4px;
+`
+
+const ErrorText = styled.p`
+  color: #f87171;
+  font-size: 14px;
+`
+
+const LoadingWrap = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 256px;
+`
+
+const LoadingLabel = styled.div`
+  color: ${p => p.theme.colors.quaternary};
+  animation: fadeIn 0.6s ease-out infinite alternate;
+`
+
+const FIELDS = [
+  { label: 'Patrimônio investido (R$)', key: 'investedAmount', placeholder: '0' },
+  { label: 'Renda passiva mensal (R$)', key: 'monthlyPassiveIncome', placeholder: '0' },
+  { label: 'Aporte mensal (R$)', key: 'monthlyContribution', placeholder: '0' },
+  { label: 'Taxa de retorno anual (%)', key: 'annualReturnRate', placeholder: '11' },
+] as const
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const { showSuccess, showError } = useMessage()
   const [phase, setPhase] = useState<Phase | null>(null)
   const [progress, setProgress] = useState<UserProgress | null>(null)
   const [minimumWage, setMinimumWage] = useState(1412)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
-  const [toast, setToast] = useState<string | null>(null)
 
   const [form, setForm] = useState({
     investedAmount: '',
@@ -65,14 +241,14 @@ export default function Dashboard() {
       })
       setProgress(res.data.progress)
       if (res.data.phaseAdvanced) {
-        showToast(`🏆 Fase concluída! Avançou para a próxima fase!`)
+        showSuccess('Fase concluída! Avançou para a próxima fase!')
       } else if (res.data.newlyCompleted?.length > 0) {
-        showToast(`✅ ${res.data.newlyCompleted.length} missão(ões) completada(s) automaticamente!`)
+        showSuccess(`${res.data.newlyCompleted.length} missão(ões) completada(s) automaticamente!`)
       }
       const phaseRes = await api.get('/phases/current')
       setPhase(phaseRes.data)
     } catch {
-      showToast('Erro ao salvar progresso. Tente novamente.')
+      showError('Erro ao salvar progresso. Tente novamente.')
     } finally {
       setSaving(false)
     }
@@ -87,13 +263,12 @@ export default function Dashboard() {
       ])
       setPhase(phaseRes.data)
       setProgress(profileRes.data.progress)
-      if (completed) showToast('✅ Missão concluída!')
+      if (completed) showSuccess('Missão concluída!')
       if (!completed && res.data.phaseRolledBack) {
-        showToast(`⚠️ Fase revertida para: ${phaseRes.data.name}`)
+        showError(`Fase revertida para: ${phaseRes.data.name}`)
       }
     } catch (err: any) {
-      const msg = err?.response?.data?.error ?? 'Erro ao atualizar missão. Tente novamente.'
-      showToast(msg)
+      showError(err?.response?.data?.error ?? 'Erro ao atualizar missão. Tente novamente.')
     }
   }
 
@@ -102,16 +277,10 @@ export default function Dashboard() {
       await api.post(`/missions/${id}/start`)
       const phaseRes = await api.get('/phases/current')
       setPhase(phaseRes.data)
-      showToast('🔄 Rastreamento iniciado!')
+      showSuccess('Rastreamento iniciado!')
     } catch (err: any) {
-      const msg = err?.response?.data?.error ?? 'Erro ao iniciar rastreamento.'
-      showToast(msg)
+      showError(err?.response?.data?.error ?? 'Erro ao iniciar rastreamento.')
     }
-  }
-
-  function showToast(msg: string) {
-    setToast(msg)
-    setTimeout(() => setToast(null), 4000)
   }
 
   const invested = parseFloat(form.investedAmount) || 0
@@ -123,67 +292,55 @@ export default function Dashboard() {
   const smMultiple = minimumWage > 0 ? passive / minimumWage : 0
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-violet-400 animate-pulse">Carregando...</div>
-    </div>
+    <LoadingWrap>
+      <Loading isLoading />
+    </LoadingWrap>
   )
 
   if (error) return (
-    <div className="flex items-center justify-center h-64">
-      <p className="text-red-400 text-sm">{error}</p>
-    </div>
+    <LoadingWrap>
+      <ErrorText>{error}</ErrorText>
+    </LoadingWrap>
   )
 
-  return (
-    <div className="space-y-6 animate-fade-in">
-      {toast && (
-        <div className="fixed top-4 right-4 z-50 px-6 py-4 rounded-xl bg-violet-600 text-white font-semibold shadow-2xl animate-fade-in">
-          {toast}
-        </div>
-      )}
+  const phaseColor = phase ? (PHASE_HEX_COLORS[phase.color] || '#7c3aed') : '#7c3aed'
 
-      {/* Header */}
-      <div className="flex items-center gap-4">
+  return (
+    <Page>
+      <Header>
         <AvatarDisplay phaseId={progress?.currentPhaseId ?? 0} size="md" />
-        <div>
-          <h1 className="text-2xl font-bold text-white">Olá, {user?.name}!</h1>
-          <p className="text-gray-400">
+        <HeaderText>
+          <UserName>Olá, {user?.name}!</UserName>
+          <UserPhase>
             {phase ? `${phase.achievementIcon} ${phase.name} — ${phase.title}` : 'Carregando fase...'}
-          </p>
-          <p className="text-gray-600 text-sm mt-1">@{user?.username}</p>
-        </div>
-        <div className="ml-auto">
+          </UserPhase>
+          <UserHandle>@{user?.username}</UserHandle>
+        </HeaderText>
+        <div style={{ marginLeft: 'auto' }}>
           {user && <ShareButton username={user.username} />}
         </div>
-      </div>
+      </Header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Fase Atual */}
-        <div className="lg:col-span-2 space-y-4">
+      <Grid>
+        <MainCol>
           {phase && (
-            <div className="rounded-xl p-5" style={{ background: '#1a1a2e', border: '1px solid #2d2d4e' }}>
-              <div className="flex items-center justify-between mb-3">
+            <Card>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-violet-400">Fase Atual</span>
-                  <h2 className="text-lg font-bold text-white">{phase.title}</h2>
-                  <p className="text-gray-500 text-sm">{phase.subtitle}</p>
+                  <SectionLabel>Fase Atual</SectionLabel>
+                  <PhaseTitle>{phase.title}</PhaseTitle>
+                  <PhaseSubtitle>{phase.subtitle}</PhaseSubtitle>
                 </div>
-                <div className="text-4xl">{phase.achievementIcon}</div>
+                <span style={{ fontSize: 36 }}>{phase.achievementIcon}</span>
               </div>
-              <ProgressBar
-                percent={phase.progressPercent}
-                color={PROGRESS_BAR_COLORS[phase.color] || 'bg-violet-500'}
-                height="h-3"
-                showLabel
-              />
-              <p className="text-gray-500 text-sm mt-3 italic">&quot;{phase.flavorText}&quot;</p>
-            </div>
+              <ProgressBar percent={phase.progressPercent} color={phaseColor} height="12px" showLabel />
+              <FlavorText>&quot;{phase.flavorText}&quot;</FlavorText>
+            </Card>
           )}
 
-          {/* Missões da fase */}
-          <div className="rounded-xl p-5" style={{ background: '#1a1a2e', border: '1px solid #2d2d4e' }}>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">Missões da Fase</h3>
-            <div className="space-y-2">
+          <Card>
+            <MissionsSectionLabel>Missões da Fase</MissionsSectionLabel>
+            <MissionList>
               {phase?.missions.map(mission => (
                 <MissionItem
                   key={mission.id}
@@ -193,77 +350,73 @@ export default function Dashboard() {
                   onStart={handleStartMission}
                 />
               ))}
-            </div>
-          </div>
-        </div>
+            </MissionList>
+          </Card>
+        </MainCol>
 
-        {/* Painel lateral */}
-        <div className="space-y-4">
-          {/* Formulário de atualização */}
-          <div className="rounded-xl p-5" style={{ background: '#1a1a2e', border: '1px solid #2d2d4e' }}>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">Atualizar Dados</h3>
-            <form onSubmit={handleProgressUpdate} className="space-y-3">
-              {[
-                { label: 'Patrimônio investido (R$)', key: 'investedAmount', placeholder: '0' },
-                { label: 'Renda passiva mensal (R$)', key: 'monthlyPassiveIncome', placeholder: '0' },
-                { label: 'Aporte mensal (R$)', key: 'monthlyContribution', placeholder: '0' },
-                { label: 'Taxa de retorno anual (%)', key: 'annualReturnRate', placeholder: '11' },
-              ].map(({ label, key, placeholder }) => (
-                <div key={key}>
-                  <label className="block text-xs text-gray-500 mb-1">{label}</label>
-                  <input
-                    type="number" step="0.01" min="0"
-                    value={form[key as keyof typeof form]}
-                    onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-                    placeholder={placeholder}
-                    className="w-full px-3 py-2 rounded-lg text-white text-sm placeholder-gray-700 outline-none focus:ring-1 focus:ring-violet-500 transition-all"
-                    style={{ background: '#0f0f1a', border: '1px solid #2d2d4e' }}
-                  />
-                </div>
-              ))}
-              <button
-                type="submit" disabled={saving}
-                className="w-full py-2 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold transition-colors"
-              >
-                {saving ? 'Salvando...' : 'Atualizar Progresso'}
-              </button>
+        <SideCol>
+          <Card>
+            <MissionsSectionLabel>Atualizar Dados</MissionsSectionLabel>
+            <form onSubmit={handleProgressUpdate}>
+              <FormFields>
+                {FIELDS.map(({ label, key, placeholder }) => (
+                  <div key={key}>
+                    <FormLabel>{label}</FormLabel>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form[key]}
+                      onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+                      placeholder={placeholder}
+                    />
+                  </div>
+                ))}
+                <Button
+                  type="submit"
+                  variant="quaternary"
+                  width="100%"
+                  description={saving ? 'Salvando...' : 'Atualizar Progresso'}
+                  disabled={saving}
+                  style={{ borderRadius: '8px', padding: '10px 16px', fontSize: '14px', fontWeight: '600' }}
+                />
+              </FormFields>
             </form>
-          </div>
+          </Card>
 
-          {/* Indicadores */}
-          <div className="rounded-xl p-5" style={{ background: '#1a1a2e', border: '1px solid #2d2d4e' }}>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">Indicadores</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-500">Retorno mensal estimado</span>
-                <span className="text-sm font-semibold text-white">
+          <Card>
+            <MissionsSectionLabel>Indicadores</MissionsSectionLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <IndicatorRow>
+                <IndicatorLabel>Retorno mensal estimado</IndicatorLabel>
+                <IndicatorValue>
                   R$ {monthlyReturn.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-500">Ponto de Cruzamento</span>
-                <span className={`text-sm font-semibold ${crossoverReached ? 'text-green-400' : 'text-gray-600'}`}>
+                </IndicatorValue>
+              </IndicatorRow>
+              <IndicatorRow>
+                <IndicatorLabel>Ponto de Cruzamento</IndicatorLabel>
+                <IndicatorValue $success={crossoverReached}>
                   {crossoverReached ? '✓ Atingido' : contribution > 0 ? `${Math.round((monthlyReturn / contribution) * 100)}%` : '—'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-500">Renda passiva em SM</span>
-                <span className="text-sm font-semibold text-violet-400">
+                </IndicatorValue>
+              </IndicatorRow>
+              <IndicatorRow>
+                <IndicatorLabel>Renda passiva em SM</IndicatorLabel>
+                <IndicatorValue $accent>
                   {smMultiple.toFixed(2)}× SM
-                </span>
-              </div>
-              <div className="pt-2 border-t border-white/5">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-600">Salário Mínimo atual</span>
-                  <span className="text-xs text-gray-500">
+                </IndicatorValue>
+              </IndicatorRow>
+              <Divider>
+                <IndicatorRow>
+                  <IndicatorLabel style={{ color: '#4b5563' }}>Salário Mínimo atual</IndicatorLabel>
+                  <span style={{ fontSize: 12, color: '#6b7280' }}>
                     R$ {minimumWage.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </span>
-                </div>
-              </div>
+                </IndicatorRow>
+              </Divider>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </Card>
+        </SideCol>
+      </Grid>
+    </Page>
   )
 }

@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Login from './pages/Login'
@@ -9,12 +10,26 @@ import Settings from './pages/Settings'
 import PublicProfile from './pages/PublicProfile'
 import Layout from './components/Layout'
 
+const FullScreen = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${p => p.theme.colors.primary};
+`
+
+const LoadingText = styled.div`
+  font-size: 20px;
+  color: ${p => p.theme.colors.quaternary};
+  animation: fadeIn 0.6s ease-out infinite alternate;
+`
+
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0f0f1a' }}>
-      <div className="text-violet-400 text-xl animate-pulse">Carregando...</div>
-    </div>
+    <FullScreen>
+      <LoadingText>Carregando...</LoadingText>
+    </FullScreen>
   )
   return user ? <>{children}</> : <Navigate to="/login" replace />
 }

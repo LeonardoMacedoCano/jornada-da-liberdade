@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import styled from 'styled-components'
+import { Loading } from 'lcano-react-ui'
 import api from '../services/api'
 import { Phase, Mission, MISSION_TYPE_ICONS, MISSION_TYPE_LABELS } from '../types'
 import AchievementBadge from '../components/AchievementBadge'
@@ -7,6 +9,163 @@ interface CompletedMission extends Mission {
   phaseName: string
   phaseColor: string
 }
+
+const Page = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  animation: fadeIn 0.3s ease-out;
+`
+
+const PageHeader = styled.div``
+
+const Title = styled.h1`
+  font-size: 24px;
+  font-weight: 700;
+  color: ${p => p.theme.colors.white};
+`
+
+const Subtitle = styled.p`
+  color: ${p => p.theme.colors.gray};
+  margin-top: 4px;
+`
+
+const SectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+`
+
+const SectionTitle = styled.h2`
+  font-size: 18px;
+  font-weight: 600;
+  color: ${p => p.theme.colors.white};
+`
+
+const CountLabel = styled.span`
+  font-size: 14px;
+  color: #4b5563;
+`
+
+const ShowcaseCard = styled.div`
+  background: ${p => p.theme.colors.primary};
+  border: 1px solid ${p => p.theme.colors.tertiary};
+  border-radius: 12px;
+  padding: 24px;
+`
+
+const BadgeGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  @media (min-width: 640px) { grid-template-columns: repeat(5, 1fr); }
+  @media (min-width: 768px) { grid-template-columns: repeat(9, 1fr); }
+`
+
+const EmptyText = styled.p`
+  text-align: center;
+  color: #4b5563;
+  font-size: 14px;
+  margin-top: 16px;
+`
+
+const TimelineHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+`
+
+const FilterRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+`
+
+const FilterButton = styled.button<{ $active: boolean }>`
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  background: ${p => p.$active ? p.theme.colors.quaternary : 'rgba(255,255,255,0.05)'};
+  color: ${p => p.$active ? p.theme.colors.white : p.theme.colors.gray};
+
+  &:hover { color: ${p => p.theme.colors.white}; }
+`
+
+const EmptyCard = styled.div`
+  text-align: center;
+  padding: 48px;
+  color: #4b5563;
+  background: ${p => p.theme.colors.secondary};
+  border: 1px solid ${p => p.theme.colors.tertiary};
+  border-radius: 12px;
+`
+
+const EmptyIcon = styled.div`
+  font-size: 36px;
+  margin-bottom: 12px;
+`
+
+const MissionRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: ${p => p.theme.colors.secondary};
+  border: 1px solid ${p => p.theme.colors.tertiary};
+`
+
+const MissionInfo = styled.div`
+  flex: 1;
+  min-width: 0;
+`
+
+const MissionTitle = styled.span`
+  font-size: 14px;
+  font-weight: 500;
+  color: ${p => p.theme.colors.white};
+`
+
+const MissionMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+`
+
+const MetaText = styled.span`
+  font-size: 12px;
+  color: ${p => p.theme.colors.gray};
+`
+
+const MissionDate = styled.div`
+  font-size: 12px;
+  color: rgba(34, 197, 94, 0.7);
+  flex-shrink: 0;
+`
+
+const MissionList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
+const LoadingWrap = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 256px;
+`
 
 export default function History() {
   const [phases, setPhases] = useState<Phase[]>([])
@@ -43,7 +202,6 @@ export default function History() {
       completedAt: p.completedAt || '',
     },
     locked: p.status !== 'completed',
-    completedAt: p.completedAt,
   }))
 
   const filtered = filterPhaseId !== null
@@ -51,31 +209,26 @@ export default function History() {
     : completedMissions
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-violet-400 animate-pulse">Carregando histórico...</div>
-    </div>
+    <LoadingWrap>
+      <Loading isLoading />
+    </LoadingWrap>
   )
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Histórico</h1>
-        <p className="text-gray-500 mt-1">Conquistas desbloqueadas e missões concluídas</p>
-      </div>
+    <Page>
+      <PageHeader>
+        <Title>Histórico</Title>
+        <Subtitle>Conquistas desbloqueadas e missões concluídas</Subtitle>
+      </PageHeader>
 
-      {/* Vitrine de Conquistas */}
       <section>
-        <div className="flex items-center gap-3 mb-4">
-          <h2 className="text-lg font-semibold text-white">Vitrine de Conquistas</h2>
-          <span className="text-sm text-gray-600">{unlockedCount}/9 desbloqueadas</span>
-        </div>
+        <SectionHeader>
+          <SectionTitle>Vitrine de Conquistas</SectionTitle>
+          <CountLabel>{unlockedCount}/9 desbloqueadas</CountLabel>
+        </SectionHeader>
 
-        <div
-          className="rounded-xl p-6"
-          style={{ background: '#0f0f1a', border: '1px solid #2d2d4e' }}
-        >
-          {/* "prateleira" */}
-          <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-3">
+        <ShowcaseCard>
+          <BadgeGrid>
             {allBadges.map(({ achievement, locked }) => (
               <AchievementBadge
                 key={achievement.phaseId}
@@ -84,68 +237,61 @@ export default function History() {
                 locked={locked}
               />
             ))}
-          </div>
-
+          </BadgeGrid>
           {unlockedCount === 0 && (
-            <p className="text-center text-gray-600 text-sm mt-4">
-              Complete a Fase Tutorial para desbloquear a primeira conquista.
-            </p>
+            <EmptyText>Complete a Fase Tutorial para desbloquear a primeira conquista.</EmptyText>
           )}
-        </div>
+        </ShowcaseCard>
       </section>
 
-      {/* Linha do Tempo */}
       <section>
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-          <h2 className="text-lg font-semibold text-white">
+        <TimelineHeader>
+          <SectionTitle>
             Missões Concluídas{' '}
-            <span className="text-gray-500 text-base font-normal">({filtered.length})</span>
-          </h2>
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={() => setFilterPhaseId(null)}
-              className={`px-3 py-1 rounded-lg text-xs transition-colors ${filterPhaseId === null ? 'bg-violet-600 text-white' : 'text-gray-400 hover:text-white bg-white/5'}`}
-            >
+            <CountLabel>({filtered.length})</CountLabel>
+          </SectionTitle>
+          <FilterRow>
+            <FilterButton $active={filterPhaseId === null} onClick={() => setFilterPhaseId(null)}>
               Todas
-            </button>
+            </FilterButton>
             {phases.filter(p => p.missions.some(m => m.isCompleted)).map(p => (
-              <button
+              <FilterButton
                 key={p.id}
+                $active={filterPhaseId === p.id}
                 onClick={() => setFilterPhaseId(p.id)}
-                className={`px-3 py-1 rounded-lg text-xs transition-colors ${filterPhaseId === p.id ? 'bg-violet-600 text-white' : 'text-gray-400 hover:text-white bg-white/5'}`}
               >
                 {p.achievementIcon} {p.name}
-              </button>
+              </FilterButton>
             ))}
-          </div>
-        </div>
+          </FilterRow>
+        </TimelineHeader>
 
         {filtered.length === 0 ? (
-          <div className="text-center py-12 text-gray-600 rounded-xl" style={{ background: '#1a1a2e', border: '1px solid #2d2d4e' }}>
-            <div className="text-4xl mb-3">🎯</div>
+          <EmptyCard>
+            <EmptyIcon>🎯</EmptyIcon>
             <p>Nenhuma missão concluída ainda. Comece pela Fase Tutorial!</p>
-          </div>
+          </EmptyCard>
         ) : (
-          <div className="space-y-2">
+          <MissionList>
             {filtered.map(mission => (
-              <div key={mission.id} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#1a1a2e', border: '1px solid #2d2d4e' }}>
-                <span className="text-lg flex-shrink-0">{MISSION_TYPE_ICONS[mission.missionType]}</span>
-                <div className="flex-1 min-w-0">
-                  <span className="text-sm text-white font-medium">{mission.title}</span>
-                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                    <span className="text-xs text-gray-500">{mission.phaseName}</span>
-                    <span className="text-xs text-gray-600">·</span>
-                    <span className="text-xs text-gray-600">{MISSION_TYPE_LABELS[mission.missionType]}</span>
-                  </div>
-                </div>
-                <div className="text-xs text-green-500/70 flex-shrink-0">
+              <MissionRow key={mission.id}>
+                <span style={{ fontSize: 18, flexShrink: 0 }}>{MISSION_TYPE_ICONS[mission.missionType]}</span>
+                <MissionInfo>
+                  <MissionTitle>{mission.title}</MissionTitle>
+                  <MissionMeta>
+                    <MetaText>{mission.phaseName}</MetaText>
+                    <MetaText>·</MetaText>
+                    <MetaText>{MISSION_TYPE_LABELS[mission.missionType]}</MetaText>
+                  </MissionMeta>
+                </MissionInfo>
+                <MissionDate>
                   {mission.completedAt ? new Date(mission.completedAt).toLocaleDateString('pt-BR') : ''}
-                </div>
-              </div>
+                </MissionDate>
+              </MissionRow>
             ))}
-          </div>
+          </MissionList>
         )}
       </section>
-    </div>
+    </Page>
   )
 }

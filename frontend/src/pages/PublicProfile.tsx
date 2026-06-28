@@ -1,17 +1,172 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import styled from 'styled-components'
+import { Button } from 'lcano-react-ui'
 import api from '../services/api'
-import { PublicProfile as PublicProfileType } from '../types'
+import { PublicProfile as PublicProfileType, PHASE_HEX_COLORS } from '../types'
 import AvatarDisplay from '../components/AvatarDisplay'
 import AchievementBadge from '../components/AchievementBadge'
 import ProgressBar from '../components/ProgressBar'
 import ShareButton from '../components/ShareButton'
 
-const PROGRESS_BAR_COLORS: Record<string, string> = {
-  gray: 'bg-gray-400', green: 'bg-green-400', blue: 'bg-blue-400',
-  teal: 'bg-teal-400', purple: 'bg-violet-500', orange: 'bg-orange-400',
-  yellow: 'bg-yellow-400', amber: 'bg-amber-400', red: 'bg-red-400',
-}
+const Page = styled.div`
+  min-height: 100vh;
+  background: ${p => p.theme.colors.primary};
+`
+
+const Container = styled.div`
+  max-width: 672px;
+  margin: 0 auto;
+  padding: 48px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.3s ease-out;
+`
+
+const Center = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  flex-direction: column;
+  gap: 16px;
+`
+
+const ProfileHeader = styled.div`
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+`
+
+const ProfileName = styled.h1`
+  font-size: 30px;
+  font-weight: 700;
+  color: ${p => p.theme.colors.white};
+`
+
+const ProfileHandle = styled.p`
+  color: ${p => p.theme.colors.gray};
+  margin-top: 4px;
+`
+
+const ProfileMeta = styled.p`
+  font-size: 14px;
+  color: #4b5563;
+  margin-top: 8px;
+`
+
+const Card = styled.div`
+  background: ${p => p.theme.colors.secondary};
+  border: 1px solid ${p => p.theme.colors.tertiary};
+  border-radius: 12px;
+  padding: 20px;
+`
+
+const SectionLabel = styled.h2`
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+  margin-bottom: 16px;
+`
+
+const PhaseCard = styled(Card)`
+  text-align: center;
+`
+
+const PhaseIcon = styled.div`
+  font-size: 36px;
+  margin-bottom: 8px;
+`
+
+const PhaseName = styled.div`
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: ${p => p.theme.colors.quaternary};
+`
+
+const PhaseTitle = styled.div`
+  font-size: 18px;
+  font-weight: 700;
+  color: ${p => p.theme.colors.white};
+  margin-top: 4px;
+`
+
+const ProgressWrap = styled.div`
+  max-width: 320px;
+  margin: 12px auto 0;
+`
+
+const ProgressNote = styled.p`
+  font-size: 12px;
+  color: ${p => p.theme.colors.gray};
+  margin-top: 8px;
+`
+
+const BadgeGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  @media (min-width: 640px) { grid-template-columns: repeat(4, 1fr); }
+`
+
+const FinancialGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+`
+
+const FinancialItem = styled.div`
+  text-align: center;
+`
+
+const FinancialLabel = styled.div`
+  font-size: 12px;
+  color: ${p => p.theme.colors.gray};
+`
+
+const FinancialValue = styled.div<{ $success?: boolean }>`
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 4px;
+  color: ${p => p.$success ? p.theme.colors.success : p.theme.colors.white};
+`
+
+const CtaSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+`
+
+const CtaText = styled.p`
+  font-size: 14px;
+  color: #4b5563;
+`
+
+const CtaLink = styled(Link)`
+  color: #a78bfa;
+  text-decoration: none;
+
+  &:hover { color: #c4b5fd; }
+`
+
+const NotFoundTitle = styled.h1`
+  font-size: 24px;
+  font-weight: 700;
+  color: ${p => p.theme.colors.white};
+`
+
+const NotFoundText = styled.p`
+  color: ${p => p.theme.colors.gray};
+`
 
 export default function PublicProfile() {
   const { username } = useParams<{ username: string }>()
@@ -27,101 +182,103 @@ export default function PublicProfile() {
   }, [username])
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0f0f1a' }}>
-      <div className="text-violet-400 animate-pulse">Carregando perfil...</div>
-    </div>
+    <Page>
+      <Center>
+        <div style={{ color: '#7c3aed', animation: 'fadeIn 0.6s ease-out infinite alternate' }}>
+          Carregando perfil...
+        </div>
+      </Center>
+    </Page>
   )
 
   if (notFound) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0f0f1a' }}>
-      <div className="text-center animate-fade-in">
-        <div className="text-6xl mb-4">🔒</div>
-        <h1 className="text-2xl font-bold text-white mb-2">Perfil não encontrado</h1>
-        <p className="text-gray-500 mb-6">Este perfil é privado ou não existe.</p>
-        <Link to="/login" className="px-6 py-3 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-semibold transition-colors">
-          Criar minha conta
-        </Link>
-      </div>
-    </div>
+    <Page>
+      <Center>
+        <div style={{ fontSize: 56 }}>🔒</div>
+        <NotFoundTitle>Perfil não encontrado</NotFoundTitle>
+        <NotFoundText>Este perfil é privado ou não existe.</NotFoundText>
+        <Button
+          variant="quaternary"
+          description="Criar minha conta"
+          onClick={() => window.location.href = '/login'}
+          style={{ borderRadius: '8px', padding: '12px 24px', fontSize: '16px', fontWeight: '600' }}
+        />
+      </Center>
+    </Page>
   )
 
   if (!profile) return null
 
-  const barColor = profile.currentPhase ? PROGRESS_BAR_COLORS[profile.currentPhase.color] || 'bg-violet-500' : 'bg-violet-500'
+  const phaseColor = profile.currentPhase
+    ? (PHASE_HEX_COLORS[profile.currentPhase.color] || '#7c3aed')
+    : '#7c3aed'
   const daysSinceStart = Math.floor((Date.now() - new Date(profile.createdAt).getTime()) / (1000 * 60 * 60 * 24))
 
   return (
-    <div className="min-h-screen" style={{ background: '#0f0f1a' }}>
-      <div className="max-w-2xl mx-auto px-4 py-12 space-y-6 animate-fade-in">
-        {/* Header */}
-        <div className="text-center space-y-4">
+    <Page>
+      <Container>
+        <ProfileHeader>
           <AvatarDisplay phaseId={profile.currentPhase?.id ?? 0} size="lg" />
           <div>
-            <h1 className="text-3xl font-bold text-white">{profile.name}</h1>
-            <p className="text-gray-500 mt-1">@{profile.username}</p>
-            <p className="text-gray-600 text-sm mt-2">
+            <ProfileName>{profile.name}</ProfileName>
+            <ProfileHandle>@{profile.username}</ProfileHandle>
+            <ProfileMeta>
               Na jornada há {daysSinceStart} dias · desde {new Date(profile.createdAt).toLocaleDateString('pt-BR')}
-            </p>
+            </ProfileMeta>
           </div>
-        </div>
+        </ProfileHeader>
 
-        {/* Fase atual */}
         {profile.currentPhase && (
-          <div className="rounded-xl p-5 text-center" style={{ background: '#1a1a2e', border: '1px solid #2d2d4e' }}>
-            <div className="text-4xl mb-2">{profile.currentPhase.achievementIcon}</div>
-            <div className="text-xs font-bold uppercase tracking-wider text-violet-400">{profile.currentPhase.name}</div>
-            <div className="text-lg font-bold text-white mt-1">{profile.currentPhase.title}</div>
-            <div className="mt-3 max-w-xs mx-auto">
-              <ProgressBar percent={profile.progressPercent} color={barColor} showLabel />
-            </div>
-            <p className="text-xs text-gray-500 mt-2">{profile.progressPercent}% da fase concluída</p>
-          </div>
+          <PhaseCard>
+            <PhaseIcon>{profile.currentPhase.achievementIcon}</PhaseIcon>
+            <PhaseName>{profile.currentPhase.name}</PhaseName>
+            <PhaseTitle>{profile.currentPhase.title}</PhaseTitle>
+            <ProgressWrap>
+              <ProgressBar percent={profile.progressPercent} color={phaseColor} height="8px" showLabel />
+            </ProgressWrap>
+            <ProgressNote>{profile.progressPercent}% da fase concluída</ProgressNote>
+          </PhaseCard>
         )}
 
-        {/* Conquistas */}
         {profile.achievements.length > 0 && (
-          <div className="rounded-xl p-5" style={{ background: '#1a1a2e', border: '1px solid #2d2d4e' }}>
-            <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">
-              🏆 Conquistas ({profile.achievements.length})
-            </h2>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+          <Card>
+            <SectionLabel>🏆 Conquistas ({profile.achievements.length})</SectionLabel>
+            <BadgeGrid>
               {profile.achievements.map(a => (
                 <AchievementBadge key={a.phaseId} achievement={a} size="sm" />
               ))}
-            </div>
-          </div>
+            </BadgeGrid>
+          </Card>
         )}
 
-        {/* Dados financeiros (se permitido) */}
         {profile.financialData && (
-          <div className="rounded-xl p-5" style={{ background: '#1a1a2e', border: '1px solid #2d2d4e' }}>
-            <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">📊 Dados Financeiros</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <div className="text-xs text-gray-500">Patrimônio Investido</div>
-                <div className="text-lg font-bold text-white mt-1">
+          <Card>
+            <SectionLabel>📊 Dados Financeiros</SectionLabel>
+            <FinancialGrid>
+              <FinancialItem>
+                <FinancialLabel>Patrimônio Investido</FinancialLabel>
+                <FinancialValue>
                   R$ {parseFloat(profile.financialData.investedAmount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-xs text-gray-500">Renda Passiva Mensal</div>
-                <div className="text-lg font-bold text-green-400 mt-1">
+                </FinancialValue>
+              </FinancialItem>
+              <FinancialItem>
+                <FinancialLabel>Renda Passiva Mensal</FinancialLabel>
+                <FinancialValue $success>
                   R$ {parseFloat(profile.financialData.monthlyPassiveIncome).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
-              </div>
-            </div>
-          </div>
+                </FinancialValue>
+              </FinancialItem>
+            </FinancialGrid>
+          </Card>
         )}
 
-        {/* Share + CTA */}
-        <div className="flex flex-col items-center gap-4">
+        <CtaSection>
           <ShareButton username={profile.username} />
-          <p className="text-gray-600 text-sm">
+          <CtaText>
             Quer acompanhar sua própria jornada?{' '}
-            <Link to="/register" className="text-violet-400 hover:text-violet-300">Criar conta grátis</Link>
-          </p>
-        </div>
-      </div>
-    </div>
+            <CtaLink to="/register">Criar conta grátis</CtaLink>
+          </CtaText>
+        </CtaSection>
+      </Container>
+    </Page>
   )
 }

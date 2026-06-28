@@ -1,7 +1,56 @@
 import { useState, useEffect } from 'react'
+import styled from 'styled-components'
+import { Loading } from 'lcano-react-ui'
 import api from '../services/api'
 import { Phase } from '../types'
 import PhaseCard from '../components/PhaseCard'
+
+const Page = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeIn 0.3s ease-out;
+`
+
+const PageHeader = styled.div``
+
+const Title = styled.h1`
+  font-size: 24px;
+  font-weight: 700;
+  color: ${p => p.theme.colors.white};
+`
+
+const Subtitle = styled.p`
+  color: ${p => p.theme.colors.gray};
+  margin-top: 4px;
+`
+
+const PhaseList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`
+
+const PhaseWrapper = styled.div`
+  position: relative;
+`
+
+const Connector = styled.div`
+  position: absolute;
+  left: 28px;
+  top: 100%;
+  height: 12px;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 0;
+`
+
+const LoadingWrap = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 256px;
+`
 
 export default function Roadmap() {
   const [phases, setPhases] = useState<Phase[]>([])
@@ -30,28 +79,26 @@ export default function Roadmap() {
   }
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-violet-400 animate-pulse">Carregando Roadmap...</div>
-    </div>
+    <LoadingWrap>
+      <Loading isLoading />
+    </LoadingWrap>
   )
 
   const completedCount = phases.filter(p => p.status === 'completed').length
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Roadmap da Jornada</h1>
-        <p className="text-gray-500 mt-1">
+    <Page>
+      <PageHeader>
+        <Title>Roadmap da Jornada</Title>
+        <Subtitle>
           {completedCount}/9 fases concluídas — Todas as fases são visíveis para motivar seu avanço
-        </p>
-      </div>
+        </Subtitle>
+      </PageHeader>
 
-      <div className="space-y-3">
+      <PhaseList>
         {phases.map((phase, idx) => (
-          <div key={phase.id} className="relative">
-            {idx < phases.length - 1 && (
-              <div className="absolute left-7 top-full h-3 w-0.5 bg-white/10 z-0" />
-            )}
+          <PhaseWrapper key={phase.id}>
+            {idx < phases.length - 1 && <Connector />}
             <PhaseCard
               phase={phase}
               minimumWage={minimumWage}
@@ -59,9 +106,9 @@ export default function Roadmap() {
               onToggleExpand={() => setExpandedId(expandedId === phase.id ? null : phase.id)}
               onToggleMission={handleToggleMission}
             />
-          </div>
+          </PhaseWrapper>
         ))}
-      </div>
-    </div>
+      </PhaseList>
+    </Page>
   )
 }

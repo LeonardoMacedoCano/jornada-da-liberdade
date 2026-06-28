@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Button } from 'lcano-react-ui'
 
 interface ShareButtonProps {
   username: string
@@ -15,11 +16,11 @@ export default function ShareButton({ username }: ShareButtonProps) {
   }
 
   return (
-    <button
+    <Button
+      variant="quaternary"
+      description={copied ? '✓ Link copiado!' : '🔗 Compartilhar perfil'}
       onClick={handleCopy}
-      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm transition-colors"
-    >
-      {copied ? '✓ Link copiado!' : '🔗 Compartilhar perfil'}
-    </button>
+      style={{ borderRadius: '8px', padding: '8px 16px', fontSize: '14px', fontWeight: '500' }}
+    />
   )
 }

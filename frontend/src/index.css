@@ -1,20 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --bg: #0f0f1a;
-  --card: #1a1a2e;
-  --border: #2d2d4e;
-}
-
-body {
-  background-color: var(--bg);
-  color: white;
-  font-family: 'Inter', system-ui, sans-serif;
-}
-
 * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
   scrollbar-width: thin;
   scrollbar-color: #2d2d4e #0f0f1a;
 }
@@ -30,22 +17,4 @@ body {
 *::-webkit-scrollbar-thumb {
   background-color: #2d2d4e;
   border-radius: 3px;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-10px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.animate-slide-in {
-  animation: slideIn 0.3s ease-out;
 }

@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import { Mission, MISSION_TYPE_ICONS, MISSION_TYPE_LABELS } from '../types'
 
 interface MissionItemProps {
@@ -7,6 +8,155 @@ interface MissionItemProps {
   onStart?: (id: number) => void
   compact?: boolean
 }
+
+const Item = styled.div<{ $completed: boolean }>`
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  transition: border-color 0.2s;
+  animation: slideIn 0.3s ease-out;
+
+  ${p => p.$completed ? `
+    background: rgba(34, 197, 94, 0.05);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  ` : `
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    &:hover { border-color: rgba(255, 255, 255, 0.1); }
+  `}
+`
+
+const CheckButton = styled.button<{ $completed: boolean }>`
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid ${p => p.$completed ? '#22c55e' : '#4b5563'};
+  background: ${p => p.$completed ? '#22c55e' : 'transparent'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 2px;
+
+  &:hover {
+    border-color: ${p => p.$completed ? '#22c55e' : '#9ca3af'};
+  }
+`
+
+const CheckDisplay = styled.div<{ $completed: boolean }>`
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid ${p => p.$completed ? '#22c55e' : '#374151'};
+  background: ${p => p.$completed ? '#22c55e' : 'transparent'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+`
+
+const Body = styled.div`
+  flex: 1;
+  min-width: 0;
+`
+
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+`
+
+const MissionTitle = styled.span<{ $completed: boolean }>`
+  font-size: 14px;
+  font-weight: 500;
+  color: ${p => p.$completed ? '#6b7280' : p.theme.colors.white};
+  text-decoration: ${p => p.$completed ? 'line-through' : 'none'};
+`
+
+const BadgeOptional = styled.span`
+  font-size: 11px;
+  background: rgba(234, 179, 8, 0.2);
+  color: #eab308;
+  padding: 2px 6px;
+  border-radius: 4px;
+`
+
+const BadgeType = styled.span`
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.05);
+  color: ${p => p.theme.colors.gray};
+  padding: 2px 6px;
+  border-radius: 4px;
+`
+
+const Description = styled.p`
+  font-size: 12px;
+  color: ${p => p.theme.colors.gray};
+  margin-top: 4px;
+  line-height: 1.5;
+`
+
+const Target = styled.p`
+  font-size: 12px;
+  color: ${p => p.theme.colors.quaternary};
+  margin-top: 4px;
+  font-weight: 500;
+`
+
+const StartButton = styled.button`
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: rgba(124, 58, 237, 0.2);
+  color: ${p => p.theme.colors.quaternary};
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover { background: rgba(124, 58, 237, 0.4); }
+`
+
+const HabitProgress = styled.div`
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`
+
+const HabitProgressRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: ${p => p.theme.colors.gray};
+`
+
+const HabitTrack = styled.div`
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+`
+
+const HabitFill = styled.div<{ $width: number }>`
+  background: ${p => p.theme.colors.quaternary};
+  height: 6px;
+  border-radius: 999px;
+  width: ${p => p.$width}%;
+  transition: width 0.3s;
+`
+
+const CompletedDate = styled.p`
+  font-size: 12px;
+  color: rgba(34, 197, 94, 0.7);
+  margin-top: 4px;
+`
 
 export default function MissionItem({ mission, minimumWage = 1412, onToggle, onStart, compact = false }: MissionItemProps) {
   const isManual = mission.missionType === 'behavioral' || mission.missionType === 'habit'
@@ -38,76 +188,60 @@ export default function MissionItem({ mission, minimumWage = 1412, onToggle, onS
   const showCheckbox = isManual && onToggle && (mission.missionType !== 'habit' || habitCanComplete || mission.isCompleted)
 
   return (
-    <div className={`flex items-start gap-3 p-3 rounded-lg transition-all ${mission.isCompleted ? 'bg-green-500/5 border border-green-500/20' : 'bg-white/3 border border-white/5 hover:border-white/10'} animate-slide-in`}>
-      <div className="flex-shrink-0 mt-0.5">
+    <Item $completed={mission.isCompleted}>
+      <div style={{ flexShrink: 0, marginTop: 2 }}>
         {showCheckbox ? (
-          <button
-            onClick={() => onToggle(mission.id, !mission.isCompleted)}
-            className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-              mission.isCompleted ? 'bg-green-500 border-green-500' : 'border-gray-600 hover:border-gray-400'
-            }`}
+          <CheckButton
+            $completed={mission.isCompleted}
+            onClick={() => onToggle!(mission.id, !mission.isCompleted)}
           >
-            {mission.isCompleted && <span className="text-white text-xs">✓</span>}
-          </button>
+            {mission.isCompleted && <span style={{ color: 'white', fontSize: 11 }}>✓</span>}
+          </CheckButton>
         ) : (
-          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-            mission.isCompleted ? 'bg-green-500 border-green-500' : 'border-gray-700'
-          }`}>
-            {mission.isCompleted && <span className="text-white text-xs">✓</span>}
-          </div>
+          <CheckDisplay $completed={mission.isCompleted}>
+            {mission.isCompleted && <span style={{ color: 'white', fontSize: 11 }}>✓</span>}
+          </CheckDisplay>
         )}
       </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm">{icon}</span>
-          <span className={`text-sm font-medium ${mission.isCompleted ? 'line-through text-gray-500' : 'text-white'}`}>
-            {mission.title}
-          </span>
-          {!mission.isRequiredForPhase && (
-            <span className="text-xs bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded">opcional</span>
-          )}
-          <span className="text-xs bg-white/5 text-gray-500 px-1.5 py-0.5 rounded">{label}</span>
-        </div>
-        {!compact && (
-          <p className="text-xs text-gray-500 mt-1 leading-relaxed">{mission.description}</p>
-        )}
-        {target && (
-          <p className="text-xs text-violet-400 mt-1 font-medium">{target}</p>
-        )}
+
+      <Body>
+        <TitleRow>
+          <span style={{ fontSize: 14 }}>{icon}</span>
+          <MissionTitle $completed={mission.isCompleted}>{mission.title}</MissionTitle>
+          {!mission.isRequiredForPhase && <BadgeOptional>opcional</BadgeOptional>}
+          <BadgeType>{label}</BadgeType>
+        </TitleRow>
+
+        {!compact && <Description>{mission.description}</Description>}
+        {target && <Target>{target}</Target>}
+
         {mission.missionType === 'habit' && !mission.isCompleted && (
-          <div className="mt-2">
+          <div style={{ marginTop: 8 }}>
             {!mission.startedAt && onStart ? (
-              <button
-                onClick={() => onStart(mission.id)}
-                className="text-xs px-3 py-1 rounded-lg bg-violet-600/20 hover:bg-violet-600/40 text-violet-400 border border-violet-500/30 transition-colors"
-              >
-                Iniciar rastreamento
-              </button>
+              <StartButton onClick={() => onStart(mission.id)}>Iniciar rastreamento</StartButton>
             ) : mission.startedAt ? (
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs text-gray-500">
+              <HabitProgress>
+                <HabitProgressRow>
                   <span>Progresso do hábito</span>
                   <span>{Math.min(elapsedDays!, requiredDays)}/{requiredDays} dias</span>
-                </div>
-                <div className="w-full bg-white/5 rounded-full h-1.5">
-                  <div
-                    className="bg-violet-500 h-1.5 rounded-full transition-all"
-                    style={{ width: `${Math.min((elapsedDays! / requiredDays) * 100, 100)}%` }}
-                  />
-                </div>
+                </HabitProgressRow>
+                <HabitTrack>
+                  <HabitFill $width={Math.min((elapsedDays! / requiredDays) * 100, 100)} />
+                </HabitTrack>
                 {habitCanComplete && (
-                  <p className="text-xs text-green-400">Tempo cumprido — marque como concluída acima</p>
+                  <span style={{ fontSize: 12, color: '#22c55e' }}>Tempo cumprido — marque como concluída acima</span>
                 )}
-              </div>
+              </HabitProgress>
             ) : null}
           </div>
         )}
+
         {mission.completedAt && (
-          <p className="text-xs text-green-500/70 mt-1">
+          <CompletedDate>
             ✓ Concluída em {new Date(mission.completedAt).toLocaleDateString('pt-BR')}
-          </p>
+          </CompletedDate>
         )}
-      </div>
-    </div>
+      </Body>
+    </Item>
   )
 }

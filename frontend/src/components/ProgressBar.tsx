@@ -1,3 +1,5 @@
+import styled from 'styled-components'
+
 interface ProgressBarProps {
   percent: number
   color?: string
@@ -5,18 +7,41 @@ interface ProgressBarProps {
   showLabel?: boolean
 }
 
-export default function ProgressBar({ percent, color = 'bg-violet-500', height = 'h-2', showLabel = false }: ProgressBarProps) {
+const Track = styled.div<{ $height: string }>`
+  width: 100%;
+  height: ${p => p.$height};
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+`
+
+const Fill = styled.div<{ $width: number; $color: string; $height: string }>`
+  height: ${p => p.$height};
+  border-radius: 999px;
+  background: ${p => p.$color};
+  width: ${p => Math.min(p.$width, 100)}%;
+  transition: width 0.5s ease;
+`
+
+const LabelText = styled.div`
+  text-align: right;
+  font-size: 12px;
+  color: ${p => p.theme.colors.gray};
+  margin-top: 4px;
+`
+
+export default function ProgressBar({
+  percent,
+  color = '#7c3aed',
+  height = '8px',
+  showLabel = false,
+}: ProgressBarProps) {
   return (
-    <div className="w-full">
-      <div className={`w-full ${height} rounded-full bg-white/10 overflow-hidden`}>
-        <div
-          className={`${height} rounded-full ${color} transition-all duration-500`}
-          style={{ width: `${Math.min(percent, 100)}%` }}
-        />
-      </div>
-      {showLabel && (
-        <div className="text-right text-xs text-gray-500 mt-1">{percent}%</div>
-      )}
+    <div style={{ width: '100%' }}>
+      <Track $height={height}>
+        <Fill $width={percent} $color={color} $height={height} />
+      </Track>
+      {showLabel && <LabelText>{percent}%</LabelText>}
     </div>
   )
 }

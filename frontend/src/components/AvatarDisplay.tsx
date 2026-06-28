@@ -1,3 +1,5 @@
+import styled from 'styled-components'
+
 interface AvatarDisplayProps {
   phaseId: number
   size?: 'sm' | 'md' | 'lg'
@@ -10,24 +12,44 @@ const PHASE_AVATARS: Record<number, string> = {
   4: '🦅', 5: '🔥', 6: '👑', 7: '🏆', 8: '💎',
 }
 
-const SIZES: Record<string, string> = {
-  sm: 'text-3xl w-12 h-12',
-  md: 'text-5xl w-20 h-20',
-  lg: 'text-7xl w-28 h-28',
+const SIZE_MAP = {
+  sm: { fontSize: '28px', width: '48px', height: '48px' },
+  md: { fontSize: '44px', width: '80px', height: '80px' },
+  lg: { fontSize: '64px', width: '112px', height: '112px' },
 }
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+`
+
+const Circle = styled.div<{ $size: typeof SIZE_MAP['sm'] }>`
+  width: ${p => p.$size.width};
+  height: ${p => p.$size.height};
+  font-size: ${p => p.$size.fontSize};
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+const TitleText = styled.span`
+  font-size: 12px;
+  color: ${p => p.theme.colors.gray};
+`
 
 export default function AvatarDisplay({ phaseId, size = 'md', showTitle = false, phaseName }: AvatarDisplayProps) {
   const avatar = PHASE_AVATARS[phaseId] ?? '🌱'
-  const sizeClass = SIZES[size]
+  const sizeStyle = SIZE_MAP[size]
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className={`${sizeClass} rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center`}>
-        {avatar}
-      </div>
-      {showTitle && phaseName && (
-        <span className="text-xs text-gray-400">{phaseName}</span>
-      )}
-    </div>
+    <Wrapper>
+      <Circle $size={sizeStyle}>{avatar}</Circle>
+      {showTitle && phaseName && <TitleText>{phaseName}</TitleText>}
+    </Wrapper>
   )
 }

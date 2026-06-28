@@ -1,12 +1,7 @@
-import { Phase, PHASE_BORDER_COLORS, PHASE_TEXT_COLORS } from '../types'
+import styled from 'styled-components'
+import { Phase, PHASE_HEX_COLORS } from '../types'
 import ProgressBar from './ProgressBar'
 import MissionItem from './MissionItem'
-
-const PROGRESS_BAR_COLORS: Record<string, string> = {
-  gray: 'bg-gray-400', green: 'bg-green-400', blue: 'bg-blue-400',
-  teal: 'bg-teal-400', purple: 'bg-violet-500', orange: 'bg-orange-400',
-  yellow: 'bg-yellow-400', amber: 'bg-amber-400', red: 'bg-red-400',
-}
 
 interface PhaseCardProps {
   phase: Phase
@@ -16,52 +11,156 @@ interface PhaseCardProps {
   onToggleMission?: (id: number, completed: boolean) => void
 }
 
+const Card = styled.div<{ $color: string; $isActive: boolean; $isLocked: boolean }>`
+  border-radius: 12px;
+  border-left: 4px solid ${p => p.$color};
+  border-right: 1px solid ${p => p.theme.colors.tertiary};
+  border-top: 1px solid ${p => p.theme.colors.tertiary};
+  border-bottom: 1px solid ${p => p.theme.colors.tertiary};
+  background: ${p => p.theme.colors.secondary};
+  opacity: ${p => p.$isLocked ? 0.6 : 1};
+  outline: ${p => p.$isActive ? `1px solid ${p.theme.colors.quaternary}50` : 'none'};
+`
+
+const Header = styled.button`
+  width: 100%;
+  text-align: left;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: 0 12px 12px 0;
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+`
+
+const PhaseIcon = styled.div<{ $locked: boolean }>`
+  font-size: 28px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  filter: ${p => p.$locked ? 'grayscale(1) opacity(0.5)' : 'none'};
+`
+
+const HeaderBody = styled.div`
+  flex: 1;
+  min-width: 0;
+`
+
+const TopRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+`
+
+const PhaseName = styled.span<{ $color: string }>`
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: ${p => p.$color};
+`
+
+const StatusBadge = styled.span<{ $variant: 'completed' | 'active' | 'locked' }>`
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  ${p => p.$variant === 'completed' && `background: rgba(34,197,94,0.2); color: #22c55e;`}
+  ${p => p.$variant === 'active' && `background: rgba(124,58,237,0.2); color: #a78bfa;`}
+  ${p => p.$variant === 'locked' && `background: rgba(255,255,255,0.05); color: #4b5563;`}
+`
+
+const PhaseTitle = styled.div`
+  font-weight: 600;
+  color: ${p => p.theme.colors.white};
+  margin-top: 2px;
+`
+
+const PhaseSubtitle = styled.div`
+  font-size: 14px;
+  color: ${p => p.theme.colors.gray};
+`
+
+const CompletedDate = styled.div`
+  font-size: 12px;
+  color: rgba(34, 197, 94, 0.7);
+  margin-top: 4px;
+`
+
+const Chevron = styled.div`
+  font-size: 13px;
+  color: #4b5563;
+  flex-shrink: 0;
+`
+
+const Body = styled.div`
+  padding: 0 16px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+`
+
+const FlavorText = styled.p`
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 12px 0;
+  font-style: italic;
+`
+
+const Description = styled.p`
+  font-size: 14px;
+  color: ${p => p.theme.colors.gray};
+  margin-bottom: 16px;
+`
+
+const MissionList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
 export default function PhaseCard({ phase, minimumWage = 1412, expanded = false, onToggleExpand, onToggleMission }: PhaseCardProps) {
-  const borderColor = PHASE_BORDER_COLORS[phase.color] || 'border-l-gray-400'
-  const textColor = PHASE_TEXT_COLORS[phase.color] || 'text-gray-400'
-  const barColor = PROGRESS_BAR_COLORS[phase.color] || 'bg-gray-400'
+  const color = PHASE_HEX_COLORS[phase.color] || PHASE_HEX_COLORS.gray
   const isLocked = phase.status === 'locked'
   const isCompleted = phase.status === 'completed'
   const isActive = phase.status === 'active'
 
   return (
-    <div className={`rounded-xl border-l-4 ${borderColor} ${isLocked ? 'opacity-60' : ''} ${isActive ? 'ring-1 ring-violet-500/50' : ''}`}
-      style={{ background: '#1a1a2e', borderRight: '1px solid #2d2d4e', borderTop: '1px solid #2d2d4e', borderBottom: '1px solid #2d2d4e' }}>
-      <button
-        onClick={onToggleExpand}
-        className="w-full text-left p-4 flex items-start gap-4 hover:bg-white/3 transition-colors rounded-r-xl"
-      >
-        <div className={`text-3xl flex-shrink-0 mt-0.5 ${isLocked ? 'grayscale opacity-50' : ''}`}>
-          {phase.achievementIcon}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className={`text-xs font-bold uppercase tracking-wider ${textColor}`}>{phase.name}</span>
-            {isCompleted && <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">✓ Concluída</span>}
-            {isActive && <span className="text-xs bg-violet-500/20 text-violet-400 px-2 py-0.5 rounded-full">● Atual</span>}
-            {isLocked && <span className="text-xs bg-white/5 text-gray-600 px-2 py-0.5 rounded-full">🔒 Bloqueada</span>}
-          </div>
-          <div className="text-white font-semibold mt-0.5">{phase.title}</div>
-          <div className="text-gray-500 text-sm">{phase.subtitle}</div>
+    <Card $color={color} $isActive={isActive} $isLocked={isLocked}>
+      <Header onClick={onToggleExpand}>
+        <PhaseIcon $locked={isLocked}>{phase.achievementIcon}</PhaseIcon>
+        <HeaderBody>
+          <TopRow>
+            <PhaseName $color={color}>{phase.name}</PhaseName>
+            {isCompleted && <StatusBadge $variant="completed">✓ Concluída</StatusBadge>}
+            {isActive && <StatusBadge $variant="active">● Atual</StatusBadge>}
+            {isLocked && <StatusBadge $variant="locked">🔒 Bloqueada</StatusBadge>}
+          </TopRow>
+          <PhaseTitle>{phase.title}</PhaseTitle>
+          <PhaseSubtitle>{phase.subtitle}</PhaseSubtitle>
           {(isActive || isCompleted) && (
-            <div className="mt-2">
-              <ProgressBar percent={phase.progressPercent} color={barColor} showLabel />
+            <div style={{ marginTop: 8 }}>
+              <ProgressBar percent={phase.progressPercent} color={color} height="8px" showLabel />
             </div>
           )}
           {isCompleted && phase.completedAt && (
-            <div className="text-xs text-green-500/70 mt-1">
+            <CompletedDate>
               Concluída em {new Date(phase.completedAt).toLocaleDateString('pt-BR')}
-            </div>
+            </CompletedDate>
           )}
-        </div>
-        <div className="text-gray-600 text-sm flex-shrink-0">{expanded ? '▲' : '▼'}</div>
-      </button>
+        </HeaderBody>
+        <Chevron>{expanded ? '▲' : '▼'}</Chevron>
+      </Header>
 
       {expanded && (
-        <div className="px-4 pb-4 border-t border-white/5">
-          <p className="text-gray-400 text-sm my-3 italic">&quot;{phase.flavorText}&quot;</p>
-          <p className="text-gray-500 text-sm mb-4">{phase.description}</p>
-          <div className="space-y-2">
+        <Body>
+          <FlavorText>&quot;{phase.flavorText}&quot;</FlavorText>
+          <Description>{phase.description}</Description>
+          <MissionList>
             {phase.missions.map(mission => (
               <MissionItem
                 key={mission.id}
@@ -70,9 +169,9 @@ export default function PhaseCard({ phase, minimumWage = 1412, expanded = false,
                 onToggle={isActive ? onToggleMission : undefined}
               />
             ))}
-          </div>
-        </div>
+          </MissionList>
+        </Body>
       )}
-    </div>
+    </Card>
   )
 }
