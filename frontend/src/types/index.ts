@@ -86,6 +86,7 @@ export interface PublicProfile {
 
 export const PHASE_HEX_COLORS: Record<string, string> = {
   gray:   '#6b7280',
+  red:    '#ef4444',
   green:  '#22c55e',
   blue:   '#3b82f6',
   teal:   '#14b8a6',
@@ -93,7 +94,7 @@ export const PHASE_HEX_COLORS: Record<string, string> = {
   orange: '#f97316',
   yellow: '#eab308',
   amber:  '#f59e0b',
-  red:    '#ef4444',
+  rose:   '#f43f5e',
 }
 
 export const MISSION_TYPE_LABELS: Record<string, string> = {

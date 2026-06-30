@@ -2,7 +2,7 @@
 
 ## Propósito
 
-RPG de progressão financeira. O jogador avança por 9 fases completando missões objetivas que representam marcos reais da jornada rumo à independência financeira. O foco é mostrar que a liberdade financeira é lenta e gradual — e que essa lentidão é parte do jogo, não um problema.
+RPG de progressão financeira. O jogador avança por 10 fases completando missões objetivas que representam marcos reais da jornada rumo à independência financeira — começando pela eliminação de dívidas. O foco é mostrar que a liberdade financeira é lenta e gradual — e que essa lentidão é parte do jogo, não um problema.
 
 O desafio central é **mental**: o jogo existe para mostrar que pequenas vitórias acumuladas vencem o desejo de acelerar a qualquer custo.
 
@@ -65,19 +65,20 @@ Backend sobe em `http://localhost:3001`, frontend em `http://localhost:5173`.
 - O backend recalcula missões automáticas sempre que `/user/progress` (PUT) é chamado.
 - A fase do usuário está em `UserProgress.currentPhaseId`.
 
-### Fases (9 no total)
+### Fases (10 no total)
 
 | id | Slug | Range |
 |---|---|---|
-| 0 | tutorial | Do zero ao primeiro aporte |
-| 1 | recruta | R$ 1 – R$ 10.000 |
-| 2 | soldado | R$ 10k – R$ 50k |
-| 3 | veterano | R$ 50k – R$ 100k |
-| 4 | elite | R$ 100k – Ponto de Cruzamento |
-| 5 | especialista | Ponto de Cruzamento – R$ 750k |
-| 6 | mestre | R$ 750k – R$ 1M |
-| 7 | heroi | R$ 1,5M — renda passiva sustenta 100% |
-| 8 | lenda | R$ 2M+ — FIRE completo |
+| 0 | tutorial | Diagnóstico financeiro — consciência antes de ação |
+| 1 | quitacao | Eliminar dívidas com juros acima de 1,5% ao mês |
+| 2 | recruta | R$ 1 a R$ 10.000 |
+| 3 | soldado | R$ 10k a R$ 50k |
+| 4 | veterano | R$ 50k a R$ 100k — Clube dos 100k |
+| 5 | elite | R$ 100k ao Ponto de Cruzamento (~R$ 300k) |
+| 6 | especialista | R$ 300k a R$ 600k |
+| 7 | mestre | R$ 600k ao Primeiro Milhão |
+| 8 | heroi | R$ 1M a R$ 2M — Independência Financeira |
+| 9 | lenda | R$ 2M+ — FIRE Completo |
 
 ## Onde fica o conteúdo do jogo
 
@@ -102,7 +103,7 @@ O seed usa `upsert` — não apaga dados existentes de usuário.
 
 ## Convenções
 
-- Cores das fases: `gray | green | blue | teal | purple | orange | yellow | amber | red`
+- Cores das fases: `gray | red | green | blue | teal | purple | orange | yellow | amber | rose`
 - Todas as rotas da API ficam sob `/api`
 - Autenticação via JWT no header `Authorization: Bearer <token>`
 - O salário mínimo vem de `AppConfig` (chave `minimum_wage`) e é usado para calcular metas de renda passiva em SM
