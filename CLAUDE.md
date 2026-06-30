@@ -125,14 +125,24 @@ Seguir o padrão [Conventional Commits](https://github.com/iuricode/padroes-de-c
 
 ```
 <tipo>: <descrição curta no imperativo>
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ```
 
 Tipos aceitos: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `chore`, `perf`, `ci`, `build`
 
+Regras:
+- A linha `Co-Authored-By` é obrigatória quando o commit foi feito com auxílio do Claude
+- Nunca incluir `Claude-Session` ou qualquer outra metadado de sessão na mensagem
+
 Exemplos:
 ```
 feat: adicionar tela de histórico de missões
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+```
+```
 fix: corrigir calculo do ponto de cruzamento
-refactor: migrar CSS para sistema de tema da lcano-react-ui
-docs: atualizar CLAUDE.md com convencoes de commit e CSS
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ```
