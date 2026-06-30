@@ -45,7 +45,7 @@ const SectionTitle = styled.h2`
 
 const CountLabel = styled.span`
   font-size: 14px;
-  color: #4b5563;
+  color: ${p => p.theme.colors.gray}99;
 `
 
 const ShowcaseCard = styled.div`
@@ -66,7 +66,7 @@ const BadgeGrid = styled.div`
 
 const EmptyText = styled.p`
   text-align: center;
-  color: #4b5563;
+  color: ${p => p.theme.colors.gray}99;
   font-size: 14px;
   margin-top: 16px;
 `
@@ -94,7 +94,7 @@ const FilterButton = styled.button<{ $active: boolean }>`
   cursor: pointer;
   border: none;
   transition: all 0.15s;
-  background: ${p => p.$active ? p.theme.colors.quaternary : 'rgba(255,255,255,0.05)'};
+  background: ${p => p.$active ? p.theme.colors.quaternary : `${p.theme.colors.white}0d`};
   color: ${p => p.$active ? p.theme.colors.white : p.theme.colors.gray};
 
   &:hover { color: ${p => p.theme.colors.white}; }
@@ -103,7 +103,7 @@ const FilterButton = styled.button<{ $active: boolean }>`
 const EmptyCard = styled.div`
   text-align: center;
   padding: 48px;
-  color: #4b5563;
+  color: ${p => p.theme.colors.gray}99;
   background: ${p => p.theme.colors.secondary};
   border: 1px solid ${p => p.theme.colors.tertiary};
   border-radius: 12px;
@@ -150,7 +150,7 @@ const MetaText = styled.span`
 
 const MissionDate = styled.div`
   font-size: 12px;
-  color: rgba(34, 197, 94, 0.7);
+  color: ${p => p.theme.colors.success}b3;
   flex-shrink: 0;
 `
 

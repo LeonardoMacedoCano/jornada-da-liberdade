@@ -19,12 +19,12 @@ const Item = styled.div<{ $completed: boolean }>`
   animation: slideIn 0.3s ease-out;
 
   ${p => p.$completed ? `
-    background: rgba(34, 197, 94, 0.05);
-    border: 1px solid rgba(34, 197, 94, 0.2);
+    background: ${p.theme.colors.success}0d;
+    border: 1px solid ${p.theme.colors.success}33;
   ` : `
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    &:hover { border-color: rgba(255, 255, 255, 0.1); }
+    background: ${p.theme.colors.white}08;
+    border: 1px solid ${p.theme.colors.white}0d;
+    &:hover { border-color: ${p.theme.colors.white}1a; }
   `}
 `
 
@@ -33,8 +33,8 @@ const CheckButton = styled.button<{ $completed: boolean }>`
   width: 20px;
   height: 20px;
   border-radius: 4px;
-  border: 2px solid ${p => p.$completed ? '#22c55e' : '#4b5563'};
-  background: ${p => p.$completed ? '#22c55e' : 'transparent'};
+  border: 2px solid ${p => p.$completed ? p.theme.colors.success : p.theme.colors.gray};
+  background: ${p => p.$completed ? p.theme.colors.success : 'transparent'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,7 +43,7 @@ const CheckButton = styled.button<{ $completed: boolean }>`
   margin-top: 2px;
 
   &:hover {
-    border-color: ${p => p.$completed ? '#22c55e' : '#9ca3af'};
+    border-color: ${p => p.$completed ? p.theme.colors.success : p.theme.colors.white};
   }
 `
 
@@ -52,8 +52,8 @@ const CheckDisplay = styled.div<{ $completed: boolean }>`
   width: 20px;
   height: 20px;
   border-radius: 4px;
-  border: 2px solid ${p => p.$completed ? '#22c55e' : '#374151'};
-  background: ${p => p.$completed ? '#22c55e' : 'transparent'};
+  border: 2px solid ${p => p.$completed ? p.theme.colors.success : p.theme.colors.tertiary};
+  background: ${p => p.$completed ? p.theme.colors.success : 'transparent'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -75,21 +75,21 @@ const TitleRow = styled.div`
 const MissionTitle = styled.span<{ $completed: boolean }>`
   font-size: 14px;
   font-weight: 500;
-  color: ${p => p.$completed ? '#6b7280' : p.theme.colors.white};
+  color: ${p => p.$completed ? p.theme.colors.gray : p.theme.colors.white};
   text-decoration: ${p => p.$completed ? 'line-through' : 'none'};
 `
 
 const BadgeOptional = styled.span`
   font-size: 11px;
-  background: rgba(234, 179, 8, 0.2);
-  color: #eab308;
+  background: ${p => p.theme.colors.warning}33;
+  color: ${p => p.theme.colors.warning};
   padding: 2px 6px;
   border-radius: 4px;
 `
 
 const BadgeType = styled.span`
   font-size: 11px;
-  background: rgba(255, 255, 255, 0.05);
+  background: ${p => p.theme.colors.white}0d;
   color: ${p => p.theme.colors.gray};
   padding: 2px 6px;
   border-radius: 4px;
@@ -113,13 +113,13 @@ const StartButton = styled.button`
   font-size: 12px;
   padding: 4px 12px;
   border-radius: 8px;
-  background: rgba(124, 58, 237, 0.2);
+  background: ${p => p.theme.colors.quaternary}33;
   color: ${p => p.theme.colors.quaternary};
-  border: 1px solid rgba(124, 58, 237, 0.3);
+  border: 1px solid ${p => p.theme.colors.quaternary}4d;
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover { background: rgba(124, 58, 237, 0.4); }
+  &:hover { background: ${p => p.theme.colors.quaternary}66; }
 `
 
 const HabitProgress = styled.div`
@@ -138,7 +138,7 @@ const HabitProgressRow = styled.div`
 
 const HabitTrack = styled.div`
   width: 100%;
-  background: rgba(255, 255, 255, 0.05);
+  background: ${p => p.theme.colors.white}0d;
   border-radius: 999px;
   height: 6px;
   overflow: hidden;
@@ -154,7 +154,7 @@ const HabitFill = styled.div<{ $width: number }>`
 
 const CompletedDate = styled.p`
   font-size: 12px;
-  color: rgba(34, 197, 94, 0.7);
+  color: ${p => p.theme.colors.success}b3;
   margin-top: 4px;
 `
 
@@ -229,7 +229,7 @@ export default function MissionItem({ mission, minimumWage = 1412, onToggle, onS
                   <HabitFill $width={Math.min((elapsedDays! / requiredDays) * 100, 100)} />
                 </HabitTrack>
                 {habitCanComplete && (
-                  <span style={{ fontSize: 12, color: '#22c55e' }}>Tempo cumprido — marque como concluída acima</span>
+                  <CompletedDate>Tempo cumprido — marque como concluída acima</CompletedDate>
                 )}
               </HabitProgress>
             ) : null}

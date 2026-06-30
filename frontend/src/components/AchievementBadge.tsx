@@ -21,11 +21,11 @@ const Badge = styled.div<{ $color: string; $isLg: boolean; $locked: boolean }>`
   overflow: hidden;
 
   ${p => p.$locked ? `
-    background: #111120;
-    border: 1px solid #2d2d4e;
+    background: ${p.theme.colors.primary};
+    border: 1px solid ${p.theme.colors.tertiary};
     opacity: 0.45;
   ` : `
-    background: linear-gradient(135deg, ${p.$color}18 0%, #1a1a2e 60%);
+    background: linear-gradient(135deg, ${p.$color}18 0%, ${p.theme.colors.secondary} 60%);
     border: 1px solid ${p.$color}50;
     box-shadow: 0 0 18px ${p.$color}25, 0 0 40px ${p.$color}10, inset 0 1px 0 ${p.$color}30;
   `}
@@ -49,20 +49,20 @@ const Icon = styled.div<{ $color: string; $isLg: boolean; $locked: boolean }>`
 const Name = styled.div<{ $color: string; $isLg: boolean; $locked: boolean }>`
   font-weight: 700;
   font-size: ${p => p.$isLg ? '13px' : '11px'};
-  color: ${p => p.$locked ? '#4b5563' : p.$color};
+  color: ${p => p.$locked ? p.theme.colors.gray : p.$color};
   text-align: center;
 `
 
 const PhaseName = styled.div<{ $locked: boolean }>`
   font-size: 11px;
-  color: ${p => p.$locked ? '#374151' : '#9ca3af'};
+  color: ${p => p.$locked ? `${p.theme.colors.gray}60` : p.theme.colors.gray};
   margin-top: 2px;
   text-align: center;
 `
 
 const CompletedAt = styled.div`
   font-size: 11px;
-  color: #6b7280;
+  color: ${p => p.theme.colors.gray};
   margin-top: 4px;
   text-align: center;
 `

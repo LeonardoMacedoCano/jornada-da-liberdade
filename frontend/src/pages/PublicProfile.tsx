@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import styled from 'styled-components'
+import styled, { useTheme } from 'styled-components'
 import { Button } from 'lcano-react-ui'
 import api from '../services/api'
 import { PublicProfile as PublicProfileType, PHASE_HEX_COLORS } from '../types'
@@ -54,7 +54,7 @@ const ProfileHandle = styled.p`
 
 const ProfileMeta = styled.p`
   font-size: 14px;
-  color: #4b5563;
+  color: ${p => p.theme.colors.gray}99;
   margin-top: 8px;
 `
 
@@ -70,7 +70,7 @@ const SectionLabel = styled.h2`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #6b7280;
+  color: ${p => p.theme.colors.gray};
   margin-bottom: 16px;
 `
 
@@ -148,14 +148,14 @@ const CtaSection = styled.div`
 
 const CtaText = styled.p`
   font-size: 14px;
-  color: #4b5563;
+  color: ${p => p.theme.colors.gray}99;
 `
 
 const CtaLink = styled(Link)`
-  color: #a78bfa;
+  color: ${p => p.theme.colors.quaternary};
   text-decoration: none;
 
-  &:hover { color: #c4b5fd; }
+  &:hover { color: ${p => p.theme.colors.quaternary}cc; }
 `
 
 const NotFoundTitle = styled.h1`
@@ -168,8 +168,14 @@ const NotFoundText = styled.p`
   color: ${p => p.theme.colors.gray};
 `
 
+const LoadingText = styled.div`
+  color: ${p => p.theme.colors.quaternary};
+  animation: fadeIn 0.6s ease-out infinite alternate;
+`
+
 export default function PublicProfile() {
   const { username } = useParams<{ username: string }>()
+  const theme = useTheme()
   const [profile, setProfile] = useState<PublicProfileType | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -184,9 +190,7 @@ export default function PublicProfile() {
   if (loading) return (
     <Page>
       <Center>
-        <div style={{ color: '#7c3aed', animation: 'fadeIn 0.6s ease-out infinite alternate' }}>
-          Carregando perfil...
-        </div>
+        <LoadingText>Carregando perfil...</LoadingText>
       </Center>
     </Page>
   )
@@ -210,8 +214,8 @@ export default function PublicProfile() {
   if (!profile) return null
 
   const phaseColor = profile.currentPhase
-    ? (PHASE_HEX_COLORS[profile.currentPhase.color] || '#7c3aed')
-    : '#7c3aed'
+    ? (PHASE_HEX_COLORS[profile.currentPhase.color] || theme.colors.quaternary)
+    : theme.colors.quaternary
   const daysSinceStart = Math.floor((Date.now() - new Date(profile.createdAt).getTime()) / (1000 * 60 * 60 * 24))
 
   return (

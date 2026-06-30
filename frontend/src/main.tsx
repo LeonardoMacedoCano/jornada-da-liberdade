@@ -1,9 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { ThemeProvider, createGlobalStyle } from 'styled-components'
+import { createGlobalStyle } from 'styled-components'
 import { ContextMessageProvider } from 'lcano-react-ui'
 import App from './App'
 import { jornadaTheme } from './theme'
+import { ThemeControlProvider } from './contexts/ThemeControlContext'
 import './index.css'
 
 const GlobalStyle = createGlobalStyle`
@@ -11,6 +12,24 @@ const GlobalStyle = createGlobalStyle`
     background-color: ${p => p.theme.colors.primary};
     color: ${p => p.theme.colors.white};
     font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: ${p => p.theme.colors.tertiary} ${p => p.theme.colors.primary};
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: ${p => p.theme.colors.primary};
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: ${p => p.theme.colors.tertiary};
+    border-radius: 3px;
   }
 
   @keyframes fadeIn {
@@ -26,11 +45,11 @@ const GlobalStyle = createGlobalStyle`
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider theme={jornadaTheme}>
+    <ThemeControlProvider defaultTheme={jornadaTheme}>
       <GlobalStyle />
       <ContextMessageProvider>
         <App />
       </ContextMessageProvider>
-    </ThemeProvider>
+    </ThemeControlProvider>
   </React.StrictMode>
 )

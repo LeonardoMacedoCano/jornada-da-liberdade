@@ -58,9 +58,9 @@ const ErrorBox = styled.div`
   margin-bottom: 16px;
   padding: 12px;
   border-radius: 8px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #f87171;
+  background: ${p => p.theme.colors.warning}1a;
+  border: 1px solid ${p => p.theme.colors.warning}4d;
+  color: ${p => p.theme.colors.warning};
   font-size: 14px;
 `
 
@@ -78,7 +78,7 @@ const Field = styled.div`
 
 const Label = styled.label`
   font-size: 14px;
-  color: #9ca3af;
+  color: ${p => p.theme.colors.gray};
 `
 
 const Input = styled.input`
@@ -92,13 +92,13 @@ const Input = styled.input`
   outline: none;
   transition: border-color 0.15s;
 
-  &::placeholder { color: #374151; }
+  &::placeholder { color: ${p => p.theme.colors.gray}60; }
   &:focus { border-color: ${p => p.theme.colors.quaternary}; }
 `
 
 const Hint = styled.p`
   font-size: 12px;
-  color: #4b5563;
+  color: ${p => p.theme.colors.gray}99;
   margin-top: 4px;
 `
 
@@ -110,10 +110,10 @@ const Footer = styled.p`
 `
 
 const FooterLink = styled(Link)`
-  color: #a78bfa;
+  color: ${p => p.theme.colors.quaternary};
   text-decoration: none;
 
-  &:hover { color: #c4b5fd; }
+  &:hover { color: ${p => p.theme.colors.quaternary}cc; }
 `
 
 export default function Register() {
@@ -166,7 +166,7 @@ export default function Register() {
               />
             </Field>
             <Field>
-              <Label>Username <span style={{ color: '#4b5563' }}>(perfil público)</span></Label>
+              <Label>Username <span style={{ color: `inherit`, opacity: 0.5 }}>(perfil público)</span></Label>
               <Input
                 type="text"
                 value={username}

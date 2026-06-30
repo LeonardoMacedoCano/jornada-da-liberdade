@@ -30,8 +30,8 @@ const Circle = styled.div<{ $size: typeof SIZE_MAP['sm'] }>`
   height: ${p => p.$size.height};
   font-size: ${p => p.$size.fontSize};
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: ${p => p.theme.colors.tertiary}33;
+  border: 1px solid ${p => p.theme.colors.tertiary};
   display: flex;
   align-items: center;
   justify-content: center;

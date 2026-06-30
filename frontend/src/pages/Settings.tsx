@@ -56,7 +56,7 @@ const Field = styled.div`
 
 const Label = styled.label`
   font-size: 14px;
-  color: #9ca3af;
+  color: ${p => p.theme.colors.gray};
 `
 
 const Input = styled.input<{ $readOnly?: boolean }>`
@@ -72,13 +72,13 @@ const Input = styled.input<{ $readOnly?: boolean }>`
   opacity: ${p => p.$readOnly ? 0.5 : 1};
   cursor: ${p => p.$readOnly ? 'not-allowed' : 'text'};
 
-  &::placeholder { color: #374151; }
+  &::placeholder { color: ${p => p.theme.colors.gray}60; }
   &:focus { border-color: ${p => p.$readOnly ? p.theme.colors.tertiary : p.theme.colors.quaternary}; }
 `
 
 const Hint = styled.p`
   font-size: 12px;
-  color: #4b5563;
+  color: ${p => p.theme.colors.gray}99;
   margin-top: 2px;
 `
 
@@ -94,7 +94,7 @@ const ToggleTrack = styled.div<{ $on: boolean }>`
   width: 44px;
   height: 24px;
   border-radius: 999px;
-  background: ${p => p.$on ? p.theme.colors.quaternary : '#374151'};
+  background: ${p => p.$on ? p.theme.colors.quaternary : p.theme.colors.tertiary};
   position: relative;
   transition: background 0.2s;
   cursor: pointer;
@@ -213,7 +213,7 @@ export default function Settings() {
             <Hint>URL do perfil público: /p/{username}</Hint>
           </Field>
           <Field>
-            <Label>E-mail <span style={{ color: '#4b5563' }}>(somente leitura)</span></Label>
+            <Label>E-mail <span style={{ opacity: 0.5 }}>(somente leitura)</span></Label>
             <Input type="email" value={user?.email || ''} readOnly $readOnly />
           </Field>
 

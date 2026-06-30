@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react'
-import styled from 'styled-components'
+import styled, { useTheme } from 'styled-components'
 import { Button, Loading, useMessage } from 'lcano-react-ui'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
@@ -36,7 +36,7 @@ const UserPhase = styled.p`
 
 const UserHandle = styled.p`
   font-size: 14px;
-  color: #4b5563;
+  color: ${p => p.theme.colors.gray}99;
   margin-top: 4px;
 `
 
@@ -104,7 +104,7 @@ const MissionsSectionLabel = styled.h3`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #6b7280;
+  color: ${p => p.theme.colors.gray};
   margin-bottom: 12px;
 `
 
@@ -132,7 +132,7 @@ const Input = styled.input`
   outline: none;
   transition: border-color 0.15s;
 
-  &::placeholder { color: #374151; }
+  &::placeholder { color: ${p => p.theme.colors.gray}60; }
   &:focus { border-color: ${p => p.theme.colors.quaternary}; }
 `
 
@@ -160,13 +160,13 @@ const IndicatorValue = styled.span<{ $accent?: boolean; $success?: boolean }>`
 `
 
 const Divider = styled.div`
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid ${p => p.theme.colors.white}0d;
   padding-top: 8px;
   margin-top: 4px;
 `
 
 const ErrorText = styled.p`
-  color: #f87171;
+  color: ${p => p.theme.colors.warning};
   font-size: 14px;
 `
 
@@ -175,11 +175,6 @@ const LoadingWrap = styled.div`
   align-items: center;
   justify-content: center;
   height: 256px;
-`
-
-const LoadingLabel = styled.div`
-  color: ${p => p.theme.colors.quaternary};
-  animation: fadeIn 0.6s ease-out infinite alternate;
 `
 
 const FIELDS = [
@@ -191,6 +186,7 @@ const FIELDS = [
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const theme = useTheme()
   const { showSuccess, showError } = useMessage()
   const [phase, setPhase] = useState<Phase | null>(null)
   const [progress, setProgress] = useState<UserProgress | null>(null)
@@ -303,7 +299,7 @@ export default function Dashboard() {
     </LoadingWrap>
   )
 
-  const phaseColor = phase ? (PHASE_HEX_COLORS[phase.color] || '#7c3aed') : '#7c3aed'
+  const phaseColor = phase ? (PHASE_HEX_COLORS[phase.color] || theme.colors.quaternary) : theme.colors.quaternary
 
   return (
     <Page>
@@ -407,8 +403,8 @@ export default function Dashboard() {
               </IndicatorRow>
               <Divider>
                 <IndicatorRow>
-                  <IndicatorLabel style={{ color: '#4b5563' }}>Salário Mínimo atual</IndicatorLabel>
-                  <span style={{ fontSize: 12, color: '#6b7280' }}>
+                  <IndicatorLabel style={{ opacity: 0.6 }}>Salário Mínimo atual</IndicatorLabel>
+                  <span style={{ fontSize: 12, color: 'inherit', opacity: 0.5 }}>
                     R$ {minimumWage.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </span>
                 </IndicatorRow>

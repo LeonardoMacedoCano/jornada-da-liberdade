@@ -46,7 +46,7 @@ const StyledNavLink = styled(NavLink)`
 
   &:hover {
     color: ${p => p.theme.colors.white};
-    background: rgba(255, 255, 255, 0.05);
+    background: ${p => p.theme.colors.white}0d;
   }
 
   &.active {
@@ -90,7 +90,7 @@ const LogoutButton = styled.button`
 
   &:hover {
     color: ${p => p.theme.colors.white};
-    background: rgba(255, 255, 255, 0.05);
+    background: ${p => p.theme.colors.white}0d;
   }
 `
 

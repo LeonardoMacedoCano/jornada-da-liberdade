@@ -8,7 +8,7 @@ O desafio central é **mental**: o jogo existe para mostrar que pequenas vitóri
 
 ## Stack
 
-- **Frontend**: React 18 + Vite + TypeScript + Tailwind CSS (`/frontend`)
+- **Frontend**: React 18 + Vite + TypeScript + styled-components + lcano-react-ui (`/frontend`)
 - **Backend**: Node.js + Express + TypeScript + Prisma ORM (`/backend`)
 - **Banco**: PostgreSQL
 - **Deploy**: Docker Compose
@@ -41,7 +41,7 @@ Backend sobe em `http://localhost:3001`, frontend em `http://localhost:5173`.
     └── src/
         ├── pages/            # Dashboard, Roadmap, History, Settings, Login, Register, PublicProfile
         ├── components/       # AchievementBadge, MissionItem, PhaseCard, ProgressBar, ...
-        ├── contexts/         # AuthContext (JWT)
+        ├── contexts/         # AuthContext (JWT) + ThemeControlContext
         ├── services/api.ts   # Axios configurado
         └── types/index.ts    # Interfaces + constantes de UI
 ```
@@ -107,3 +107,32 @@ O seed usa `upsert` — não apaga dados existentes de usuário.
 - Autenticação via JWT no header `Authorization: Bearer <token>`
 - O salário mínimo vem de `AppConfig` (chave `minimum_wage`) e é usado para calcular metas de renda passiva em SM
 - Perfil público em `/p/:username` — nunca expõe dados financeiros a não ser que `showFinancialValues = true`
+
+## Estilo CSS
+
+O frontend usa **styled-components** com o tema da biblioteca `lcano-react-ui` gerenciado pelo `ThemeControlProvider`.
+
+**Regras obrigatórias:**
+- Nunca usar hex hardcoded (`#fff`, `#1a1a2e`) ou `rgba`/`rgb` com valores literais fora do `theme.ts`
+- Toda cor deve vir de `theme.colors.*` (ex: `${p => p.theme.colors.primary}`)
+- Para variações de opacidade, anexar o sufixo hex à cor do tema (ex: `${p => p.theme.colors.white}0d` para 5%)
+- A única exceção são `PHASE_HEX_COLORS` em `types/index.ts`, que representam cores específicas de cada fase do jogo
+- O tema em `frontend/src/theme.ts` é a única fonte da verdade para valores de cor
+
+## Commits
+
+Seguir o padrão [Conventional Commits](https://github.com/iuricode/padroes-de-commits), sem ícones, em uma única linha:
+
+```
+<tipo>: <descrição curta no imperativo>
+```
+
+Tipos aceitos: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `chore`, `perf`, `ci`, `build`
+
+Exemplos:
+```
+feat: adicionar tela de histórico de missões
+fix: corrigir calculo do ponto de cruzamento
+refactor: migrar CSS para sistema de tema da lcano-react-ui
+docs: atualizar CLAUDE.md com convencoes de commit e CSS
+```

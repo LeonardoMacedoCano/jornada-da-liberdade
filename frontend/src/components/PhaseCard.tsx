@@ -36,7 +36,7 @@ const Header = styled.button`
   transition: background 0.15s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: ${p => p.theme.colors.white}08;
   }
 `
 
@@ -71,9 +71,18 @@ const StatusBadge = styled.span<{ $variant: 'completed' | 'active' | 'locked' }>
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 999px;
-  ${p => p.$variant === 'completed' && `background: rgba(34,197,94,0.2); color: #22c55e;`}
-  ${p => p.$variant === 'active' && `background: rgba(124,58,237,0.2); color: #a78bfa;`}
-  ${p => p.$variant === 'locked' && `background: rgba(255,255,255,0.05); color: #4b5563;`}
+  ${p => p.$variant === 'completed' && `
+    background: ${p.theme.colors.success}33;
+    color: ${p.theme.colors.success};
+  `}
+  ${p => p.$variant === 'active' && `
+    background: ${p.theme.colors.quaternary}33;
+    color: ${p.theme.colors.quaternary};
+  `}
+  ${p => p.$variant === 'locked' && `
+    background: ${p.theme.colors.white}0d;
+    color: ${p.theme.colors.gray}99;
+  `}
 `
 
 const PhaseTitle = styled.div`
@@ -89,24 +98,24 @@ const PhaseSubtitle = styled.div`
 
 const CompletedDate = styled.div`
   font-size: 12px;
-  color: rgba(34, 197, 94, 0.7);
+  color: ${p => p.theme.colors.success}b3;
   margin-top: 4px;
 `
 
 const Chevron = styled.div`
   font-size: 13px;
-  color: #4b5563;
+  color: ${p => p.theme.colors.gray}99;
   flex-shrink: 0;
 `
 
 const Body = styled.div`
   padding: 0 16px 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid ${p => p.theme.colors.white}0d;
 `
 
 const FlavorText = styled.p`
   font-size: 14px;
-  color: #9ca3af;
+  color: ${p => p.theme.colors.gray};
   margin: 12px 0;
   font-style: italic;
 `

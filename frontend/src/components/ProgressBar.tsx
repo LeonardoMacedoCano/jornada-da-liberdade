@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { useTheme } from 'styled-components'
 
 interface ProgressBarProps {
   percent: number
@@ -11,7 +11,7 @@ const Track = styled.div<{ $height: string }>`
   width: 100%;
   height: ${p => p.$height};
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: ${p => p.theme.colors.white}14;
   overflow: hidden;
 `
 
@@ -32,14 +32,17 @@ const LabelText = styled.div`
 
 export default function ProgressBar({
   percent,
-  color = '#7c3aed',
+  color,
   height = '8px',
   showLabel = false,
 }: ProgressBarProps) {
+  const theme = useTheme()
+  const barColor = color ?? theme.colors.quaternary
+
   return (
     <div style={{ width: '100%' }}>
       <Track $height={height}>
-        <Fill $width={percent} $color={color} $height={height} />
+        <Fill $width={percent} $color={barColor} $height={height} />
       </Track>
       {showLabel && <LabelText>{percent}%</LabelText>}
     </div>

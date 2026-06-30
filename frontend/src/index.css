@@ -2,19 +2,4 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  scrollbar-width: thin;
-  scrollbar-color: #2d2d4e #0f0f1a;
-}
-
-*::-webkit-scrollbar {
-  width: 6px;
-}
-
-*::-webkit-scrollbar-track {
-  background: #0f0f1a;
-}
-
-*::-webkit-scrollbar-thumb {
-  background-color: #2d2d4e;
-  border-radius: 3px;
 }

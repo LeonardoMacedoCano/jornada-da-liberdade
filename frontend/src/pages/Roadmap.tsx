@@ -41,7 +41,7 @@ const Connector = styled.div`
   top: 100%;
   height: 12px;
   width: 2px;
-  background: rgba(255, 255, 255, 0.08);
+  background: ${p => p.theme.colors.white}14;
   z-index: 0;
 `
 
