@@ -91,7 +91,7 @@ export default function Roadmap() {
       <PageHeader>
         <Title>Roadmap da Jornada</Title>
         <Subtitle>
-          {completedCount}/9 fases concluídas — Todas as fases são visíveis para motivar seu avanço
+          {completedCount}/{phases.length} fases concluídas — Todas as fases são visíveis para motivar seu avanço
         </Subtitle>
       </PageHeader>
 
