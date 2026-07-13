@@ -224,7 +224,7 @@ export default function History() {
       <section>
         <SectionHeader>
           <SectionTitle>Vitrine de Conquistas</SectionTitle>
-          <CountLabel>{unlockedCount}/9 desbloqueadas</CountLabel>
+          <CountLabel>{unlockedCount}/{phases.length} desbloqueadas</CountLabel>
         </SectionHeader>
 
         <ShowcaseCard>
