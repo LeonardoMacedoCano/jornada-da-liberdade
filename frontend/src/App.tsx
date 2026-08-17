@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { useTranslation } from 'react-i18next'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Login from './pages/Login'
@@ -9,6 +10,7 @@ import History from './pages/History'
 import Settings from './pages/Settings'
 import PublicProfile from './pages/PublicProfile'
 import Layout from './components/Layout'
+import LanguageModal from './components/LanguageModal'
 
 const FullScreen = styled.div`
   min-height: 100vh;
@@ -26,12 +28,15 @@ const LoadingText = styled.div`
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
+  const { t } = useTranslation()
   if (loading) return (
     <FullScreen>
-      <LoadingText>Carregando...</LoadingText>
+      <LoadingText>{t('common.loading')}</LoadingText>
     </FullScreen>
   )
-  return user ? <>{children}</> : <Navigate to="/login" replace />
+  if (!user) return <Navigate to="/login" replace />
+  if (!user.language) return <LanguageModal />
+  return <>{children}</>
 }
 
 function PublicOnlyRoute({ children }: { children: React.ReactNode }) {

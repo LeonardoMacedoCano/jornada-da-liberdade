@@ -4,6 +4,7 @@ export interface User {
   email: string
   username: string
   avatarType: string
+  language: string | null
   sharePublicProfile: boolean
   showFinancialValues: boolean
   createdAt: string
@@ -95,14 +96,6 @@ export const PHASE_HEX_COLORS: Record<string, string> = {
   yellow: '#eab308',
   amber:  '#f59e0b',
   rose:   '#f43f5e',
-}
-
-export const MISSION_TYPE_LABELS: Record<string, string> = {
-  portfolio_value:  'Patrimônio',
-  passive_income_sm: 'Renda Passiva (SM)',
-  crossover:        'Ponto de Cruzamento',
-  behavioral:       'Comportamental',
-  habit:            'Hábito',
 }
 
 export const MISSION_TYPE_ICONS: Record<string, string> = {

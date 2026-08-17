@@ -5,6 +5,7 @@ import { ContextMessageProvider } from 'lcano-react-ui'
 import App from './App'
 import { jornadaTheme } from './theme'
 import { ThemeControlProvider } from './contexts/ThemeControlContext'
+import './i18n'
 import './index.css'
 
 const GlobalStyle = createGlobalStyle`
