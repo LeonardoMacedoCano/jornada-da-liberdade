@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { Button } from 'lcano-react-ui'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 
 const Page = styled.div`
@@ -112,6 +113,7 @@ const FooterLink = styled(Link)`
 
 export default function Login() {
   const { login } = useAuth()
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -125,7 +127,7 @@ export default function Login() {
       await login(email, password)
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-      setError(msg || 'Erro ao fazer login')
+      setError(msg || t('auth.login.errorGeneric'))
     } finally {
       setLoading(false)
     }
@@ -136,25 +138,25 @@ export default function Login() {
       <Wrapper>
         <Hero>
           <HeroIcon>💎</HeroIcon>
-          <HeroTitle>Jornada da Liberdade</HeroTitle>
-          <HeroSub>Sua jornada rumo à independência financeira</HeroSub>
+          <HeroTitle>{t('auth.login.heroTitle')}</HeroTitle>
+          <HeroSub>{t('auth.login.heroSub')}</HeroSub>
         </Hero>
         <Card>
-          <CardTitle>Entrar</CardTitle>
+          <CardTitle>{t('auth.login.cardTitle')}</CardTitle>
           {error && <ErrorBox>{error}</ErrorBox>}
           <Form onSubmit={handleSubmit}>
             <Field>
-              <Label>E-mail</Label>
+              <Label>{t('auth.login.email')}</Label>
               <Input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                placeholder="seu@email.com"
+                placeholder={t('auth.login.emailPlaceholder')}
               />
             </Field>
             <Field>
-              <Label>Senha</Label>
+              <Label>{t('auth.login.password')}</Label>
               <Input
                 type="password"
                 value={password}
@@ -167,14 +169,14 @@ export default function Login() {
               type="submit"
               variant="quaternary"
               width="100%"
-              description={loading ? 'Entrando...' : 'Entrar'}
+              description={loading ? t('auth.login.submitting') : t('auth.login.submit')}
               disabled={loading}
               style={{ borderRadius: '8px', padding: '12px 16px', fontSize: '14px', fontWeight: '600' }}
             />
           </Form>
           <Footer>
-            Não tem conta?{' '}
-            <FooterLink to="/register">Criar conta</FooterLink>
+            {t('auth.login.noAccount')}{' '}
+            <FooterLink to="/register">{t('auth.login.createAccount')}</FooterLink>
           </Footer>
         </Card>
       </Wrapper>

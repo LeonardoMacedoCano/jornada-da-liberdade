@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Loading } from 'lcano-react-ui'
+import { useTranslation } from 'react-i18next'
 import api from '../services/api'
-import { Phase, Mission, MISSION_TYPE_ICONS, MISSION_TYPE_LABELS } from '../types'
+import { Phase, Mission, MISSION_TYPE_ICONS } from '../types'
 import AchievementBadge from '../components/AchievementBadge'
 
 interface CompletedMission extends Mission {
@@ -168,6 +169,7 @@ const LoadingWrap = styled.div`
 `
 
 export default function History() {
+  const { t, i18n } = useTranslation()
   const [phases, setPhases] = useState<Phase[]>([])
   const [completedMissions, setCompletedMissions] = useState<CompletedMission[]>([])
   const [filterPhaseId, setFilterPhaseId] = useState<number | null>(null)
@@ -217,14 +219,14 @@ export default function History() {
   return (
     <Page>
       <PageHeader>
-        <Title>Histórico</Title>
-        <Subtitle>Conquistas desbloqueadas e missões concluídas</Subtitle>
+        <Title>{t('history.title')}</Title>
+        <Subtitle>{t('history.subtitle')}</Subtitle>
       </PageHeader>
 
       <section>
         <SectionHeader>
-          <SectionTitle>Vitrine de Conquistas</SectionTitle>
-          <CountLabel>{unlockedCount}/{phases.length} desbloqueadas</CountLabel>
+          <SectionTitle>{t('history.showcaseTitle')}</SectionTitle>
+          <CountLabel>{t('history.unlockedCount', { count: unlockedCount, total: phases.length })}</CountLabel>
         </SectionHeader>
 
         <ShowcaseCard>
@@ -239,7 +241,7 @@ export default function History() {
             ))}
           </BadgeGrid>
           {unlockedCount === 0 && (
-            <EmptyText>Complete a Fase Tutorial para desbloquear a primeira conquista.</EmptyText>
+            <EmptyText>{t('history.emptyBadges')}</EmptyText>
           )}
         </ShowcaseCard>
       </section>
@@ -247,12 +249,12 @@ export default function History() {
       <section>
         <TimelineHeader>
           <SectionTitle>
-            Missões Concluídas{' '}
+            {t('history.completedMissionsTitle')}{' '}
             <CountLabel>({filtered.length})</CountLabel>
           </SectionTitle>
           <FilterRow>
             <FilterButton $active={filterPhaseId === null} onClick={() => setFilterPhaseId(null)}>
-              Todas
+              {t('history.filterAll')}
             </FilterButton>
             {phases.filter(p => p.missions.some(m => m.isCompleted)).map(p => (
               <FilterButton
@@ -269,7 +271,7 @@ export default function History() {
         {filtered.length === 0 ? (
           <EmptyCard>
             <EmptyIcon>🎯</EmptyIcon>
-            <p>Nenhuma missão concluída ainda. Comece pela Fase Tutorial!</p>
+            <p>{t('history.emptyMissions')}</p>
           </EmptyCard>
         ) : (
           <MissionList>
@@ -281,11 +283,11 @@ export default function History() {
                   <MissionMeta>
                     <MetaText>{mission.phaseName}</MetaText>
                     <MetaText>·</MetaText>
-                    <MetaText>{MISSION_TYPE_LABELS[mission.missionType]}</MetaText>
+                    <MetaText>{t(`mission.types.${mission.missionType}`)}</MetaText>
                   </MissionMeta>
                 </MissionInfo>
                 <MissionDate>
-                  {mission.completedAt ? new Date(mission.completedAt).toLocaleDateString('pt-BR') : ''}
+                  {mission.completedAt ? new Date(mission.completedAt).toLocaleDateString(i18n.language) : ''}
                 </MissionDate>
               </MissionRow>
             ))}

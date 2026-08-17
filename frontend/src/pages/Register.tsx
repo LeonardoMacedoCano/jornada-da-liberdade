@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { Button } from 'lcano-react-ui'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 
 const Page = styled.div`
@@ -118,6 +119,7 @@ const FooterLink = styled(Link)`
 
 export default function Register() {
   const { register } = useAuth()
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -129,7 +131,7 @@ export default function Register() {
     e.preventDefault()
     setError('')
     if (!/^[a-z0-9-]+$/.test(username)) {
-      setError('Username deve conter apenas letras minúsculas, números e hífens')
+      setError(t('auth.register.usernameInvalid'))
       return
     }
     setLoading(true)
@@ -137,7 +139,7 @@ export default function Register() {
       await register(name, email, password, username)
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-      setError(msg || 'Erro ao criar conta')
+      setError(msg || t('auth.register.errorGeneric'))
     } finally {
       setLoading(false)
     }
@@ -148,67 +150,67 @@ export default function Register() {
       <Wrapper>
         <Hero>
           <HeroIcon>🌱</HeroIcon>
-          <HeroTitle>Começar a Jornada</HeroTitle>
-          <HeroSub>Crie sua conta e comece na Fase 0</HeroSub>
+          <HeroTitle>{t('auth.register.heroTitle')}</HeroTitle>
+          <HeroSub>{t('auth.register.heroSub')}</HeroSub>
         </Hero>
         <Card>
-          <CardTitle>Criar conta</CardTitle>
+          <CardTitle>{t('auth.register.cardTitle')}</CardTitle>
           {error && <ErrorBox>{error}</ErrorBox>}
           <Form onSubmit={handleSubmit}>
             <Field>
-              <Label>Nome</Label>
+              <Label>{t('auth.register.name')}</Label>
               <Input
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
-                placeholder="Seu nome"
+                placeholder={t('auth.register.namePlaceholder')}
               />
             </Field>
             <Field>
-              <Label>Username <span style={{ color: `inherit`, opacity: 0.5 }}>(perfil público)</span></Label>
+              <Label>{t('auth.register.username')} <span style={{ color: `inherit`, opacity: 0.5 }}>{t('auth.register.usernamePublicHint')}</span></Label>
               <Input
                 type="text"
                 value={username}
                 onChange={e => setUsername(e.target.value.toLowerCase())}
                 required
-                placeholder="joao-silva"
+                placeholder={t('auth.register.usernamePlaceholder')}
               />
-              <Hint>Apenas minúsculas, números e hífens. Ex: joao-silva</Hint>
+              <Hint>{t('auth.register.usernameHint')}</Hint>
             </Field>
             <Field>
-              <Label>E-mail</Label>
+              <Label>{t('auth.register.email')}</Label>
               <Input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                placeholder="seu@email.com"
+                placeholder={t('auth.register.emailPlaceholder')}
               />
             </Field>
             <Field>
-              <Label>Senha</Label>
+              <Label>{t('auth.register.password')}</Label>
               <Input
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
                 minLength={6}
-                placeholder="Mínimo 6 caracteres"
+                placeholder={t('auth.register.passwordPlaceholder')}
               />
             </Field>
             <Button
               type="submit"
               variant="quaternary"
               width="100%"
-              description={loading ? 'Criando conta...' : 'Iniciar Jornada'}
+              description={loading ? t('auth.register.submitting') : t('auth.register.submit')}
               disabled={loading}
               style={{ borderRadius: '8px', padding: '12px 16px', fontSize: '14px', fontWeight: '600' }}
             />
           </Form>
           <Footer>
-            Já tem conta?{' '}
-            <FooterLink to="/login">Entrar</FooterLink>
+            {t('auth.register.haveAccount')}{' '}
+            <FooterLink to="/login">{t('auth.register.signIn')}</FooterLink>
           </Footer>
         </Card>
       </Wrapper>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import styled, { useTheme } from 'styled-components'
 import { Button } from 'lcano-react-ui'
+import { useTranslation } from 'react-i18next'
 import api from '../services/api'
 import { PublicProfile as PublicProfileType, PHASE_HEX_COLORS } from '../types'
 import AvatarDisplay from '../components/AvatarDisplay'
@@ -175,6 +176,7 @@ const LoadingText = styled.div`
 
 export default function PublicProfile() {
   const { username } = useParams<{ username: string }>()
+  const { t, i18n } = useTranslation()
   const theme = useTheme()
   const [profile, setProfile] = useState<PublicProfileType | null>(null)
   const [notFound, setNotFound] = useState(false)
@@ -190,7 +192,7 @@ export default function PublicProfile() {
   if (loading) return (
     <Page>
       <Center>
-        <LoadingText>Carregando perfil...</LoadingText>
+        <LoadingText>{t('publicProfile.loading')}</LoadingText>
       </Center>
     </Page>
   )
@@ -199,11 +201,11 @@ export default function PublicProfile() {
     <Page>
       <Center>
         <div style={{ fontSize: 56 }}>🔒</div>
-        <NotFoundTitle>Perfil não encontrado</NotFoundTitle>
-        <NotFoundText>Este perfil é privado ou não existe.</NotFoundText>
+        <NotFoundTitle>{t('publicProfile.notFoundTitle')}</NotFoundTitle>
+        <NotFoundText>{t('publicProfile.notFoundText')}</NotFoundText>
         <Button
           variant="quaternary"
-          description="Criar minha conta"
+          description={t('publicProfile.createAccount')}
           onClick={() => window.location.href = '/login'}
           style={{ borderRadius: '8px', padding: '12px 24px', fontSize: '16px', fontWeight: '600' }}
         />
@@ -227,7 +229,7 @@ export default function PublicProfile() {
             <ProfileName>{profile.name}</ProfileName>
             <ProfileHandle>@{profile.username}</ProfileHandle>
             <ProfileMeta>
-              Na jornada há {daysSinceStart} dias · desde {new Date(profile.createdAt).toLocaleDateString('pt-BR')}
+              {t('publicProfile.daysSince', { days: daysSinceStart, date: new Date(profile.createdAt).toLocaleDateString(i18n.language) })}
             </ProfileMeta>
           </div>
         </ProfileHeader>
@@ -240,13 +242,13 @@ export default function PublicProfile() {
             <ProgressWrap>
               <ProgressBar percent={profile.progressPercent} color={phaseColor} height="8px" showLabel />
             </ProgressWrap>
-            <ProgressNote>{profile.progressPercent}% da fase concluída</ProgressNote>
+            <ProgressNote>{t('publicProfile.phaseProgress', { percent: profile.progressPercent })}</ProgressNote>
           </PhaseCard>
         )}
 
         {profile.achievements.length > 0 && (
           <Card>
-            <SectionLabel>🏆 Conquistas ({profile.achievements.length})</SectionLabel>
+            <SectionLabel>🏆 {t('publicProfile.achievements', { count: profile.achievements.length })}</SectionLabel>
             <BadgeGrid>
               {profile.achievements.map(a => (
                 <AchievementBadge key={a.phaseId} achievement={a} size="sm" />
@@ -257,18 +259,18 @@ export default function PublicProfile() {
 
         {profile.financialData && (
           <Card>
-            <SectionLabel>📊 Dados Financeiros</SectionLabel>
+            <SectionLabel>📊 {t('publicProfile.financialData')}</SectionLabel>
             <FinancialGrid>
               <FinancialItem>
-                <FinancialLabel>Patrimônio Investido</FinancialLabel>
+                <FinancialLabel>{t('publicProfile.investedAmount')}</FinancialLabel>
                 <FinancialValue>
-                  R$ {parseFloat(profile.financialData.investedAmount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R$ {parseFloat(profile.financialData.investedAmount).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
                 </FinancialValue>
               </FinancialItem>
               <FinancialItem>
-                <FinancialLabel>Renda Passiva Mensal</FinancialLabel>
+                <FinancialLabel>{t('publicProfile.monthlyPassiveIncome')}</FinancialLabel>
                 <FinancialValue $success>
-                  R$ {parseFloat(profile.financialData.monthlyPassiveIncome).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R$ {parseFloat(profile.financialData.monthlyPassiveIncome).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
                 </FinancialValue>
               </FinancialItem>
             </FinancialGrid>
@@ -278,8 +280,8 @@ export default function PublicProfile() {
         <CtaSection>
           <ShareButton username={profile.username} />
           <CtaText>
-            Quer acompanhar sua própria jornada?{' '}
-            <CtaLink to="/register">Criar conta grátis</CtaLink>
+            {t('publicProfile.ctaText')}{' '}
+            <CtaLink to="/register">{t('publicProfile.ctaLink')}</CtaLink>
           </CtaText>
         </CtaSection>
       </Container>

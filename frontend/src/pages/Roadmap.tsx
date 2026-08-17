@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Loading } from 'lcano-react-ui'
+import { useTranslation } from 'react-i18next'
 import api from '../services/api'
 import { Phase } from '../types'
 import PhaseCard from '../components/PhaseCard'
@@ -53,6 +54,7 @@ const LoadingWrap = styled.div`
 `
 
 export default function Roadmap() {
+  const { t } = useTranslation()
   const [phases, setPhases] = useState<Phase[]>([])
   const [minimumWage, setMinimumWage] = useState(1412)
   const [expandedId, setExpandedId] = useState<number | null>(null)
@@ -89,9 +91,9 @@ export default function Roadmap() {
   return (
     <Page>
       <PageHeader>
-        <Title>Roadmap da Jornada</Title>
+        <Title>{t('roadmap.title')}</Title>
         <Subtitle>
-          {completedCount}/{phases.length} fases concluídas — Todas as fases são visíveis para motivar seu avanço
+          {t('roadmap.subtitle', { completed: completedCount, total: phases.length })}
         </Subtitle>
       </PageHeader>
 

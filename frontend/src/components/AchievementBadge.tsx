@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { useTranslation } from 'react-i18next'
 import { Achievement } from '../types'
 import { PHASE_HEX_COLORS } from '../types'
 
@@ -68,6 +69,7 @@ const CompletedAt = styled.div`
 `
 
 export default function AchievementBadge({ achievement, size = 'lg', locked = false }: AchievementBadgeProps) {
+  const { i18n } = useTranslation()
   const color = PHASE_HEX_COLORS[achievement.color] || PHASE_HEX_COLORS.gray
   const isLg = size === 'lg'
 
@@ -82,7 +84,7 @@ export default function AchievementBadge({ achievement, size = 'lg', locked = fa
         <PhaseName $locked={locked}>{achievement.phaseName}</PhaseName>
         {!locked && achievement.completedAt && (
           <CompletedAt>
-            {new Date(achievement.completedAt).toLocaleDateString('pt-BR')}
+            {new Date(achievement.completedAt).toLocaleDateString(i18n.language)}
           </CompletedAt>
         )}
       </div>

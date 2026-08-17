@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { useTranslation } from 'react-i18next'
 import { Phase, PHASE_HEX_COLORS } from '../types'
 import ProgressBar from './ProgressBar'
 import MissionItem from './MissionItem'
@@ -133,6 +134,7 @@ const MissionList = styled.div`
 `
 
 export default function PhaseCard({ phase, minimumWage = 1412, expanded = false, onToggleExpand, onToggleMission }: PhaseCardProps) {
+  const { t, i18n } = useTranslation()
   const color = PHASE_HEX_COLORS[phase.color] || PHASE_HEX_COLORS.gray
   const isLocked = phase.status === 'locked'
   const isCompleted = phase.status === 'completed'
@@ -145,9 +147,9 @@ export default function PhaseCard({ phase, minimumWage = 1412, expanded = false,
         <HeaderBody>
           <TopRow>
             <PhaseName $color={color}>{phase.name}</PhaseName>
-            {isCompleted && <StatusBadge $variant="completed">✓ Concluída</StatusBadge>}
-            {isActive && <StatusBadge $variant="active">● Atual</StatusBadge>}
-            {isLocked && <StatusBadge $variant="locked">🔒 Bloqueada</StatusBadge>}
+            {isCompleted && <StatusBadge $variant="completed">{t('phase.completed')}</StatusBadge>}
+            {isActive && <StatusBadge $variant="active">{t('phase.active')}</StatusBadge>}
+            {isLocked && <StatusBadge $variant="locked">{t('phase.locked')}</StatusBadge>}
           </TopRow>
           <PhaseTitle>{phase.title}</PhaseTitle>
           <PhaseSubtitle>{phase.subtitle}</PhaseSubtitle>
@@ -158,7 +160,7 @@ export default function PhaseCard({ phase, minimumWage = 1412, expanded = false,
           )}
           {isCompleted && phase.completedAt && (
             <CompletedDate>
-              Concluída em {new Date(phase.completedAt).toLocaleDateString('pt-BR')}
+              {t('phase.completedOn', { date: new Date(phase.completedAt).toLocaleDateString(i18n.language) })}
             </CompletedDate>
           )}
         </HeaderBody>

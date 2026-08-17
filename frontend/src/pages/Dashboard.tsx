@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react'
 import styled, { useTheme } from 'styled-components'
 import { Button, Loading, useMessage } from 'lcano-react-ui'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
 import { Phase, UserProgress, PHASE_HEX_COLORS } from '../types'
@@ -50,13 +51,13 @@ const Grid = styled.div`
   }
 `
 
-const MainCol = styled.div`
+const MainCol = styled.div<{ $fullWidth?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 16px;
 
   @media (min-width: 1024px) {
-    grid-column: span 2;
+    grid-column: ${p => p.$fullWidth ? 'span 3' : 'span 2'};
   }
 `
 
@@ -177,15 +178,15 @@ const LoadingWrap = styled.div`
   height: 256px;
 `
 
-const FIELDS = [
-  { label: 'Patrimônio investido (R$)', key: 'investedAmount', placeholder: '0' },
-  { label: 'Renda passiva mensal (R$)', key: 'monthlyPassiveIncome', placeholder: '0' },
-  { label: 'Aporte mensal (R$)', key: 'monthlyContribution', placeholder: '0' },
-  { label: 'Taxa de retorno anual (%)', key: 'annualReturnRate', placeholder: '11' },
-] as const
+const PHASE_INTRODUCING = {
+  investedAmount: 2,
+  monthlyContribution: 5,
+  monthlyPassiveIncome: 6,
+} as const
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const { t, i18n } = useTranslation()
   const theme = useTheme()
   const { showSuccess, showError } = useMessage()
   const [phase, setPhase] = useState<Phase | null>(null)
@@ -199,7 +200,6 @@ export default function Dashboard() {
     investedAmount: '',
     monthlyPassiveIncome: '',
     monthlyContribution: '',
-    annualReturnRate: '11',
   })
 
   useEffect(() => {
@@ -217,11 +217,10 @@ export default function Dashboard() {
           investedAmount: parseFloat(prog.investedAmount).toString(),
           monthlyPassiveIncome: parseFloat(prog.monthlyPassiveIncome).toString(),
           monthlyContribution: parseFloat(prog.monthlyContribution).toString(),
-          annualReturnRate: parseFloat(prog.annualReturnRate).toString(),
         })
       }
     }).catch(() => {
-      setError('Não foi possível carregar os dados. Tente recarregar a página.')
+      setError(t('dashboard.errorLoad'))
     }).finally(() => setLoading(false))
   }, [])
 
@@ -233,18 +232,17 @@ export default function Dashboard() {
         investedAmount: parseFloat(form.investedAmount) || 0,
         monthlyPassiveIncome: parseFloat(form.monthlyPassiveIncome) || 0,
         monthlyContribution: parseFloat(form.monthlyContribution) || 0,
-        annualReturnRate: parseFloat(form.annualReturnRate) || 11,
       })
       setProgress(res.data.progress)
       if (res.data.phaseAdvanced) {
-        showSuccess('Fase concluída! Avançou para a próxima fase!')
+        showSuccess(t('dashboard.phaseAdvanced'))
       } else if (res.data.newlyCompleted?.length > 0) {
-        showSuccess(`${res.data.newlyCompleted.length} missão(ões) completada(s) automaticamente!`)
+        showSuccess(t('dashboard.missionsAutoCompleted', { count: res.data.newlyCompleted.length }))
       }
       const phaseRes = await api.get('/phases/current')
       setPhase(phaseRes.data)
     } catch {
-      showError('Erro ao salvar progresso. Tente novamente.')
+      showError(t('dashboard.errorUpdate'))
     } finally {
       setSaving(false)
     }
@@ -259,12 +257,12 @@ export default function Dashboard() {
       ])
       setPhase(phaseRes.data)
       setProgress(profileRes.data.progress)
-      if (completed) showSuccess('Missão concluída!')
+      if (completed) showSuccess(t('dashboard.missionCompleted'))
       if (!completed && res.data.phaseRolledBack) {
-        showError(`Fase revertida para: ${phaseRes.data.name}`)
+        showError(t('dashboard.phaseRolledBack', { phase: phaseRes.data.name }))
       }
     } catch (err: any) {
-      showError(err?.response?.data?.error ?? 'Erro ao atualizar missão. Tente novamente.')
+      showError(err?.response?.data?.error ?? t('dashboard.errorMission'))
     }
   }
 
@@ -273,14 +271,25 @@ export default function Dashboard() {
       await api.post(`/missions/${id}/start`)
       const phaseRes = await api.get('/phases/current')
       setPhase(phaseRes.data)
-      showSuccess('Rastreamento iniciado!')
+      showSuccess(t('dashboard.trackingStarted'))
     } catch (err: any) {
-      showError(err?.response?.data?.error ?? 'Erro ao iniciar rastreamento.')
+      showError(err?.response?.data?.error ?? t('dashboard.errorTracking'))
     }
   }
 
+  const currentPhaseId = progress?.currentPhaseId ?? 0
+  const showPortfolioTracking = currentPhaseId >= PHASE_INTRODUCING.investedAmount
+  const showContribution = currentPhaseId >= PHASE_INTRODUCING.monthlyContribution
+  const showPassiveIncome = currentPhaseId >= PHASE_INTRODUCING.monthlyPassiveIncome
+
+  const FIELDS = [
+    showPortfolioTracking && { label: t('dashboard.fields.investedAmount'), key: 'investedAmount' as const },
+    showContribution && { label: t('dashboard.fields.monthlyContribution'), key: 'monthlyContribution' as const },
+    showPassiveIncome && { label: t('dashboard.fields.monthlyPassiveIncome'), key: 'monthlyPassiveIncome' as const },
+  ].filter((f): f is { label: string; key: 'investedAmount' | 'monthlyContribution' | 'monthlyPassiveIncome' } => !!f)
+
   const invested = parseFloat(form.investedAmount) || 0
-  const annualRate = parseFloat(form.annualReturnRate) || 11
+  const annualRate = progress ? parseFloat(progress.annualReturnRate) || 11 : 11
   const contribution = parseFloat(form.monthlyContribution) || 0
   const passive = parseFloat(form.monthlyPassiveIncome) || 0
   const monthlyReturn = invested * (annualRate / 100 / 12)
@@ -306,9 +315,9 @@ export default function Dashboard() {
       <Header>
         <AvatarDisplay phaseId={progress?.currentPhaseId ?? 0} size="md" />
         <HeaderText>
-          <UserName>Olá, {user?.name}!</UserName>
+          <UserName>{t('dashboard.greeting', { name: user?.name })}</UserName>
           <UserPhase>
-            {phase ? `${phase.achievementIcon} ${phase.name} — ${phase.title}` : 'Carregando fase...'}
+            {phase ? `${phase.achievementIcon} ${phase.name} — ${phase.title}` : t('dashboard.loadingPhase')}
           </UserPhase>
           <UserHandle>@{user?.username}</UserHandle>
         </HeaderText>
@@ -318,12 +327,12 @@ export default function Dashboard() {
       </Header>
 
       <Grid>
-        <MainCol>
+        <MainCol $fullWidth={!showPortfolioTracking}>
           {phase && (
             <Card>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                 <div>
-                  <SectionLabel>Fase Atual</SectionLabel>
+                  <SectionLabel>{t('dashboard.currentPhase')}</SectionLabel>
                   <PhaseTitle>{phase.title}</PhaseTitle>
                   <PhaseSubtitle>{phase.subtitle}</PhaseSubtitle>
                 </div>
@@ -335,7 +344,7 @@ export default function Dashboard() {
           )}
 
           <Card>
-            <MissionsSectionLabel>Missões da Fase</MissionsSectionLabel>
+            <MissionsSectionLabel>{t('dashboard.missionsSection')}</MissionsSectionLabel>
             <MissionList>
               {phase?.missions.map(mission => (
                 <MissionItem
@@ -350,68 +359,76 @@ export default function Dashboard() {
           </Card>
         </MainCol>
 
-        <SideCol>
-          <Card>
-            <MissionsSectionLabel>Atualizar Dados</MissionsSectionLabel>
-            <form onSubmit={handleProgressUpdate}>
-              <FormFields>
-                {FIELDS.map(({ label, key, placeholder }) => (
-                  <div key={key}>
-                    <FormLabel>{label}</FormLabel>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={form[key]}
-                      onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-                      placeholder={placeholder}
-                    />
-                  </div>
-                ))}
-                <Button
-                  type="submit"
-                  variant="quaternary"
-                  width="100%"
-                  description={saving ? 'Salvando...' : 'Atualizar Progresso'}
-                  disabled={saving}
-                  style={{ borderRadius: '8px', padding: '10px 16px', fontSize: '14px', fontWeight: '600' }}
-                />
-              </FormFields>
-            </form>
-          </Card>
+        {showPortfolioTracking && (
+          <SideCol>
+            <Card>
+              <MissionsSectionLabel>{t('dashboard.updateData')}</MissionsSectionLabel>
+              <form onSubmit={handleProgressUpdate}>
+                <FormFields>
+                  {FIELDS.map(({ label, key }) => (
+                    <div key={key}>
+                      <FormLabel>{label}</FormLabel>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={form[key]}
+                        onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+                        placeholder="0"
+                      />
+                    </div>
+                  ))}
+                  <Button
+                    type="submit"
+                    variant="quaternary"
+                    width="100%"
+                    description={saving ? t('dashboard.updating') : t('dashboard.updateProgress')}
+                    disabled={saving}
+                    style={{ borderRadius: '8px', padding: '10px 16px', fontSize: '14px', fontWeight: '600' }}
+                  />
+                </FormFields>
+              </form>
+            </Card>
 
-          <Card>
-            <MissionsSectionLabel>Indicadores</MissionsSectionLabel>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <IndicatorRow>
-                <IndicatorLabel>Retorno mensal estimado</IndicatorLabel>
-                <IndicatorValue>
-                  R$ {monthlyReturn.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </IndicatorValue>
-              </IndicatorRow>
-              <IndicatorRow>
-                <IndicatorLabel>Ponto de Cruzamento</IndicatorLabel>
-                <IndicatorValue $success={crossoverReached}>
-                  {crossoverReached ? '✓ Atingido' : contribution > 0 ? `${Math.round((monthlyReturn / contribution) * 100)}%` : '—'}
-                </IndicatorValue>
-              </IndicatorRow>
-              <IndicatorRow>
-                <IndicatorLabel>Renda passiva em SM</IndicatorLabel>
-                <IndicatorValue $accent>
-                  {smMultiple.toFixed(2)}× SM
-                </IndicatorValue>
-              </IndicatorRow>
-              <Divider>
+            <Card>
+              <MissionsSectionLabel>{t('dashboard.indicators')}</MissionsSectionLabel>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <IndicatorRow>
-                  <IndicatorLabel style={{ opacity: 0.6 }}>Salário Mínimo atual</IndicatorLabel>
-                  <span style={{ fontSize: 12, color: 'inherit', opacity: 0.5 }}>
-                    R$ {minimumWage.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </span>
+                  <IndicatorLabel>{t('dashboard.monthlyReturn')}</IndicatorLabel>
+                  <IndicatorValue>
+                    R$ {monthlyReturn.toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </IndicatorValue>
                 </IndicatorRow>
-              </Divider>
-            </div>
-          </Card>
-        </SideCol>
+                {showContribution && (
+                  <IndicatorRow>
+                    <IndicatorLabel>{t('dashboard.crossoverPoint')}</IndicatorLabel>
+                    <IndicatorValue $success={crossoverReached}>
+                      {crossoverReached ? t('dashboard.crossoverReached') : contribution > 0 ? `${Math.round((monthlyReturn / contribution) * 100)}%` : '—'}
+                    </IndicatorValue>
+                  </IndicatorRow>
+                )}
+                {showPassiveIncome && (
+                  <>
+                    <IndicatorRow>
+                      <IndicatorLabel>{t('dashboard.passiveIncomeSm')}</IndicatorLabel>
+                      <IndicatorValue $accent>
+                        {smMultiple.toFixed(2)}× SM
+                      </IndicatorValue>
+                    </IndicatorRow>
+                    <Divider>
+                      <IndicatorRow>
+                        <IndicatorLabel style={{ opacity: 0.6 }}>{t('dashboard.minimumWageCurrent')}</IndicatorLabel>
+                        <span style={{ fontSize: 12, color: 'inherit', opacity: 0.5 }}>
+                          R$ {minimumWage.toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
+                        </span>
+                      </IndicatorRow>
+                    </Divider>
+                  </>
+                )}
+              </div>
+            </Card>
+          </SideCol>
+        )}
       </Grid>
     </Page>
   )
