@@ -15,6 +15,7 @@ model User {
   passwordHash String
   username     String   @unique
   avatarType   String   @default("warrior")
+  language     String?
 
   sharePublicProfile   Boolean @default(true)
   showFinancialValues  Boolean @default(false)

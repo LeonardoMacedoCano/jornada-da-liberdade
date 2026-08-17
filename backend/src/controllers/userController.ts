@@ -10,7 +10,7 @@ export async function getProfile(req: AuthRequest, res: Response): Promise<void>
     where: { id: req.userId },
     select: {
       id: true, name: true, email: true, username: true,
-      avatarType: true, sharePublicProfile: true, showFinancialValues: true, createdAt: true,
+      avatarType: true, language: true, sharePublicProfile: true, showFinancialValues: true, createdAt: true,
       progress: true,
     },
   })
@@ -150,8 +150,10 @@ export async function updateProgress(req: AuthRequest, res: Response): Promise<v
   res.json({ progress: freshProgress ?? updated, ...result })
 }
 
+const SUPPORTED_LANGUAGES = ['en', 'pt-BR']
+
 export async function updateSettings(req: AuthRequest, res: Response): Promise<void> {
-  const { name, username, sharePublicProfile, showFinancialValues } = req.body
+  const { name, username, sharePublicProfile, showFinancialValues, language } = req.body
 
   if (name !== undefined && !name.trim()) {
     res.status(400).json({ error: 'Nome não pode ser vazio' })
@@ -167,6 +169,11 @@ export async function updateSettings(req: AuthRequest, res: Response): Promise<v
     if (existing) { res.status(409).json({ error: 'Username já em uso' }); return }
   }
 
+  if (language !== undefined && !SUPPORTED_LANGUAGES.includes(language)) {
+    res.status(400).json({ error: 'Idioma não suportado' })
+    return
+  }
+
   const user = await prisma.user.update({
     where: { id: req.userId },
     data: {
@@ -174,8 +181,9 @@ export async function updateSettings(req: AuthRequest, res: Response): Promise<v
       ...(username !== undefined && { username }),
       ...(sharePublicProfile !== undefined && { sharePublicProfile }),
       ...(showFinancialValues !== undefined && { showFinancialValues }),
+      ...(language !== undefined && { language }),
     },
-    select: { id: true, name: true, email: true, username: true, sharePublicProfile: true, showFinancialValues: true },
+    select: { id: true, name: true, email: true, username: true, language: true, sharePublicProfile: true, showFinancialValues: true },
   })
   res.json(user)
 }
