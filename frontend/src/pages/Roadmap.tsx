@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Loading } from 'lcano-react-ui'
+import { Loading, useToastStack } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import api from '../services/api'
 import { Phase } from '../types'
+import { buildPhaseAchievementToast } from '../utils/achievementToast'
 import PhaseCard from '../components/PhaseCard'
 
 const Page = styled.div`
@@ -55,6 +56,7 @@ const LoadingWrap = styled.div`
 
 export default function Roadmap() {
   const { t } = useTranslation()
+  const { notify } = useToastStack()
   const [phases, setPhases] = useState<Phase[]>([])
   const [minimumWage, setMinimumWage] = useState(1412)
   const [expandedId, setExpandedId] = useState<number | null>(null)
@@ -74,9 +76,13 @@ export default function Roadmap() {
 
   async function handleToggleMission(id: number, completed: boolean) {
     try {
-      await api.post(`/missions/${id}/${completed ? 'complete' : 'uncomplete'}`)
-      const res = await api.get('/phases')
-      setPhases(res.data)
+      const res = await api.post(`/missions/${id}/${completed ? 'complete' : 'uncomplete'}`)
+      const completedPhase = phases.find(p => p.status === 'active')
+      const phasesRes = await api.get('/phases')
+      setPhases(phasesRes.data)
+      if (completed && res.data.phaseAdvanced && completedPhase) {
+        notify([buildPhaseAchievementToast(completedPhase, t)])
+      }
     } catch { /* ignore */ }
   }
 

@@ -173,6 +173,9 @@ const ptBR: typeof en = {
     locked: '🔒 Bloqueada',
     completedOn: 'Concluída em {{date}}',
   },
+  achievement: {
+    unlocked: 'Conquista desbloqueada',
+  },
 }
 
 export default ptBR

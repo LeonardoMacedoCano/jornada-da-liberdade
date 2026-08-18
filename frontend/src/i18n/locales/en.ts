@@ -171,4 +171,7 @@ export default {
     locked: '🔒 Locked',
     completedOn: 'Completed on {{date}}',
   },
+  achievement: {
+    unlocked: 'Achievement unlocked',
+  },
 }

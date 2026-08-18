@@ -7,6 +7,10 @@ export const SUPPORTED_LANGUAGES = ['en', 'pt-BR'] as const
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number]
 export const DEFAULT_LANGUAGE: SupportedLanguage = 'en'
 
+export function toLibLocale(language: string): 'pt' | 'en' {
+  return language.startsWith('pt') ? 'pt' : 'en'
+}
+
 const storedLanguage = localStorage.getItem('language')
 const initialLanguage = SUPPORTED_LANGUAGES.includes(storedLanguage as SupportedLanguage)
   ? (storedLanguage as SupportedLanguage)

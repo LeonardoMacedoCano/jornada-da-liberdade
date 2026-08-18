@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createGlobalStyle } from 'styled-components'
-import { ContextMessageProvider } from 'lcano-react-ui'
+import { ContextMessageProvider, ToastStackProvider } from 'lcano-react-ui'
 import App from './App'
 import { jornadaTheme } from './theme'
 import { ThemeControlProvider } from './contexts/ThemeControlContext'
@@ -49,7 +49,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ThemeControlProvider defaultTheme={jornadaTheme}>
       <GlobalStyle />
       <ContextMessageProvider>
-        <App />
+        <ToastStackProvider>
+          <App />
+        </ToastStackProvider>
       </ContextMessageProvider>
     </ThemeControlProvider>
   </React.StrictMode>

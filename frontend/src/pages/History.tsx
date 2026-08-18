@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Loading } from 'lcano-react-ui'
+import { Loading, PaginatedGrid, BadgeCard } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import api from '../services/api'
 import { Phase, Mission, MISSION_TYPE_ICONS } from '../types'
-import AchievementBadge from '../components/AchievementBadge'
 
 interface CompletedMission extends Mission {
   phaseName: string
@@ -54,15 +53,6 @@ const ShowcaseCard = styled.div`
   border: 1px solid ${p => p.theme.colors.tertiary};
   border-radius: 12px;
   padding: 24px;
-`
-
-const BadgeGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-
-  @media (min-width: 640px) { grid-template-columns: repeat(5, 1fr); }
-  @media (min-width: 768px) { grid-template-columns: repeat(9, 1fr); }
 `
 
 const EmptyText = styled.p`
@@ -194,18 +184,6 @@ export default function History() {
 
   const unlockedCount = phases.filter(p => p.status === 'completed').length
 
-  const allBadges = phases.map(p => ({
-    achievement: {
-      phaseId: p.id,
-      phaseName: p.name,
-      achievementName: p.achievementName,
-      achievementIcon: p.achievementIcon,
-      color: p.color,
-      completedAt: p.completedAt || '',
-    },
-    locked: p.status !== 'completed',
-  }))
-
   const filtered = filterPhaseId !== null
     ? completedMissions.filter(m => m.phaseId === filterPhaseId)
     : completedMissions
@@ -230,16 +208,24 @@ export default function History() {
         </SectionHeader>
 
         <ShowcaseCard>
-          <BadgeGrid>
-            {allBadges.map(({ achievement, locked }) => (
-              <AchievementBadge
-                key={achievement.phaseId}
-                achievement={achievement}
-                size="lg"
-                locked={locked}
-              />
-            ))}
-          </BadgeGrid>
+          <PaginatedGrid
+            items={phases}
+            keyExtractor={p => p.id}
+            emptyMessage={t('history.emptyBadges')}
+            minItemWidth="220px"
+            renderItem={p => {
+              const locked = p.status !== 'completed'
+              return (
+                <BadgeCard
+                  icon={locked ? '🔒' : p.achievementIcon}
+                  title={p.achievementName}
+                  description={p.name}
+                  meta={!locked && p.completedAt ? t('phase.completedOn', { date: new Date(p.completedAt).toLocaleDateString(i18n.language) }) : undefined}
+                  active={!locked}
+                />
+              )
+            }}
+          />
           {unlockedCount === 0 && (
             <EmptyText>{t('history.emptyBadges')}</EmptyText>
           )}

@@ -1,10 +1,11 @@
 import { useState, useEffect, FormEvent } from 'react'
 import styled, { useTheme } from 'styled-components'
-import { Button, Loading, useMessage } from 'lcano-react-ui'
+import { Button, Loading, useMessage, useToastStack } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
 import { Phase, UserProgress, PHASE_HEX_COLORS } from '../types'
+import { buildPhaseAchievementToast } from '../utils/achievementToast'
 import AvatarDisplay from '../components/AvatarDisplay'
 import ProgressBar from '../components/ProgressBar'
 import MissionItem from '../components/MissionItem'
@@ -189,6 +190,7 @@ export default function Dashboard() {
   const { t, i18n } = useTranslation()
   const theme = useTheme()
   const { showSuccess, showError } = useMessage()
+  const { notify } = useToastStack()
   const [phase, setPhase] = useState<Phase | null>(null)
   const [progress, setProgress] = useState<UserProgress | null>(null)
   const [minimumWage, setMinimumWage] = useState(1412)
@@ -236,6 +238,7 @@ export default function Dashboard() {
       setProgress(res.data.progress)
       if (res.data.phaseAdvanced) {
         showSuccess(t('dashboard.phaseAdvanced'))
+        if (phase) notify([buildPhaseAchievementToast(phase, t)])
       } else if (res.data.newlyCompleted?.length > 0) {
         showSuccess(t('dashboard.missionsAutoCompleted', { count: res.data.newlyCompleted.length }))
       }
@@ -251,6 +254,7 @@ export default function Dashboard() {
   async function handleToggleMission(id: number, completed: boolean) {
     try {
       const res = await api.post(`/missions/${id}/${completed ? 'complete' : 'uncomplete'}`)
+      const completedPhase = phase
       const [phaseRes, profileRes] = await Promise.all([
         api.get('/phases/current'),
         api.get('/user/profile'),
@@ -258,6 +262,9 @@ export default function Dashboard() {
       setPhase(phaseRes.data)
       setProgress(profileRes.data.progress)
       if (completed) showSuccess(t('dashboard.missionCompleted'))
+      if (completed && res.data.phaseAdvanced && completedPhase) {
+        notify([buildPhaseAchievementToast(completedPhase, t)])
+      }
       if (!completed && res.data.phaseRolledBack) {
         showError(t('dashboard.phaseRolledBack', { phase: phaseRes.data.name }))
       }
