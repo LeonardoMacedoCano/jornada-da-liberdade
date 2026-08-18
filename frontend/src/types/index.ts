@@ -25,8 +25,6 @@ export interface Mission {
   id: number
   phaseId: number
   slug: string
-  title: string
-  description: string
   missionType: 'portfolio_value' | 'passive_income_sm' | 'crossover' | 'behavioral' | 'habit'
   targetValue: string | null
   targetSmMultiple: string | null
@@ -41,13 +39,7 @@ export interface Mission {
 export interface Phase {
   id: number
   slug: string
-  name: string
-  title: string
-  subtitle: string
-  description: string
-  flavorText: string
   orderIndex: number
-  achievementName: string
   achievementIcon: string
   color: string
   missions: Mission[]
@@ -58,8 +50,7 @@ export interface Phase {
 
 export interface Achievement {
   phaseId: number
-  phaseName: string
-  achievementName: string
+  phaseSlug: string
   achievementIcon: string
   color: string
   completedAt: string
@@ -72,8 +63,7 @@ export interface PublicProfile {
   createdAt: string
   currentPhase: {
     id: number
-    name: string
-    title: string
+    slug: string
     achievementIcon: string
     color: string
   } | null

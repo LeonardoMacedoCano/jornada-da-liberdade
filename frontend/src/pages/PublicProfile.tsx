@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import styled, { useTheme } from 'styled-components'
-import { Button } from 'lcano-react-ui'
+import { Button, PaginatedGrid, BadgeCard } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import api from '../services/api'
+import { currencySymbol } from '../i18n'
+import { getPhaseContent } from '../i18n/content'
 import { PublicProfile as PublicProfileType, PHASE_HEX_COLORS } from '../types'
 import AvatarDisplay from '../components/AvatarDisplay'
-import AchievementBadge from '../components/AchievementBadge'
 import ProgressBar from '../components/ProgressBar'
 import ShareButton from '../components/ShareButton'
 
@@ -108,14 +109,6 @@ const ProgressNote = styled.p`
   font-size: 12px;
   color: ${p => p.theme.colors.gray};
   margin-top: 8px;
-`
-
-const BadgeGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-
-  @media (min-width: 640px) { grid-template-columns: repeat(4, 1fr); }
 `
 
 const FinancialGrid = styled.div`
@@ -237,8 +230,8 @@ export default function PublicProfile() {
         {profile.currentPhase && (
           <PhaseCard>
             <PhaseIcon>{profile.currentPhase.achievementIcon}</PhaseIcon>
-            <PhaseName>{profile.currentPhase.name}</PhaseName>
-            <PhaseTitle>{profile.currentPhase.title}</PhaseTitle>
+            <PhaseName>{getPhaseContent(profile.currentPhase.slug, i18n.language).name}</PhaseName>
+            <PhaseTitle>{getPhaseContent(profile.currentPhase.slug, i18n.language).title}</PhaseTitle>
             <ProgressWrap>
               <ProgressBar percent={profile.progressPercent} color={phaseColor} height="8px" showLabel />
             </ProgressWrap>
@@ -249,11 +242,24 @@ export default function PublicProfile() {
         {profile.achievements.length > 0 && (
           <Card>
             <SectionLabel>🏆 {t('publicProfile.achievements', { count: profile.achievements.length })}</SectionLabel>
-            <BadgeGrid>
-              {profile.achievements.map(a => (
-                <AchievementBadge key={a.phaseId} achievement={a} size="sm" />
-              ))}
-            </BadgeGrid>
+            <PaginatedGrid
+              items={profile.achievements}
+              keyExtractor={a => a.phaseId}
+              emptyMessage=""
+              minItemWidth="140px"
+              renderItem={a => {
+                const content = getPhaseContent(a.phaseSlug, i18n.language)
+                return (
+                  <BadgeCard
+                    icon={a.achievementIcon}
+                    title={content.achievementName}
+                    description={content.name}
+                    meta={t('phase.completedOn', { date: new Date(a.completedAt).toLocaleDateString(i18n.language) })}
+                    height="130px"
+                  />
+                )
+              }}
+            />
           </Card>
         )}
 
@@ -264,13 +270,13 @@ export default function PublicProfile() {
               <FinancialItem>
                 <FinancialLabel>{t('publicProfile.investedAmount')}</FinancialLabel>
                 <FinancialValue>
-                  R$ {parseFloat(profile.financialData.investedAmount).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
+                  {currencySymbol(i18n.language)} {parseFloat(profile.financialData.investedAmount).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
                 </FinancialValue>
               </FinancialItem>
               <FinancialItem>
                 <FinancialLabel>{t('publicProfile.monthlyPassiveIncome')}</FinancialLabel>
                 <FinancialValue $success>
-                  R$ {parseFloat(profile.financialData.monthlyPassiveIncome).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
+                  {currencySymbol(i18n.language)} {parseFloat(profile.financialData.monthlyPassiveIncome).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
                 </FinancialValue>
               </FinancialItem>
             </FinancialGrid>

@@ -58,6 +58,11 @@ export default {
     errorLoad: 'Could not load your data. Try reloading the page.',
     currentPhase: 'Current Phase',
     missionsSection: 'Phase Missions',
+    missionsFilter: {
+      pending: 'Pending',
+      all: 'All',
+    },
+    noMissionsPending: 'No pending missions — nice work!',
     updateData: 'Update Data',
     fields: {
       investedAmount: 'Invested amount',
@@ -80,6 +85,7 @@ export default {
     crossoverReached: '✓ Reached',
     passiveIncomeSm: 'Passive income in minimum wages',
     minimumWageCurrent: 'Current minimum wage',
+    minimumWageAbbrev: 'MW',
   },
   settings: {
     title: 'Settings',

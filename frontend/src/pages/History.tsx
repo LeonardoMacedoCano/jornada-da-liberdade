@@ -3,10 +3,11 @@ import styled from 'styled-components'
 import { Loading, PaginatedGrid, BadgeCard } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import api from '../services/api'
+import { getPhaseContent, getMissionContent } from '../i18n/content'
 import { Phase, Mission, MISSION_TYPE_ICONS } from '../types'
 
 interface CompletedMission extends Mission {
-  phaseName: string
+  phaseSlug: string
   phaseColor: string
 }
 
@@ -145,12 +146,6 @@ const MissionDate = styled.div`
   flex-shrink: 0;
 `
 
-const MissionList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`
-
 const LoadingWrap = styled.div`
   display: flex;
   align-items: center;
@@ -173,7 +168,7 @@ export default function History() {
       data.forEach(phase => {
         phase.missions.forEach(m => {
           if (m.isCompleted && m.completedAt) {
-            missions.push({ ...m, phaseName: phase.name, phaseColor: phase.color })
+            missions.push({ ...m, phaseSlug: phase.slug, phaseColor: phase.color })
           }
         })
       })
@@ -215,11 +210,12 @@ export default function History() {
             minItemWidth="220px"
             renderItem={p => {
               const locked = p.status !== 'completed'
+              const content = getPhaseContent(p.slug, i18n.language)
               return (
                 <BadgeCard
                   icon={locked ? '🔒' : p.achievementIcon}
-                  title={p.achievementName}
-                  description={p.name}
+                  title={content.achievementName}
+                  description={content.name}
                   meta={!locked && p.completedAt ? t('phase.completedOn', { date: new Date(p.completedAt).toLocaleDateString(i18n.language) }) : undefined}
                   active={!locked}
                 />
@@ -248,7 +244,7 @@ export default function History() {
                 $active={filterPhaseId === p.id}
                 onClick={() => setFilterPhaseId(p.id)}
               >
-                {p.achievementIcon} {p.name}
+                {p.achievementIcon} {getPhaseContent(p.slug, i18n.language).name}
               </FilterButton>
             ))}
           </FilterRow>
@@ -260,14 +256,18 @@ export default function History() {
             <p>{t('history.emptyMissions')}</p>
           </EmptyCard>
         ) : (
-          <MissionList>
-            {filtered.map(mission => (
-              <MissionRow key={mission.id}>
+          <PaginatedGrid
+            items={filtered}
+            keyExtractor={mission => mission.id}
+            emptyMessage={t('history.emptyMissions')}
+            minItemWidth="320px"
+            renderItem={mission => (
+              <MissionRow>
                 <span style={{ fontSize: 18, flexShrink: 0 }}>{MISSION_TYPE_ICONS[mission.missionType]}</span>
                 <MissionInfo>
-                  <MissionTitle>{mission.title}</MissionTitle>
+                  <MissionTitle>{getMissionContent(mission.slug, i18n.language).title}</MissionTitle>
                   <MissionMeta>
-                    <MetaText>{mission.phaseName}</MetaText>
+                    <MetaText>{getPhaseContent(mission.phaseSlug, i18n.language).name}</MetaText>
                     <MetaText>·</MetaText>
                     <MetaText>{t(`mission.types.${mission.missionType}`)}</MetaText>
                   </MissionMeta>
@@ -276,8 +276,8 @@ export default function History() {
                   {mission.completedAt ? new Date(mission.completedAt).toLocaleDateString(i18n.language) : ''}
                 </MissionDate>
               </MissionRow>
-            ))}
-          </MissionList>
+            )}
+          />
         )}
       </section>
     </Page>

@@ -3,7 +3,8 @@ import bcrypt from 'bcryptjs'
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
-import { MINIMUM_WAGE, MAX_PHASE_ID } from '../lib/constants'
+import { MAX_PHASE_ID } from '../lib/constants'
+import { getUserLanguage, minimumWageFor } from '../lib/localization'
 
 export async function getProfile(req: AuthRequest, res: Response): Promise<void> {
   const user = await prisma.user.findUnique({
@@ -35,7 +36,8 @@ async function autoCompleteMissions(userId: string, progress: {
   monthlyContribution: Prisma.Decimal,
   annualReturnRate: Prisma.Decimal,
   currentPhaseId: number,
-}): Promise<{ newlyCompleted: number[], phaseAdvanced: boolean, newPhaseId: number }> {
+}, language: string): Promise<{ newlyCompleted: number[], phaseAdvanced: boolean, newPhaseId: number }> {
+  const minimumWage = minimumWageFor(language)
   const invested = parseFloat(progress.investedAmount.toString())
   const passiveIncome = parseFloat(progress.monthlyPassiveIncome.toString())
   const contribution = parseFloat(progress.monthlyContribution.toString())
@@ -61,7 +63,7 @@ async function autoCompleteMissions(userId: string, progress: {
     if (mission.missionType === 'portfolio_value' && mission.targetValue !== null) {
       shouldComplete = invested >= parseFloat(mission.targetValue.toString())
     } else if (mission.missionType === 'passive_income_sm' && mission.targetSmMultiple !== null) {
-      const threshold = parseFloat(mission.targetSmMultiple.toString()) * MINIMUM_WAGE
+      const threshold = parseFloat(mission.targetSmMultiple.toString()) * minimumWage
       shouldComplete = passiveIncome >= threshold
     } else if (mission.missionType === 'crossover') {
       shouldComplete = contribution > 0 && monthlyReturn >= contribution
@@ -144,7 +146,8 @@ export async function updateProgress(req: AuthRequest, res: Response): Promise<v
     },
   })
 
-  const result = await autoCompleteMissions(req.userId!, updated)
+  const language = await getUserLanguage(req.userId!)
+  const result = await autoCompleteMissions(req.userId!, updated, language)
 
   const freshProgress = await prisma.userProgress.findUnique({ where: { userId: req.userId! } })
   res.json({ progress: freshProgress ?? updated, ...result })

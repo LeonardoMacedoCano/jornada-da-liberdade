@@ -31,8 +31,7 @@ export async function getPublicProfile(req: Request, res: Response): Promise<voi
 
   const achievements = phaseHistory.map(h => ({
     phaseId: h.phaseId,
-    phaseName: h.phase.name,
-    achievementName: h.phase.achievementName,
+    phaseSlug: h.phase.slug,
     achievementIcon: h.phase.achievementIcon,
     color: h.phase.color,
     completedAt: h.completedAt,
@@ -45,8 +44,7 @@ export async function getPublicProfile(req: Request, res: Response): Promise<voi
     createdAt: user.createdAt,
     currentPhase: currentPhase ? {
       id: currentPhase.id,
-      name: currentPhase.name,
-      title: currentPhase.title,
+      slug: currentPhase.slug,
       achievementIcon: currentPhase.achievementIcon,
       color: currentPhase.color,
     } : null,

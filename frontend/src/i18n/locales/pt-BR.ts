@@ -60,6 +60,11 @@ const ptBR: typeof en = {
     errorLoad: 'Não foi possível carregar os dados. Tente recarregar a página.',
     currentPhase: 'Fase Atual',
     missionsSection: 'Missões da Fase',
+    missionsFilter: {
+      pending: 'Pendentes',
+      all: 'Todas',
+    },
+    noMissionsPending: 'Nenhuma missão pendente — mandou bem!',
     updateData: 'Atualizar Dados',
     fields: {
       investedAmount: 'Patrimônio investido',
@@ -82,6 +87,7 @@ const ptBR: typeof en = {
     crossoverReached: '✓ Atingido',
     passiveIncomeSm: 'Renda passiva em salários mínimos',
     minimumWageCurrent: 'Salário mínimo atual',
+    minimumWageAbbrev: 'SM',
   },
   settings: {
     title: 'Configurações',

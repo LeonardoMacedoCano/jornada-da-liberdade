@@ -1,9 +1,11 @@
 import { useState, useEffect, FormEvent } from 'react'
 import styled, { useTheme } from 'styled-components'
-import { Button, Loading, useMessage, useToastStack } from 'lcano-react-ui'
+import { Button, Loading, useMessage, useToastStack, PaginatedGrid, ToggleSwitch, formatGroupedNumber, sanitizeNumericInput } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
+import { currencySymbol, toLibLocale } from '../i18n'
+import { getPhaseContent } from '../i18n/content'
 import { Phase, UserProgress, PHASE_HEX_COLORS } from '../types'
 import { buildPhaseAchievementToast } from '../utils/achievementToast'
 import AvatarDisplay from '../components/AvatarDisplay'
@@ -110,10 +112,20 @@ const MissionsSectionLabel = styled.h3`
   margin-bottom: 12px;
 `
 
-const MissionList = styled.div`
+const MissionsHeader = styled.div`
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
+  margin-bottom: 12px;
+`
+
+const EmptyMissionsText = styled.p`
+  text-align: center;
+  color: ${p => p.theme.colors.gray}99;
+  font-size: 14px;
+  padding: 16px 0;
 `
 
 const FormLabel = styled.label`
@@ -185,6 +197,8 @@ const PHASE_INTRODUCING = {
   monthlyPassiveIncome: 6,
 } as const
 
+type MissionFilter = 'pending' | 'all'
+
 export default function Dashboard() {
   const { user } = useAuth()
   const { t, i18n } = useTranslation()
@@ -197,6 +211,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [missionFilter, setMissionFilter] = useState<MissionFilter>('pending')
+  const [focusedField, setFocusedField] = useState<string | null>(null)
 
   const [form, setForm] = useState({
     investedAmount: '',
@@ -238,7 +254,7 @@ export default function Dashboard() {
       setProgress(res.data.progress)
       if (res.data.phaseAdvanced) {
         showSuccess(t('dashboard.phaseAdvanced'))
-        if (phase) notify([buildPhaseAchievementToast(phase, t)])
+        if (phase) notify([buildPhaseAchievementToast(phase, i18n.language, t)])
       } else if (res.data.newlyCompleted?.length > 0) {
         showSuccess(t('dashboard.missionsAutoCompleted', { count: res.data.newlyCompleted.length }))
       }
@@ -263,7 +279,7 @@ export default function Dashboard() {
       setProgress(profileRes.data.progress)
       if (completed) showSuccess(t('dashboard.missionCompleted'))
       if (completed && res.data.phaseAdvanced && completedPhase) {
-        notify([buildPhaseAchievementToast(completedPhase, t)])
+        notify([buildPhaseAchievementToast(completedPhase, i18n.language, t)])
       }
       if (!completed && res.data.phaseRolledBack) {
         showError(t('dashboard.phaseRolledBack', { phase: phaseRes.data.name }))
@@ -295,6 +311,8 @@ export default function Dashboard() {
     showPassiveIncome && { label: t('dashboard.fields.monthlyPassiveIncome'), key: 'monthlyPassiveIncome' as const },
   ].filter((f): f is { label: string; key: 'investedAmount' | 'monthlyContribution' | 'monthlyPassiveIncome' } => !!f)
 
+  const visibleMissions = (phase?.missions ?? []).filter(m => missionFilter === 'all' || !m.isCompleted)
+
   const invested = parseFloat(form.investedAmount) || 0
   const annualRate = progress ? parseFloat(progress.annualReturnRate) || 11 : 11
   const contribution = parseFloat(form.monthlyContribution) || 0
@@ -316,6 +334,7 @@ export default function Dashboard() {
   )
 
   const phaseColor = phase ? (PHASE_HEX_COLORS[phase.color] || theme.colors.quaternary) : theme.colors.quaternary
+  const phaseContent = phase ? getPhaseContent(phase.slug, i18n.language) : null
 
   return (
     <Page>
@@ -324,7 +343,7 @@ export default function Dashboard() {
         <HeaderText>
           <UserName>{t('dashboard.greeting', { name: user?.name })}</UserName>
           <UserPhase>
-            {phase ? `${phase.achievementIcon} ${phase.name} — ${phase.title}` : t('dashboard.loadingPhase')}
+            {phase && phaseContent ? `${phase.achievementIcon} ${phaseContent.name} — ${phaseContent.title}` : t('dashboard.loadingPhase')}
           </UserPhase>
           <UserHandle>@{user?.username}</UserHandle>
         </HeaderText>
@@ -335,34 +354,51 @@ export default function Dashboard() {
 
       <Grid>
         <MainCol $fullWidth={!showPortfolioTracking}>
-          {phase && (
+          {phase && phaseContent && (
             <Card>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                 <div>
                   <SectionLabel>{t('dashboard.currentPhase')}</SectionLabel>
-                  <PhaseTitle>{phase.title}</PhaseTitle>
-                  <PhaseSubtitle>{phase.subtitle}</PhaseSubtitle>
+                  <PhaseTitle>{phaseContent.title}</PhaseTitle>
+                  <PhaseSubtitle>{phaseContent.subtitle}</PhaseSubtitle>
                 </div>
                 <span style={{ fontSize: 36 }}>{phase.achievementIcon}</span>
               </div>
               <ProgressBar percent={phase.progressPercent} color={phaseColor} height="12px" showLabel />
-              <FlavorText>&quot;{phase.flavorText}&quot;</FlavorText>
+              <FlavorText>&quot;{phaseContent.flavorText}&quot;</FlavorText>
             </Card>
           )}
 
           <Card>
-            <MissionsSectionLabel>{t('dashboard.missionsSection')}</MissionsSectionLabel>
-            <MissionList>
-              {phase?.missions.map(mission => (
-                <MissionItem
-                  key={mission.id}
-                  mission={mission}
-                  minimumWage={minimumWage}
-                  onToggle={handleToggleMission}
-                  onStart={handleStartMission}
-                />
-              ))}
-            </MissionList>
+            <MissionsHeader>
+              <MissionsSectionLabel style={{ marginBottom: 0 }}>{t('dashboard.missionsSection')}</MissionsSectionLabel>
+              <ToggleSwitch
+                optionA={{ label: t('dashboard.missionsFilter.pending'), value: 'pending' }}
+                optionB={{ label: t('dashboard.missionsFilter.all'), value: 'all' }}
+                value={missionFilter}
+                onChange={setMissionFilter}
+                width="180px"
+              />
+            </MissionsHeader>
+            {visibleMissions.length === 0 ? (
+              <EmptyMissionsText>{t('dashboard.noMissionsPending')}</EmptyMissionsText>
+            ) : (
+              <PaginatedGrid
+                items={visibleMissions}
+                keyExtractor={mission => mission.id}
+                emptyMessage={t('dashboard.noMissionsPending')}
+                minItemWidth="100%"
+                rowsPerPage={5}
+                renderItem={mission => (
+                  <MissionItem
+                    mission={mission}
+                    minimumWage={minimumWage}
+                    onToggle={handleToggleMission}
+                    onStart={handleStartMission}
+                  />
+                )}
+              />
+            )}
           </Card>
         </MainCol>
 
@@ -376,12 +412,13 @@ export default function Dashboard() {
                     <div key={key}>
                       <FormLabel>{label}</FormLabel>
                       <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={form[key]}
-                        onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-                        placeholder="0"
+                        type="text"
+                        inputMode="decimal"
+                        value={focusedField === key ? form[key] : formatGroupedNumber(form[key], toLibLocale(i18n.language))}
+                        onFocus={() => setFocusedField(key)}
+                        onBlur={() => setFocusedField(null)}
+                        onChange={e => setForm(f => ({ ...f, [key]: sanitizeNumericInput(e.target.value, 8, 2, 0) }))}
+                        placeholder="0.00"
                       />
                     </div>
                   ))}
@@ -403,7 +440,7 @@ export default function Dashboard() {
                 <IndicatorRow>
                   <IndicatorLabel>{t('dashboard.monthlyReturn')}</IndicatorLabel>
                   <IndicatorValue>
-                    R$ {monthlyReturn.toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {currencySymbol(i18n.language)} {monthlyReturn.toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </IndicatorValue>
                 </IndicatorRow>
                 {showContribution && (
@@ -419,14 +456,14 @@ export default function Dashboard() {
                     <IndicatorRow>
                       <IndicatorLabel>{t('dashboard.passiveIncomeSm')}</IndicatorLabel>
                       <IndicatorValue $accent>
-                        {smMultiple.toFixed(2)}× SM
+                        {smMultiple.toFixed(2)}× {t('dashboard.minimumWageAbbrev')}
                       </IndicatorValue>
                     </IndicatorRow>
                     <Divider>
                       <IndicatorRow>
                         <IndicatorLabel style={{ opacity: 0.6 }}>{t('dashboard.minimumWageCurrent')}</IndicatorLabel>
                         <span style={{ fontSize: 12, color: 'inherit', opacity: 0.5 }}>
-                          R$ {minimumWage.toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
+                          {currencySymbol(i18n.language)} {minimumWage.toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
                         </span>
                       </IndicatorRow>
                     </Divider>
