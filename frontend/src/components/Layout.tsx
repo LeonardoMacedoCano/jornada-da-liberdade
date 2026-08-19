@@ -73,6 +73,8 @@ const UserNavLink = styled(NavLink)`
   &.active { color: ${p => p.theme.colors.quaternary}; }
   &:hover { color: ${p => p.theme.colors.white}; }
 
+  .icon { display: none; }
+
   @media (max-width: 640px) {
     .name { display: none; }
     .icon { display: inline; }
@@ -125,9 +127,9 @@ export default function Layout() {
             <StyledNavLink to="/history">{t('nav.history')}</StyledNavLink>
           </NavLinks>
           <NavActions>
-            <UserNavLink to="/settings">
+            <UserNavLink to="/settings" aria-label={t('settings.title')}>
               <span className="name">{user?.name}</span>
-              <span className="icon" style={{ display: 'none' }}>⚙️</span>
+              <span className="icon" aria-hidden="true">⚙️</span>
             </UserNavLink>
             <LogoutButton onClick={handleLogout}>{t('nav.logout')}</LogoutButton>
           </NavActions>
