@@ -1,5 +1,8 @@
 import styled from 'styled-components'
-import { Mission, MISSION_TYPE_ICONS, MISSION_TYPE_LABELS } from '../types'
+import { useTranslation } from 'react-i18next'
+import { currencySymbol } from '../i18n'
+import { getMissionContent } from '../i18n/content'
+import { Mission, MISSION_TYPE_ICONS } from '../types'
 
 interface MissionItemProps {
   mission: Mission
@@ -159,9 +162,11 @@ const CompletedDate = styled.p`
 `
 
 export default function MissionItem({ mission, minimumWage = 1412, onToggle, onStart, compact = false }: MissionItemProps) {
+  const { t, i18n } = useTranslation()
+  const content = getMissionContent(mission.slug, i18n.language)
   const isManual = mission.missionType === 'behavioral' || mission.missionType === 'habit'
   const icon = MISSION_TYPE_ICONS[mission.missionType]
-  const label = MISSION_TYPE_LABELS[mission.missionType]
+  const label = t(`mission.types.${mission.missionType}`)
 
   const elapsedDays = mission.startedAt
     ? Math.floor((Date.now() - new Date(mission.startedAt).getTime()) / 86400000)
@@ -171,15 +176,16 @@ export default function MissionItem({ mission, minimumWage = 1412, onToggle, onS
 
   function formatTarget() {
     if (mission.missionType === 'portfolio_value' && mission.targetValue) {
-      return `Meta: R$ ${parseFloat(mission.targetValue).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`
+      const value = `${currencySymbol(i18n.language)} ${parseFloat(mission.targetValue).toLocaleString(i18n.language, { minimumFractionDigits: 0 })}`
+      return t('mission.targetPortfolio', { value })
     }
     if (mission.missionType === 'passive_income_sm' && mission.targetSmMultiple) {
       const multiple = parseFloat(mission.targetSmMultiple)
-      const value = multiple * minimumWage
-      return `Meta: ${multiple}× SM = R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/mês`
+      const value = `${currencySymbol(i18n.language)} ${(multiple * minimumWage).toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      return t('mission.targetPassiveSm', { multiple, value })
     }
     if (mission.missionType === 'crossover') {
-      return 'Meta: Retorno mensal ≥ Aporte mensal'
+      return t('mission.targetCrossover')
     }
     return null
   }
@@ -207,29 +213,29 @@ export default function MissionItem({ mission, minimumWage = 1412, onToggle, onS
       <Body>
         <TitleRow>
           <span style={{ fontSize: 14 }}>{icon}</span>
-          <MissionTitle $completed={mission.isCompleted}>{mission.title}</MissionTitle>
-          {!mission.isRequiredForPhase && <BadgeOptional>opcional</BadgeOptional>}
+          <MissionTitle $completed={mission.isCompleted}>{content.title}</MissionTitle>
+          {!mission.isRequiredForPhase && <BadgeOptional>{t('mission.optional')}</BadgeOptional>}
           <BadgeType>{label}</BadgeType>
         </TitleRow>
 
-        {!compact && <Description>{mission.description}</Description>}
+        {!compact && <Description>{content.description}</Description>}
         {target && <Target>{target}</Target>}
 
         {mission.missionType === 'habit' && !mission.isCompleted && (
           <div style={{ marginTop: 8 }}>
             {!mission.startedAt && onStart ? (
-              <StartButton onClick={() => onStart(mission.id)}>Iniciar rastreamento</StartButton>
+              <StartButton onClick={() => onStart(mission.id)}>{t('mission.startTracking')}</StartButton>
             ) : mission.startedAt ? (
               <HabitProgress>
                 <HabitProgressRow>
-                  <span>Progresso do hábito</span>
-                  <span>{Math.min(elapsedDays!, requiredDays)}/{requiredDays} dias</span>
+                  <span>{t('mission.habitProgress')}</span>
+                  <span>{t('mission.habitDays', { elapsed: Math.min(elapsedDays!, requiredDays), required: requiredDays })}</span>
                 </HabitProgressRow>
                 <HabitTrack>
                   <HabitFill $width={Math.min((elapsedDays! / requiredDays) * 100, 100)} />
                 </HabitTrack>
                 {habitCanComplete && (
-                  <CompletedDate>Tempo cumprido — marque como concluída acima</CompletedDate>
+                  <CompletedDate>{t('mission.habitReady')}</CompletedDate>
                 )}
               </HabitProgress>
             ) : null}
@@ -238,7 +244,7 @@ export default function MissionItem({ mission, minimumWage = 1412, onToggle, onS
 
         {mission.completedAt && (
           <CompletedDate>
-            ✓ Concluída em {new Date(mission.completedAt).toLocaleDateString('pt-BR')}
+            {t('mission.completedOn', { date: new Date(mission.completedAt).toLocaleDateString(i18n.language) })}
           </CompletedDate>
         )}
       </Body>

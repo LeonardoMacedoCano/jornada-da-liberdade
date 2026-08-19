@@ -1,4 +1,6 @@
 import styled from 'styled-components'
+import { useTranslation } from 'react-i18next'
+import { getPhaseContent } from '../i18n/content'
 import { Phase, PHASE_HEX_COLORS } from '../types'
 import ProgressBar from './ProgressBar'
 import MissionItem from './MissionItem'
@@ -133,6 +135,8 @@ const MissionList = styled.div`
 `
 
 export default function PhaseCard({ phase, minimumWage = 1412, expanded = false, onToggleExpand, onToggleMission }: PhaseCardProps) {
+  const { t, i18n } = useTranslation()
+  const content = getPhaseContent(phase.slug, i18n.language)
   const color = PHASE_HEX_COLORS[phase.color] || PHASE_HEX_COLORS.gray
   const isLocked = phase.status === 'locked'
   const isCompleted = phase.status === 'completed'
@@ -144,13 +148,13 @@ export default function PhaseCard({ phase, minimumWage = 1412, expanded = false,
         <PhaseIcon $locked={isLocked}>{phase.achievementIcon}</PhaseIcon>
         <HeaderBody>
           <TopRow>
-            <PhaseName $color={color}>{phase.name}</PhaseName>
-            {isCompleted && <StatusBadge $variant="completed">✓ Concluída</StatusBadge>}
-            {isActive && <StatusBadge $variant="active">● Atual</StatusBadge>}
-            {isLocked && <StatusBadge $variant="locked">🔒 Bloqueada</StatusBadge>}
+            <PhaseName $color={color}>{content.name}</PhaseName>
+            {isCompleted && <StatusBadge $variant="completed">{t('phase.completed')}</StatusBadge>}
+            {isActive && <StatusBadge $variant="active">{t('phase.active')}</StatusBadge>}
+            {isLocked && <StatusBadge $variant="locked">{t('phase.locked')}</StatusBadge>}
           </TopRow>
-          <PhaseTitle>{phase.title}</PhaseTitle>
-          <PhaseSubtitle>{phase.subtitle}</PhaseSubtitle>
+          <PhaseTitle>{content.title}</PhaseTitle>
+          <PhaseSubtitle>{content.subtitle}</PhaseSubtitle>
           {(isActive || isCompleted) && (
             <div style={{ marginTop: 8 }}>
               <ProgressBar percent={phase.progressPercent} color={color} height="8px" showLabel />
@@ -158,7 +162,7 @@ export default function PhaseCard({ phase, minimumWage = 1412, expanded = false,
           )}
           {isCompleted && phase.completedAt && (
             <CompletedDate>
-              Concluída em {new Date(phase.completedAt).toLocaleDateString('pt-BR')}
+              {t('phase.completedOn', { date: new Date(phase.completedAt).toLocaleDateString(i18n.language) })}
             </CompletedDate>
           )}
         </HeaderBody>
@@ -167,8 +171,8 @@ export default function PhaseCard({ phase, minimumWage = 1412, expanded = false,
 
       {expanded && (
         <Body>
-          <FlavorText>&quot;{phase.flavorText}&quot;</FlavorText>
-          <Description>{phase.description}</Description>
+          <FlavorText>&quot;{content.flavorText}&quot;</FlavorText>
+          <Description>{content.description}</Description>
           <MissionList>
             {phase.missions.map(mission => (
               <MissionItem

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import styled, { useTheme } from 'styled-components'
-import { Button } from 'lcano-react-ui'
+import { Button, PaginatedGrid, BadgeCard } from 'lcano-react-ui'
+import { useTranslation } from 'react-i18next'
 import api from '../services/api'
+import { currencySymbol } from '../i18n'
+import { getPhaseContent } from '../i18n/content'
 import { PublicProfile as PublicProfileType, PHASE_HEX_COLORS } from '../types'
 import AvatarDisplay from '../components/AvatarDisplay'
-import AchievementBadge from '../components/AchievementBadge'
 import ProgressBar from '../components/ProgressBar'
 import ShareButton from '../components/ShareButton'
 
@@ -109,14 +111,6 @@ const ProgressNote = styled.p`
   margin-top: 8px;
 `
 
-const BadgeGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-
-  @media (min-width: 640px) { grid-template-columns: repeat(4, 1fr); }
-`
-
 const FinancialGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -175,6 +169,7 @@ const LoadingText = styled.div`
 
 export default function PublicProfile() {
   const { username } = useParams<{ username: string }>()
+  const { t, i18n } = useTranslation()
   const theme = useTheme()
   const [profile, setProfile] = useState<PublicProfileType | null>(null)
   const [notFound, setNotFound] = useState(false)
@@ -190,7 +185,7 @@ export default function PublicProfile() {
   if (loading) return (
     <Page>
       <Center>
-        <LoadingText>Carregando perfil...</LoadingText>
+        <LoadingText>{t('publicProfile.loading')}</LoadingText>
       </Center>
     </Page>
   )
@@ -199,11 +194,11 @@ export default function PublicProfile() {
     <Page>
       <Center>
         <div style={{ fontSize: 56 }}>🔒</div>
-        <NotFoundTitle>Perfil não encontrado</NotFoundTitle>
-        <NotFoundText>Este perfil é privado ou não existe.</NotFoundText>
+        <NotFoundTitle>{t('publicProfile.notFoundTitle')}</NotFoundTitle>
+        <NotFoundText>{t('publicProfile.notFoundText')}</NotFoundText>
         <Button
           variant="quaternary"
-          description="Criar minha conta"
+          description={t('publicProfile.createAccount')}
           onClick={() => window.location.href = '/login'}
           style={{ borderRadius: '8px', padding: '12px 24px', fontSize: '16px', fontWeight: '600' }}
         />
@@ -222,12 +217,12 @@ export default function PublicProfile() {
     <Page>
       <Container>
         <ProfileHeader>
-          <AvatarDisplay phaseId={profile.currentPhase?.id ?? 0} size="lg" />
+          <AvatarDisplay icon={profile.currentPhase?.achievementIcon ?? '💎'} size="lg" />
           <div>
             <ProfileName>{profile.name}</ProfileName>
             <ProfileHandle>@{profile.username}</ProfileHandle>
             <ProfileMeta>
-              Na jornada há {daysSinceStart} dias · desde {new Date(profile.createdAt).toLocaleDateString('pt-BR')}
+              {t('publicProfile.daysSince', { days: daysSinceStart, date: new Date(profile.createdAt).toLocaleDateString(i18n.language) })}
             </ProfileMeta>
           </div>
         </ProfileHeader>
@@ -235,40 +230,53 @@ export default function PublicProfile() {
         {profile.currentPhase && (
           <PhaseCard>
             <PhaseIcon>{profile.currentPhase.achievementIcon}</PhaseIcon>
-            <PhaseName>{profile.currentPhase.name}</PhaseName>
-            <PhaseTitle>{profile.currentPhase.title}</PhaseTitle>
+            <PhaseName>{getPhaseContent(profile.currentPhase.slug, i18n.language).name}</PhaseName>
+            <PhaseTitle>{getPhaseContent(profile.currentPhase.slug, i18n.language).title}</PhaseTitle>
             <ProgressWrap>
               <ProgressBar percent={profile.progressPercent} color={phaseColor} height="8px" showLabel />
             </ProgressWrap>
-            <ProgressNote>{profile.progressPercent}% da fase concluída</ProgressNote>
+            <ProgressNote>{t('publicProfile.phaseProgress', { percent: profile.progressPercent })}</ProgressNote>
           </PhaseCard>
         )}
 
         {profile.achievements.length > 0 && (
           <Card>
-            <SectionLabel>🏆 Conquistas ({profile.achievements.length})</SectionLabel>
-            <BadgeGrid>
-              {profile.achievements.map(a => (
-                <AchievementBadge key={a.phaseId} achievement={a} size="sm" />
-              ))}
-            </BadgeGrid>
+            <SectionLabel>🏆 {t('publicProfile.achievements', { count: profile.achievements.length })}</SectionLabel>
+            <PaginatedGrid
+              items={profile.achievements}
+              keyExtractor={a => a.phaseId}
+              emptyMessage=""
+              minItemWidth="140px"
+              renderItem={a => {
+                const content = getPhaseContent(a.phaseSlug, i18n.language)
+                return (
+                  <BadgeCard
+                    icon={a.achievementIcon}
+                    title={content.achievementName}
+                    description={content.name}
+                    meta={t('phase.completedOn', { date: new Date(a.completedAt).toLocaleDateString(i18n.language) })}
+                    height="130px"
+                  />
+                )
+              }}
+            />
           </Card>
         )}
 
         {profile.financialData && (
           <Card>
-            <SectionLabel>📊 Dados Financeiros</SectionLabel>
+            <SectionLabel>📊 {t('publicProfile.financialData')}</SectionLabel>
             <FinancialGrid>
               <FinancialItem>
-                <FinancialLabel>Patrimônio Investido</FinancialLabel>
+                <FinancialLabel>{t('publicProfile.investedAmount')}</FinancialLabel>
                 <FinancialValue>
-                  R$ {parseFloat(profile.financialData.investedAmount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {currencySymbol(i18n.language)} {parseFloat(profile.financialData.investedAmount).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
                 </FinancialValue>
               </FinancialItem>
               <FinancialItem>
-                <FinancialLabel>Renda Passiva Mensal</FinancialLabel>
+                <FinancialLabel>{t('publicProfile.monthlyPassiveIncome')}</FinancialLabel>
                 <FinancialValue $success>
-                  R$ {parseFloat(profile.financialData.monthlyPassiveIncome).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {currencySymbol(i18n.language)} {parseFloat(profile.financialData.monthlyPassiveIncome).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
                 </FinancialValue>
               </FinancialItem>
             </FinancialGrid>
@@ -278,8 +286,8 @@ export default function PublicProfile() {
         <CtaSection>
           <ShareButton username={profile.username} />
           <CtaText>
-            Quer acompanhar sua própria jornada?{' '}
-            <CtaLink to="/register">Criar conta grátis</CtaLink>
+            {t('publicProfile.ctaText')}{' '}
+            <CtaLink to="/login">{t('publicProfile.ctaLink')}</CtaLink>
           </CtaText>
         </CtaSection>
       </Container>

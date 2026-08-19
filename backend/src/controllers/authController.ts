@@ -1,73 +1,84 @@
 import { Request, Response } from 'express'
-import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
+import { ErrorCode } from '../lib/errors'
+import { verifyGoogleIdToken } from '../lib/googleAuth'
 
-export async function register(req: Request, res: Response): Promise<void> {
-  const { name, email, password, username } = req.body
+const DIACRITIC_MARKS_REGEX = /[\u0300-\u036f]/g
 
-  if (!name || !email || !password || !username) {
-    res.status(400).json({ error: 'Todos os campos são obrigatórios' })
-    return
-  }
-
-  const usernameRegex = /^[a-z0-9-]+$/
-  if (!usernameRegex.test(username)) {
-    res.status(400).json({ error: 'Username deve conter apenas letras minúsculas, números e hífens' })
-    return
-  }
-
-  const existingUser = await prisma.user.findFirst({
-    where: { OR: [{ email }, { username }] },
-  })
-  if (existingUser) {
-    res.status(409).json({ error: existingUser.email === email ? 'E-mail já cadastrado' : 'Username já em uso' })
-    return
-  }
-
-  const passwordHash = await bcrypt.hash(password, 12)
-  const user = await prisma.user.create({
-    data: { name, email, passwordHash, username },
-  })
-
-  await prisma.userProgress.create({ data: { userId: user.id } })
-
-  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '30d' })
-  res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email, username: user.username } })
+function slugifyUsername(base: string): string {
+  const slug = base
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(DIACRITIC_MARKS_REGEX, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return slug || 'user'
 }
 
-export async function login(req: Request, res: Response): Promise<void> {
-  const { email, password } = req.body
+async function generateUniqueUsername(base: string): Promise<string> {
+  const slug = slugifyUsername(base)
+  let candidate = slug
+  let suffix = 0
+  while (await prisma.user.findUnique({ where: { username: candidate } })) {
+    suffix += 1
+    candidate = `${slug}-${suffix}`
+  }
+  return candidate
+}
 
-  if (!email || !password) {
-    res.status(400).json({ error: 'E-mail e senha são obrigatórios' })
+export async function getAuthConfig(_req: Request, res: Response): Promise<void> {
+  res.json({ googleClientId: process.env.GOOGLE_CLIENT_ID ?? null })
+}
+
+export async function googleAuth(req: Request, res: Response): Promise<void> {
+  const clientId = process.env.GOOGLE_CLIENT_ID
+  if (!clientId) {
+    res.status(500).json({ error: ErrorCode.GOOGLE_LOGIN_NOT_CONFIGURED })
     return
   }
 
-  const user = await prisma.user.findUnique({ where: { email } })
+  const { credential } = req.body
+  if (!credential) {
+    res.status(400).json({ error: ErrorCode.MISSING_GOOGLE_CREDENTIAL })
+    return
+  }
+
+  let googleUser
+  try {
+    googleUser = await verifyGoogleIdToken(credential, clientId)
+  } catch {
+    res.status(401).json({ error: ErrorCode.INVALID_GOOGLE_CREDENTIAL })
+    return
+  }
+
+  let user = await prisma.user.findUnique({ where: { googleId: googleUser.sub } })
+
   if (!user) {
-    res.status(401).json({ error: 'Credenciais inválidas' })
-    return
-  }
-
-  const valid = await bcrypt.compare(password, user.passwordHash)
-  if (!valid) {
-    res.status(401).json({ error: 'Credenciais inválidas' })
-    return
+    const username = await generateUniqueUsername(googleUser.name || googleUser.email)
+    user = await prisma.user.create({
+      data: { googleId: googleUser.sub, email: googleUser.email, name: googleUser.name || googleUser.email, username },
+    })
+    await prisma.userProgress.create({ data: { userId: user.id } })
+  } else if (user.name !== googleUser.name || user.email !== googleUser.email) {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { name: googleUser.name || user.name, email: googleUser.email || user.email },
+    })
   }
 
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '30d' })
-  res.json({ token, user: { id: user.id, name: user.name, email: user.email, username: user.username } })
+  res.json({ token, user: { id: user.id, name: user.name, email: user.email, username: user.username, language: user.language } })
 }
 
 export async function me(req: AuthRequest, res: Response): Promise<void> {
   const user = await prisma.user.findUnique({
     where: { id: req.userId },
-    select: { id: true, name: true, email: true, username: true, avatarType: true, sharePublicProfile: true, showFinancialValues: true, createdAt: true },
+    select: { id: true, name: true, email: true, username: true, avatarType: true, language: true, sharePublicProfile: true, showFinancialValues: true, createdAt: true },
   })
   if (!user) {
-    res.status(404).json({ error: 'Usuário não encontrado' })
+    res.status(404).json({ error: ErrorCode.USER_NOT_FOUND })
     return
   }
   res.json(user)

@@ -1,14 +1,17 @@
 import styled from 'styled-components'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { ToastStack } from 'lcano-react-ui'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { toLibLocale } from './i18n'
 import Login from './pages/Login'
-import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Roadmap from './pages/Roadmap'
 import History from './pages/History'
 import Settings from './pages/Settings'
 import PublicProfile from './pages/PublicProfile'
 import Layout from './components/Layout'
+import LanguageModal from './components/LanguageModal'
 
 const FullScreen = styled.div`
   min-height: 100vh;
@@ -26,12 +29,15 @@ const LoadingText = styled.div`
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
+  const { t } = useTranslation()
   if (loading) return (
     <FullScreen>
-      <LoadingText>Carregando...</LoadingText>
+      <LoadingText>{t('common.loading')}</LoadingText>
     </FullScreen>
   )
-  return user ? <>{children}</> : <Navigate to="/login" replace />
+  if (!user) return <Navigate to="/login" replace />
+  if (!user.language) return <LanguageModal />
+  return <>{children}</>
 }
 
 function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
@@ -40,13 +46,25 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
   return !user ? <>{children}</> : <Navigate to="/" replace />
 }
 
+function AchievementToastStack() {
+  const navigate = useNavigate()
+  const { i18n } = useTranslation()
+  return (
+    <ToastStack
+      locale={toLibLocale(i18n.language)}
+      onItemClick={() => navigate('/history')}
+    />
+  )
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <AchievementToastStack />
         <Routes>
           <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
-          <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
+          <Route path="/register" element={<Navigate to="/login" replace />} />
           <Route path="/p/:username" element={<PublicProfile />} />
           <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
             <Route index element={<Dashboard />} />

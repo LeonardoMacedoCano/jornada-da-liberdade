@@ -12,9 +12,10 @@ model User {
   id           String   @id @default(cuid())
   name         String
   email        String   @unique
-  passwordHash String
+  googleId     String   @unique
   username     String   @unique
   avatarType   String   @default("warrior")
+  language     String?
 
   sharePublicProfile   Boolean @default(true)
   showFinancialValues  Boolean @default(false)
@@ -42,18 +43,16 @@ model UserProgress {
   updatedAt DateTime @updatedAt
 }
 
+// Fases e missões guardam só dados estruturais/mecânicos. Todo texto exibido
+// (nome, título, descrição, flavor text) mora no frontend (src/i18n/locales),
+// indexado por slug — igual ao resto da UI. Isso evita duplicar conteúdo em
+// dois idiomas dentro do banco.
 model Phase {
-  id             Int    @id
-  slug           String @unique
-  name           String
-  title          String
-  subtitle       String
-  description    String
-  flavorText     String
-  orderIndex     Int
-  achievementName String
+  id              Int    @id
+  slug            String @unique
+  orderIndex      Int
   achievementIcon String
-  color          String
+  color           String
 
   missions     Mission[]
   phaseHistory UserPhaseHistory[]
@@ -64,9 +63,7 @@ model Mission {
   phaseId Int
   phase   Phase  @relation(fields: [phaseId], references: [id])
 
-  slug        String @unique
-  title       String
-  description String
+  slug String @unique
 
   missionType          String
   targetValue          Decimal? @db.Decimal(15, 2)

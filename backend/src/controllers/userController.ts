@@ -1,20 +1,21 @@
 import { Response } from 'express'
-import bcrypt from 'bcryptjs'
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
-import { MINIMUM_WAGE, MAX_PHASE_ID } from '../lib/constants'
+import { MAX_PHASE_ID } from '../lib/constants'
+import { getUserLanguage, minimumWageFor } from '../lib/localization'
+import { ErrorCode } from '../lib/errors'
 
 export async function getProfile(req: AuthRequest, res: Response): Promise<void> {
   const user = await prisma.user.findUnique({
     where: { id: req.userId },
     select: {
       id: true, name: true, email: true, username: true,
-      avatarType: true, sharePublicProfile: true, showFinancialValues: true, createdAt: true,
+      avatarType: true, language: true, sharePublicProfile: true, showFinancialValues: true, createdAt: true,
       progress: true,
     },
   })
-  if (!user) { res.status(404).json({ error: 'Usuário não encontrado' }); return }
+  if (!user) { res.status(404).json({ error: ErrorCode.USER_NOT_FOUND }); return }
   res.json(user)
 }
 
@@ -35,7 +36,8 @@ async function autoCompleteMissions(userId: string, progress: {
   monthlyContribution: Prisma.Decimal,
   annualReturnRate: Prisma.Decimal,
   currentPhaseId: number,
-}): Promise<{ newlyCompleted: number[], phaseAdvanced: boolean, newPhaseId: number }> {
+}, language: string): Promise<{ newlyCompleted: number[], phaseAdvanced: boolean, newPhaseId: number }> {
+  const minimumWage = minimumWageFor(language)
   const invested = parseFloat(progress.investedAmount.toString())
   const passiveIncome = parseFloat(progress.monthlyPassiveIncome.toString())
   const contribution = parseFloat(progress.monthlyContribution.toString())
@@ -61,7 +63,7 @@ async function autoCompleteMissions(userId: string, progress: {
     if (mission.missionType === 'portfolio_value' && mission.targetValue !== null) {
       shouldComplete = invested >= parseFloat(mission.targetValue.toString())
     } else if (mission.missionType === 'passive_income_sm' && mission.targetSmMultiple !== null) {
-      const threshold = parseFloat(mission.targetSmMultiple.toString()) * MINIMUM_WAGE
+      const threshold = parseFloat(mission.targetSmMultiple.toString()) * minimumWage
       shouldComplete = passiveIncome >= threshold
     } else if (mission.missionType === 'crossover') {
       shouldComplete = contribution > 0 && monthlyReturn >= contribution
@@ -115,14 +117,14 @@ export async function updateProgress(req: AuthRequest, res: Response): Promise<v
 
   for (const [key, val] of Object.entries({ investedAmount, monthlyPassiveIncome, monthlyContribution })) {
     if (val !== undefined && (isNaN(Number(val)) || Number(val) < 0)) {
-      res.status(400).json({ error: `Campo ${key} inválido — deve ser um número não negativo` })
+      res.status(400).json({ error: ErrorCode.INVALID_NON_NEGATIVE_FIELD, field: key })
       return
     }
   }
   if (annualReturnRate !== undefined) {
     const rate = Number(annualReturnRate)
     if (isNaN(rate) || rate < 0 || rate > 100) {
-      res.status(400).json({ error: 'Taxa de retorno deve ser entre 0 e 100' })
+      res.status(400).json({ error: ErrorCode.INVALID_RETURN_RATE })
       return
     }
   }
@@ -144,27 +146,35 @@ export async function updateProgress(req: AuthRequest, res: Response): Promise<v
     },
   })
 
-  const result = await autoCompleteMissions(req.userId!, updated)
+  const language = await getUserLanguage(req.userId!)
+  const result = await autoCompleteMissions(req.userId!, updated, language)
 
   const freshProgress = await prisma.userProgress.findUnique({ where: { userId: req.userId! } })
   res.json({ progress: freshProgress ?? updated, ...result })
 }
 
+const SUPPORTED_LANGUAGES = ['en', 'pt-BR']
+
 export async function updateSettings(req: AuthRequest, res: Response): Promise<void> {
-  const { name, username, sharePublicProfile, showFinancialValues } = req.body
+  const { name, username, sharePublicProfile, showFinancialValues, language } = req.body
 
   if (name !== undefined && !name.trim()) {
-    res.status(400).json({ error: 'Nome não pode ser vazio' })
+    res.status(400).json({ error: ErrorCode.NAME_CANNOT_BE_EMPTY })
     return
   }
 
   if (username !== undefined) {
     if (!username || !/^[a-z0-9-]+$/.test(username)) {
-      res.status(400).json({ error: 'Username deve conter apenas letras minúsculas, números e hífens' })
+      res.status(400).json({ error: ErrorCode.INVALID_USERNAME_FORMAT })
       return
     }
     const existing = await prisma.user.findFirst({ where: { username, NOT: { id: req.userId } } })
-    if (existing) { res.status(409).json({ error: 'Username já em uso' }); return }
+    if (existing) { res.status(409).json({ error: ErrorCode.USERNAME_ALREADY_IN_USE }); return }
+  }
+
+  if (language !== undefined && !SUPPORTED_LANGUAGES.includes(language)) {
+    res.status(400).json({ error: ErrorCode.UNSUPPORTED_LANGUAGE })
+    return
   }
 
   const user = await prisma.user.update({
@@ -174,26 +184,9 @@ export async function updateSettings(req: AuthRequest, res: Response): Promise<v
       ...(username !== undefined && { username }),
       ...(sharePublicProfile !== undefined && { sharePublicProfile }),
       ...(showFinancialValues !== undefined && { showFinancialValues }),
+      ...(language !== undefined && { language }),
     },
-    select: { id: true, name: true, email: true, username: true, sharePublicProfile: true, showFinancialValues: true },
+    select: { id: true, name: true, email: true, username: true, language: true, sharePublicProfile: true, showFinancialValues: true },
   })
   res.json(user)
-}
-
-export async function updatePassword(req: AuthRequest, res: Response): Promise<void> {
-  const { currentPassword, newPassword } = req.body
-  if (!currentPassword || !newPassword) {
-    res.status(400).json({ error: 'Senha atual e nova senha são obrigatórias' })
-    return
-  }
-
-  const user = await prisma.user.findUnique({ where: { id: req.userId } })
-  if (!user) { res.status(404).json({ error: 'Usuário não encontrado' }); return }
-
-  const valid = await bcrypt.compare(currentPassword, user.passwordHash)
-  if (!valid) { res.status(401).json({ error: 'Senha atual incorreta' }); return }
-
-  const passwordHash = await bcrypt.hash(newPassword, 12)
-  await prisma.user.update({ where: { id: req.userId }, data: { passwordHash } })
-  res.json({ message: 'Senha atualizada com sucesso' })
 }

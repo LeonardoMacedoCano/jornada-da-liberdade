@@ -2,6 +2,7 @@ import { Response } from 'express'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
 import { MAX_PHASE_ID } from '../lib/constants'
+import { ErrorCode } from '../lib/errors'
 
 function serializeMission(mission: any, prog?: any) {
   return {
@@ -68,10 +69,10 @@ export async function completeMission(req: AuthRequest, res: Response): Promise<
   const userId = req.userId!
 
   const mission = await prisma.mission.findUnique({ where: { id: missionId } })
-  if (!mission) { res.status(404).json({ error: 'Missão não encontrada' }); return }
+  if (!mission) { res.status(404).json({ error: ErrorCode.MISSION_NOT_FOUND }); return }
 
   if (!['behavioral', 'habit'].includes(mission.missionType)) {
-    res.status(400).json({ error: 'Apenas missões comportamentais e de hábito podem ser marcadas manualmente' })
+    res.status(400).json({ error: ErrorCode.ONLY_MANUAL_MISSIONS_CAN_BE_COMPLETED })
     return
   }
 
@@ -80,16 +81,17 @@ export async function completeMission(req: AuthRequest, res: Response): Promise<
       where: { userId_missionId: { userId, missionId } },
     })
     if (!existing?.startedAt) {
-      res.status(400).json({ error: 'Inicie o rastreamento antes de concluir esta missão' })
+      res.status(400).json({ error: ErrorCode.START_TRACKING_FIRST })
       return
     }
     const requiredDays = mission.requiredDurationDays ?? 0
     const elapsedDays = Math.floor((Date.now() - existing.startedAt.getTime()) / 86400000)
     if (elapsedDays < requiredDays) {
       res.status(400).json({
-        error: `Ainda faltam ${requiredDays - elapsedDays} dias para completar esta missão`,
+        error: ErrorCode.HABIT_DURATION_NOT_MET,
         elapsedDays,
         requiredDays,
+        remainingDays: requiredDays - elapsedDays,
       })
       return
     }
@@ -117,10 +119,10 @@ export async function startMission(req: AuthRequest, res: Response): Promise<voi
   const userId = req.userId!
 
   const mission = await prisma.mission.findUnique({ where: { id: missionId } })
-  if (!mission) { res.status(404).json({ error: 'Missão não encontrada' }); return }
+  if (!mission) { res.status(404).json({ error: ErrorCode.MISSION_NOT_FOUND }); return }
 
   if (mission.missionType !== 'habit') {
-    res.status(400).json({ error: 'Apenas missões de hábito podem ser iniciadas' })
+    res.status(400).json({ error: ErrorCode.ONLY_HABIT_MISSIONS_CAN_START })
     return
   }
 
@@ -128,7 +130,7 @@ export async function startMission(req: AuthRequest, res: Response): Promise<voi
     where: { userId_missionId: { userId, missionId } },
   })
   if (existing?.startedAt) {
-    res.status(409).json({ error: 'Rastreamento já iniciado', startedAt: existing.startedAt })
+    res.status(409).json({ error: ErrorCode.TRACKING_ALREADY_STARTED, startedAt: existing.startedAt })
     return
   }
 
@@ -146,10 +148,10 @@ export async function uncompleteMission(req: AuthRequest, res: Response): Promis
   const userId = req.userId!
 
   const mission = await prisma.mission.findUnique({ where: { id: missionId } })
-  if (!mission) { res.status(404).json({ error: 'Missão não encontrada' }); return }
+  if (!mission) { res.status(404).json({ error: ErrorCode.MISSION_NOT_FOUND }); return }
 
   if (!['behavioral', 'habit'].includes(mission.missionType)) {
-    res.status(400).json({ error: 'Apenas missões comportamentais e de hábito podem ser desmarcadas' })
+    res.status(400).json({ error: ErrorCode.ONLY_MANUAL_MISSIONS_CAN_BE_UNCOMPLETED })
     return
   }
 
@@ -164,7 +166,7 @@ export async function uncompleteMission(req: AuthRequest, res: Response): Promis
   })
 
   if (!mission.isRequiredForPhase) {
-    res.json({ message: 'Missão desmarcada', phaseRolledBack: false })
+    res.json({ message: 'Mission unmarked', phaseRolledBack: false })
     return
   }
 
@@ -184,10 +186,10 @@ export async function uncompleteMission(req: AuthRequest, res: Response): Promis
         prisma.userPhaseHistory.deleteMany({ where: { userId, phaseId: { gte: mission.phaseId } } }),
         prisma.userProgress.update({ where: { userId }, data: { currentPhaseId: mission.phaseId } }),
       ])
-      res.json({ message: 'Missão desmarcada', phaseRolledBack: true, newPhaseId: mission.phaseId })
+      res.json({ message: 'Mission unmarked', phaseRolledBack: true, newPhaseId: mission.phaseId })
       return
     }
   }
 
-  res.json({ message: 'Missão desmarcada', phaseRolledBack: false })
+  res.json({ message: 'Mission unmarked', phaseRolledBack: false })
 }

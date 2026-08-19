@@ -1,12 +1,13 @@
 import { Request, Response } from 'express'
 import { prisma } from '../lib/prisma'
+import { ErrorCode } from '../lib/errors'
 
 export async function getPublicProfile(req: Request, res: Response): Promise<void> {
   const { username } = req.params
 
   const user = await prisma.user.findUnique({ where: { username } })
   if (!user || !user.sharePublicProfile) {
-    res.status(404).json({ error: 'Perfil não encontrado ou privado' })
+    res.status(404).json({ error: ErrorCode.PROFILE_NOT_FOUND_OR_PRIVATE })
     return
   }
 
@@ -31,8 +32,7 @@ export async function getPublicProfile(req: Request, res: Response): Promise<voi
 
   const achievements = phaseHistory.map(h => ({
     phaseId: h.phaseId,
-    phaseName: h.phase.name,
-    achievementName: h.phase.achievementName,
+    phaseSlug: h.phase.slug,
     achievementIcon: h.phase.achievementIcon,
     color: h.phase.color,
     completedAt: h.completedAt,
@@ -45,8 +45,7 @@ export async function getPublicProfile(req: Request, res: Response): Promise<voi
     createdAt: user.createdAt,
     currentPhase: currentPhase ? {
       id: currentPhase.id,
-      name: currentPhase.name,
-      title: currentPhase.title,
+      slug: currentPhase.slug,
       achievementIcon: currentPhase.achievementIcon,
       color: currentPhase.color,
     } : null,

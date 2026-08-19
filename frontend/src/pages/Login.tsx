@@ -1,8 +1,9 @@
-import { useState, FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import styled from 'styled-components'
-import { Button } from 'lcano-react-ui'
+import { GoogleSignInButton } from 'lcano-react-ui'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
+import { toLibLocale, translateApiError } from '../i18n'
 
 const Page = styled.div`
   min-height: 100vh;
@@ -45,89 +46,53 @@ const Card = styled.div`
   border: 1px solid ${p => p.theme.colors.tertiary};
   border-radius: 16px;
   padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 `
 
 const CardTitle = styled.h2`
   font-size: 20px;
   font-weight: 600;
   color: ${p => p.theme.colors.white};
-  margin-bottom: 24px;
 `
 
 const ErrorBox = styled.div`
-  margin-bottom: 16px;
+  width: 100%;
   padding: 12px;
   border-radius: 8px;
   background: ${p => p.theme.colors.warning}1a;
   border: 1px solid ${p => p.theme.colors.warning}4d;
   color: ${p => p.theme.colors.warning};
   font-size: 14px;
-`
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`
-
-const Field = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`
-
-const Label = styled.label`
-  font-size: 14px;
-  color: ${p => p.theme.colors.gray};
-`
-
-const Input = styled.input`
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 8px;
-  background: ${p => p.theme.colors.primary};
-  border: 1px solid ${p => p.theme.colors.tertiary};
-  color: ${p => p.theme.colors.white};
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.15s;
-
-  &::placeholder { color: ${p => p.theme.colors.gray}60; }
-  &:focus { border-color: ${p => p.theme.colors.quaternary}; }
-`
-
-const Footer = styled.p`
   text-align: center;
-  color: ${p => p.theme.colors.gray};
-  font-size: 14px;
-  margin-top: 24px;
 `
 
-const FooterLink = styled(Link)`
-  color: ${p => p.theme.colors.quaternary};
-  text-decoration: none;
+const ButtonWrap = styled.div`
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
 
-  &:hover { color: ${p => p.theme.colors.quaternary}cc; }
+const StatusText = styled.p`
+  color: ${p => p.theme.colors.gray};
+  font-size: 14px;
 `
 
 export default function Login() {
-  const { login } = useAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const { loginWithGoogle, googleClientId } = useAuth()
+  const { t, i18n } = useTranslation()
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  async function handleCredential(credential: string) {
     setError('')
-    setLoading(true)
     try {
-      await login(email, password)
+      await loginWithGoogle(credential)
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-      setError(msg || 'Erro ao fazer login')
-    } finally {
-      setLoading(false)
+      const data = (err as { response?: { data?: unknown } })?.response?.data
+      setError(translateApiError(t, data, 'auth.login.errorGeneric'))
     }
   }
 
@@ -136,46 +101,21 @@ export default function Login() {
       <Wrapper>
         <Hero>
           <HeroIcon>💎</HeroIcon>
-          <HeroTitle>Jornada da Liberdade</HeroTitle>
-          <HeroSub>Sua jornada rumo à independência financeira</HeroSub>
+          <HeroTitle>{t('auth.login.heroTitle')}</HeroTitle>
+          <HeroSub>{t('auth.login.heroSub')}</HeroSub>
         </Hero>
         <Card>
-          <CardTitle>Entrar</CardTitle>
+          <CardTitle>{t('auth.login.cardTitle')}</CardTitle>
           {error && <ErrorBox>{error}</ErrorBox>}
-          <Form onSubmit={handleSubmit}>
-            <Field>
-              <Label>E-mail</Label>
-              <Input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                placeholder="seu@email.com"
-              />
-            </Field>
-            <Field>
-              <Label>Senha</Label>
-              <Input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-              />
-            </Field>
-            <Button
-              type="submit"
-              variant="quaternary"
-              width="100%"
-              description={loading ? 'Entrando...' : 'Entrar'}
-              disabled={loading}
-              style={{ borderRadius: '8px', padding: '12px 16px', fontSize: '14px', fontWeight: '600' }}
-            />
-          </Form>
-          <Footer>
-            Não tem conta?{' '}
-            <FooterLink to="/register">Criar conta</FooterLink>
-          </Footer>
+          <ButtonWrap>
+            {googleClientId === undefined ? (
+              <StatusText>{t('common.loading')}</StatusText>
+            ) : googleClientId ? (
+              <GoogleSignInButton clientId={googleClientId} onCredential={handleCredential} locale={toLibLocale(i18n.language)} />
+            ) : (
+              <ErrorBox>{t('auth.login.notConfigured')}</ErrorBox>
+            )}
+          </ButtonWrap>
         </Card>
       </Wrapper>
     </Page>

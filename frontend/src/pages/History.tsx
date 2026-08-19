@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Loading } from 'lcano-react-ui'
+import { Loading, PaginatedGrid, BadgeCard, Modal } from 'lcano-react-ui'
+import { useTranslation } from 'react-i18next'
 import api from '../services/api'
-import { Phase, Mission, MISSION_TYPE_ICONS, MISSION_TYPE_LABELS } from '../types'
-import AchievementBadge from '../components/AchievementBadge'
+import { getPhaseContent, getMissionContent } from '../i18n/content'
+import { Phase, Mission, MISSION_TYPE_ICONS } from '../types'
 
 interface CompletedMission extends Mission {
-  phaseName: string
+  phaseSlug: string
   phaseColor: string
 }
 
@@ -53,15 +54,6 @@ const ShowcaseCard = styled.div`
   border: 1px solid ${p => p.theme.colors.tertiary};
   border-radius: 12px;
   padding: 24px;
-`
-
-const BadgeGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-
-  @media (min-width: 640px) { grid-template-columns: repeat(5, 1fr); }
-  @media (min-width: 768px) { grid-template-columns: repeat(9, 1fr); }
 `
 
 const EmptyText = styled.p`
@@ -118,10 +110,15 @@ const MissionRow = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+  height: 84px;
   padding: 12px;
   border-radius: 8px;
   background: ${p => p.theme.colors.secondary};
   border: 1px solid ${p => p.theme.colors.tertiary};
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:hover { border-color: ${p => p.theme.colors.quaternary}; }
 `
 
 const MissionInfo = styled.div`
@@ -130,8 +127,13 @@ const MissionInfo = styled.div`
 `
 
 const MissionTitle = styled.span`
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   font-size: 14px;
   font-weight: 500;
+  line-height: 1.3;
   color: ${p => p.theme.colors.white};
 `
 
@@ -154,12 +156,6 @@ const MissionDate = styled.div`
   flex-shrink: 0;
 `
 
-const MissionList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`
-
 const LoadingWrap = styled.div`
   display: flex;
   align-items: center;
@@ -167,11 +163,57 @@ const LoadingWrap = styled.div`
   height: 256px;
 `
 
+const ModalBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`
+
+const ModalEyebrow = styled.div`
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: ${p => p.theme.colors.quaternary};
+`
+
+const ModalSubtitle = styled.p`
+  font-size: 14px;
+  color: ${p => p.theme.colors.gray};
+`
+
+const ModalDescription = styled.p`
+  font-size: 14px;
+  color: ${p => p.theme.colors.gray};
+  line-height: 1.5;
+`
+
+const ModalFlavor = styled.p`
+  font-size: 13px;
+  font-style: italic;
+  color: ${p => p.theme.colors.gray};
+`
+
+const ModalMetaRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: ${p => p.theme.colors.gray};
+`
+
+const ModalCompletedDate = styled.span`
+  color: ${p => p.theme.colors.success};
+`
+
 export default function History() {
+  const { t, i18n } = useTranslation()
   const [phases, setPhases] = useState<Phase[]>([])
   const [completedMissions, setCompletedMissions] = useState<CompletedMission[]>([])
   const [filterPhaseId, setFilterPhaseId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
+  const [selectedPhase, setSelectedPhase] = useState<Phase | null>(null)
+  const [selectedMission, setSelectedMission] = useState<CompletedMission | null>(null)
 
   useEffect(() => {
     api.get('/phases').then(res => {
@@ -181,7 +223,7 @@ export default function History() {
       data.forEach(phase => {
         phase.missions.forEach(m => {
           if (m.isCompleted && m.completedAt) {
-            missions.push({ ...m, phaseName: phase.name, phaseColor: phase.color })
+            missions.push({ ...m, phaseSlug: phase.slug, phaseColor: phase.color })
           }
         })
       })
@@ -191,18 +233,6 @@ export default function History() {
   }, [])
 
   const unlockedCount = phases.filter(p => p.status === 'completed').length
-
-  const allBadges = phases.map(p => ({
-    achievement: {
-      phaseId: p.id,
-      phaseName: p.name,
-      achievementName: p.achievementName,
-      achievementIcon: p.achievementIcon,
-      color: p.color,
-      completedAt: p.completedAt || '',
-    },
-    locked: p.status !== 'completed',
-  }))
 
   const filtered = filterPhaseId !== null
     ? completedMissions.filter(m => m.phaseId === filterPhaseId)
@@ -217,29 +247,41 @@ export default function History() {
   return (
     <Page>
       <PageHeader>
-        <Title>Histórico</Title>
-        <Subtitle>Conquistas desbloqueadas e missões concluídas</Subtitle>
+        <Title>{t('history.title')}</Title>
+        <Subtitle>{t('history.subtitle')}</Subtitle>
       </PageHeader>
 
       <section>
         <SectionHeader>
-          <SectionTitle>Vitrine de Conquistas</SectionTitle>
-          <CountLabel>{unlockedCount}/{phases.length} desbloqueadas</CountLabel>
+          <SectionTitle>{t('history.showcaseTitle')}</SectionTitle>
+          <CountLabel>{t('history.unlockedCount', { count: unlockedCount, total: phases.length })}</CountLabel>
         </SectionHeader>
 
         <ShowcaseCard>
-          <BadgeGrid>
-            {allBadges.map(({ achievement, locked }) => (
-              <AchievementBadge
-                key={achievement.phaseId}
-                achievement={achievement}
-                size="lg"
-                locked={locked}
-              />
-            ))}
-          </BadgeGrid>
+          <PaginatedGrid
+            items={phases}
+            keyExtractor={p => p.id}
+            emptyMessage={t('history.emptyBadges')}
+            minItemWidth="300px"
+            rowsPerPage={2}
+            renderItem={p => {
+              const locked = p.status !== 'completed'
+              const content = getPhaseContent(p.slug, i18n.language)
+              return (
+                <BadgeCard
+                  icon={locked ? '🔒' : p.achievementIcon}
+                  title={content.achievementName}
+                  description={`${content.name} — ${content.title}`}
+                  meta={!locked && p.completedAt ? t('phase.completedOn', { date: new Date(p.completedAt).toLocaleDateString(i18n.language) }) : undefined}
+                  active={!locked}
+                  height="132px"
+                  onClick={locked ? undefined : () => setSelectedPhase(p)}
+                />
+              )
+            }}
+          />
           {unlockedCount === 0 && (
-            <EmptyText>Complete a Fase Tutorial para desbloquear a primeira conquista.</EmptyText>
+            <EmptyText>{t('history.emptyBadges')}</EmptyText>
           )}
         </ShowcaseCard>
       </section>
@@ -247,12 +289,12 @@ export default function History() {
       <section>
         <TimelineHeader>
           <SectionTitle>
-            Missões Concluídas{' '}
+            {t('history.completedMissionsTitle')}{' '}
             <CountLabel>({filtered.length})</CountLabel>
           </SectionTitle>
           <FilterRow>
             <FilterButton $active={filterPhaseId === null} onClick={() => setFilterPhaseId(null)}>
-              Todas
+              {t('history.filterAll')}
             </FilterButton>
             {phases.filter(p => p.missions.some(m => m.isCompleted)).map(p => (
               <FilterButton
@@ -260,7 +302,7 @@ export default function History() {
                 $active={filterPhaseId === p.id}
                 onClick={() => setFilterPhaseId(p.id)}
               >
-                {p.achievementIcon} {p.name}
+                {p.achievementIcon} {getPhaseContent(p.slug, i18n.language).name}
               </FilterButton>
             ))}
           </FilterRow>
@@ -269,29 +311,89 @@ export default function History() {
         {filtered.length === 0 ? (
           <EmptyCard>
             <EmptyIcon>🎯</EmptyIcon>
-            <p>Nenhuma missão concluída ainda. Comece pela Fase Tutorial!</p>
+            <p>{t('history.emptyMissions')}</p>
           </EmptyCard>
         ) : (
-          <MissionList>
-            {filtered.map(mission => (
-              <MissionRow key={mission.id}>
+          <PaginatedGrid
+            items={filtered}
+            keyExtractor={mission => mission.id}
+            emptyMessage={t('history.emptyMissions')}
+            minItemWidth="320px"
+            renderItem={mission => (
+              <MissionRow onClick={() => setSelectedMission(mission)}>
                 <span style={{ fontSize: 18, flexShrink: 0 }}>{MISSION_TYPE_ICONS[mission.missionType]}</span>
                 <MissionInfo>
-                  <MissionTitle>{mission.title}</MissionTitle>
+                  <MissionTitle>{getMissionContent(mission.slug, i18n.language).title}</MissionTitle>
                   <MissionMeta>
-                    <MetaText>{mission.phaseName}</MetaText>
+                    <MetaText>{getPhaseContent(mission.phaseSlug, i18n.language).name}</MetaText>
                     <MetaText>·</MetaText>
-                    <MetaText>{MISSION_TYPE_LABELS[mission.missionType]}</MetaText>
+                    <MetaText>{t(`mission.types.${mission.missionType}`)}</MetaText>
                   </MissionMeta>
                 </MissionInfo>
                 <MissionDate>
-                  {mission.completedAt ? new Date(mission.completedAt).toLocaleDateString('pt-BR') : ''}
+                  {mission.completedAt ? new Date(mission.completedAt).toLocaleDateString(i18n.language) : ''}
                 </MissionDate>
               </MissionRow>
-            ))}
-          </MissionList>
+            )}
+          />
         )}
       </section>
+
+      {selectedPhase && (() => {
+        const content = getPhaseContent(selectedPhase.slug, i18n.language)
+        return (
+          <Modal
+            isOpen
+            title={content.achievementName}
+            icon={selectedPhase.achievementIcon}
+            onClose={() => setSelectedPhase(null)}
+            content={
+              <ModalBody>
+                <ModalEyebrow>{content.name}</ModalEyebrow>
+                <ModalSubtitle>{content.title} — {content.subtitle}</ModalSubtitle>
+                <ModalDescription>{content.description}</ModalDescription>
+                <ModalFlavor>&quot;{content.flavorText}&quot;</ModalFlavor>
+                {selectedPhase.completedAt && (
+                  <ModalMetaRow>
+                    <ModalCompletedDate>
+                      {t('phase.completedOn', { date: new Date(selectedPhase.completedAt).toLocaleDateString(i18n.language) })}
+                    </ModalCompletedDate>
+                  </ModalMetaRow>
+                )}
+              </ModalBody>
+            }
+          />
+        )
+      })()}
+
+      {selectedMission && (() => {
+        const content = getMissionContent(selectedMission.slug, i18n.language)
+        return (
+          <Modal
+            isOpen
+            title={content.title}
+            icon={MISSION_TYPE_ICONS[selectedMission.missionType]}
+            onClose={() => setSelectedMission(null)}
+            content={
+              <ModalBody>
+                <ModalEyebrow>{getPhaseContent(selectedMission.phaseSlug, i18n.language).name}</ModalEyebrow>
+                <ModalDescription>{content.description}</ModalDescription>
+                <ModalMetaRow>
+                  <span>{t(`mission.types.${selectedMission.missionType}`)}</span>
+                  {selectedMission.completedAt && (
+                    <>
+                      <span>·</span>
+                      <ModalCompletedDate>
+                        {t('mission.completedOn', { date: new Date(selectedMission.completedAt).toLocaleDateString(i18n.language) })}
+                      </ModalCompletedDate>
+                    </>
+                  )}
+                </ModalMetaRow>
+              </ModalBody>
+            }
+          />
+        )
+      })()}
     </Page>
   )
 }

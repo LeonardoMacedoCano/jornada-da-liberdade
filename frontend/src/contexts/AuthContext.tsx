@@ -1,13 +1,21 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import i18n from '../i18n'
 import api from '../services/api'
 import { User } from '../types'
+
+function syncLanguage(user: User | null) {
+  if (user?.language) {
+    localStorage.setItem('language', user.language)
+    i18n.changeLanguage(user.language)
+  }
+}
 
 interface AuthContextType {
   user: User | null
   token: string | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
-  register: (name: string, email: string, password: string, username: string) => Promise<void>
+  googleClientId: string | null | undefined
+  loginWithGoogle: (credential: string) => Promise<void>
   logout: () => void
   refreshUser: () => Promise<void>
 }
@@ -18,11 +26,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
   const [loading, setLoading] = useState(true)
+  const [googleClientId, setGoogleClientId] = useState<string | null | undefined>(undefined)
+
+  useEffect(() => {
+    api.get('/auth/config').then(res => setGoogleClientId(res.data.googleClientId ?? null)).catch(() => setGoogleClientId(null))
+  }, [])
 
   useEffect(() => {
     if (token) {
       api.get('/auth/me')
-        .then(res => setUser(res.data))
+        .then(res => { setUser(res.data); syncLanguage(res.data) })
         .catch(() => { localStorage.removeItem('token'); setToken(null) })
         .finally(() => setLoading(false))
     } else {
@@ -30,18 +43,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [token])
 
-  async function login(email: string, password: string) {
-    const res = await api.post('/auth/login', { email, password })
+  async function loginWithGoogle(credential: string) {
+    const res = await api.post('/auth/google', { credential })
     localStorage.setItem('token', res.data.token)
     setToken(res.data.token)
     setUser(res.data.user)
-  }
-
-  async function register(name: string, email: string, password: string, username: string) {
-    const res = await api.post('/auth/register', { name, email, password, username })
-    localStorage.setItem('token', res.data.token)
-    setToken(res.data.token)
-    setUser(res.data.user)
+    syncLanguage(res.data.user)
   }
 
   function logout() {
@@ -53,10 +60,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function refreshUser() {
     const res = await api.get('/auth/me')
     setUser(res.data)
+    syncLanguage(res.data)
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, token, loading, googleClientId, loginWithGoogle, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

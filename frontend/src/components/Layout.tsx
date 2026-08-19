@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 
 const Nav = styled.nav`
@@ -102,6 +103,7 @@ const Main = styled.main`
 
 export default function Layout() {
   const { user, logout } = useAuth()
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   function handleLogout() {
@@ -115,19 +117,19 @@ export default function Layout() {
         <NavInner>
           <Brand>
             <span style={{ fontSize: 22 }}>💎</span>
-            <BrandName>Jornada da Liberdade</BrandName>
+            <BrandName>{t('common.appName')}</BrandName>
           </Brand>
           <NavLinks>
-            <StyledNavLink to="/" end>Dashboard</StyledNavLink>
-            <StyledNavLink to="/roadmap">Roadmap</StyledNavLink>
-            <StyledNavLink to="/history">Histórico</StyledNavLink>
+            <StyledNavLink to="/" end>{t('nav.dashboard')}</StyledNavLink>
+            <StyledNavLink to="/roadmap">{t('nav.roadmap')}</StyledNavLink>
+            <StyledNavLink to="/history">{t('nav.history')}</StyledNavLink>
           </NavLinks>
           <NavActions>
             <UserNavLink to="/settings">
               <span className="name">{user?.name}</span>
               <span className="icon" style={{ display: 'none' }}>⚙️</span>
             </UserNavLink>
-            <LogoutButton onClick={handleLogout}>Sair</LogoutButton>
+            <LogoutButton onClick={handleLogout}>{t('nav.logout')}</LogoutButton>
           </NavActions>
         </NavInner>
       </Nav>

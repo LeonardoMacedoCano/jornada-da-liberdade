@@ -6,6 +6,7 @@ import express, { Request, Response, NextFunction } from 'express'
 import cors from 'cors'
 import { prisma } from './lib/prisma'
 import { router } from './routes'
+import { ErrorCode } from './lib/errors'
 
 const app = express()
 const PORT = process.env.PORT || process.env.BACKEND_PORT || 3001
@@ -13,18 +14,18 @@ const PORT = process.env.PORT || process.env.BACKEND_PORT || 3001
 async function runSeedIfEmpty(): Promise<void> {
   const phaseCount = await prisma.phase.count()
   if (phaseCount > 0) {
-    console.log(`ℹ️  Banco já populado (${phaseCount} fases). Seed ignorado.`)
+    console.log(`ℹ️  Database already populated (${phaseCount} phases). Skipping seed.`)
     return
   }
 
-  console.log('🌱 Populando banco com fases e missões...')
+  console.log('🌱 Seeding database with phases and missions...')
   const { seedDatabase } = await import('./seed')
   await seedDatabase()
 }
 
 async function main(): Promise<void> {
   if (!process.env.JWT_SECRET) {
-    console.error('❌ JWT_SECRET não configurado. Defina a variável de ambiente antes de iniciar.')
+    console.error('❌ JWT_SECRET not configured. Set the environment variable before starting.')
     process.exit(1)
   }
 
@@ -38,7 +39,7 @@ async function main(): Promise<void> {
 
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     console.error(err)
-    res.status(500).json({ error: 'Erro interno do servidor' })
+    res.status(500).json({ error: ErrorCode.INTERNAL_SERVER_ERROR })
   })
 
   app.listen(PORT, () => {

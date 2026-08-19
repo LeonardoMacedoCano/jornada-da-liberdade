@@ -4,6 +4,7 @@ export interface User {
   email: string
   username: string
   avatarType: string
+  language: string | null
   sharePublicProfile: boolean
   showFinancialValues: boolean
   createdAt: string
@@ -24,8 +25,6 @@ export interface Mission {
   id: number
   phaseId: number
   slug: string
-  title: string
-  description: string
   missionType: 'portfolio_value' | 'passive_income_sm' | 'crossover' | 'behavioral' | 'habit'
   targetValue: string | null
   targetSmMultiple: string | null
@@ -40,13 +39,7 @@ export interface Mission {
 export interface Phase {
   id: number
   slug: string
-  name: string
-  title: string
-  subtitle: string
-  description: string
-  flavorText: string
   orderIndex: number
-  achievementName: string
   achievementIcon: string
   color: string
   missions: Mission[]
@@ -57,8 +50,7 @@ export interface Phase {
 
 export interface Achievement {
   phaseId: number
-  phaseName: string
-  achievementName: string
+  phaseSlug: string
   achievementIcon: string
   color: string
   completedAt: string
@@ -71,8 +63,7 @@ export interface PublicProfile {
   createdAt: string
   currentPhase: {
     id: number
-    name: string
-    title: string
+    slug: string
     achievementIcon: string
     color: string
   } | null
@@ -95,14 +86,6 @@ export const PHASE_HEX_COLORS: Record<string, string> = {
   yellow: '#eab308',
   amber:  '#f59e0b',
   rose:   '#f43f5e',
-}
-
-export const MISSION_TYPE_LABELS: Record<string, string> = {
-  portfolio_value:  'Patrimônio',
-  passive_income_sm: 'Renda Passiva (SM)',
-  crossover:        'Ponto de Cruzamento',
-  behavioral:       'Comportamental',
-  habit:            'Hábito',
 }
 
 export const MISSION_TYPE_ICONS: Record<string, string> = {
