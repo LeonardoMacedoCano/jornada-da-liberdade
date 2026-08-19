@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Button, useMessage } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
-import { SUPPORTED_LANGUAGES, SupportedLanguage } from '../i18n'
+import { SUPPORTED_LANGUAGES, SupportedLanguage, translateApiError } from '../i18n'
 import api from '../services/api'
 
 const Page = styled.div`
@@ -205,8 +205,8 @@ export default function Settings() {
       localStorage.setItem('language', language)
       showSuccess(t('settings.profileSaved'))
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-      showError(msg || t('settings.errorSave'))
+      const data = (err as { response?: { data?: unknown } })?.response?.data
+      showError(translateApiError(t, data, 'settings.errorSave'))
     } finally {
       setSavingProfile(false)
     }
@@ -221,8 +221,8 @@ export default function Settings() {
       setCurrentPassword('')
       setNewPassword('')
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-      showError(msg || t('settings.errorPassword'))
+      const data = (err as { response?: { data?: unknown } })?.response?.data
+      showError(translateApiError(t, data, 'settings.errorPassword'))
     } finally {
       setSavingPassword(false)
     }
@@ -235,8 +235,8 @@ export default function Settings() {
       await api.put('/user/progress', { annualReturnRate: parseFloat(annualReturnRate) || 11 })
       showSuccess(t('settings.financialSettingsSaved'))
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-      showError(msg || t('settings.errorFinancialSettings'))
+      const data = (err as { response?: { data?: unknown } })?.response?.data
+      showError(translateApiError(t, data, 'settings.errorFinancialSettings'))
     } finally {
       setSavingFinancial(false)
     }

@@ -3,18 +3,19 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
+import { ErrorCode } from '../lib/errors'
 
 export async function register(req: Request, res: Response): Promise<void> {
   const { name, email, password, username } = req.body
 
   if (!name || !email || !password || !username) {
-    res.status(400).json({ error: 'Todos os campos são obrigatórios' })
+    res.status(400).json({ error: ErrorCode.ALL_FIELDS_REQUIRED })
     return
   }
 
   const usernameRegex = /^[a-z0-9-]+$/
   if (!usernameRegex.test(username)) {
-    res.status(400).json({ error: 'Username deve conter apenas letras minúsculas, números e hífens' })
+    res.status(400).json({ error: ErrorCode.INVALID_USERNAME_FORMAT })
     return
   }
 
@@ -22,7 +23,7 @@ export async function register(req: Request, res: Response): Promise<void> {
     where: { OR: [{ email }, { username }] },
   })
   if (existingUser) {
-    res.status(409).json({ error: existingUser.email === email ? 'E-mail já cadastrado' : 'Username já em uso' })
+    res.status(409).json({ error: existingUser.email === email ? ErrorCode.EMAIL_ALREADY_REGISTERED : ErrorCode.USERNAME_ALREADY_IN_USE })
     return
   }
 
@@ -41,19 +42,19 @@ export async function login(req: Request, res: Response): Promise<void> {
   const { email, password } = req.body
 
   if (!email || !password) {
-    res.status(400).json({ error: 'E-mail e senha são obrigatórios' })
+    res.status(400).json({ error: ErrorCode.EMAIL_PASSWORD_REQUIRED })
     return
   }
 
   const user = await prisma.user.findUnique({ where: { email } })
   if (!user) {
-    res.status(401).json({ error: 'Credenciais inválidas' })
+    res.status(401).json({ error: ErrorCode.INVALID_CREDENTIALS })
     return
   }
 
   const valid = await bcrypt.compare(password, user.passwordHash)
   if (!valid) {
-    res.status(401).json({ error: 'Credenciais inválidas' })
+    res.status(401).json({ error: ErrorCode.INVALID_CREDENTIALS })
     return
   }
 
@@ -67,7 +68,7 @@ export async function me(req: AuthRequest, res: Response): Promise<void> {
     select: { id: true, name: true, email: true, username: true, avatarType: true, language: true, sharePublicProfile: true, showFinancialValues: true, createdAt: true },
   })
   if (!user) {
-    res.status(404).json({ error: 'Usuário não encontrado' })
+    res.status(404).json({ error: ErrorCode.USER_NOT_FOUND })
     return
   }
   res.json(user)

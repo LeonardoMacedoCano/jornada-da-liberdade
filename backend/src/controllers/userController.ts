@@ -5,6 +5,7 @@ import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
 import { MAX_PHASE_ID } from '../lib/constants'
 import { getUserLanguage, minimumWageFor } from '../lib/localization'
+import { ErrorCode } from '../lib/errors'
 
 export async function getProfile(req: AuthRequest, res: Response): Promise<void> {
   const user = await prisma.user.findUnique({
@@ -15,7 +16,7 @@ export async function getProfile(req: AuthRequest, res: Response): Promise<void>
       progress: true,
     },
   })
-  if (!user) { res.status(404).json({ error: 'Usuário não encontrado' }); return }
+  if (!user) { res.status(404).json({ error: ErrorCode.USER_NOT_FOUND }); return }
   res.json(user)
 }
 
@@ -117,14 +118,14 @@ export async function updateProgress(req: AuthRequest, res: Response): Promise<v
 
   for (const [key, val] of Object.entries({ investedAmount, monthlyPassiveIncome, monthlyContribution })) {
     if (val !== undefined && (isNaN(Number(val)) || Number(val) < 0)) {
-      res.status(400).json({ error: `Campo ${key} inválido — deve ser um número não negativo` })
+      res.status(400).json({ error: ErrorCode.INVALID_NON_NEGATIVE_FIELD, field: key })
       return
     }
   }
   if (annualReturnRate !== undefined) {
     const rate = Number(annualReturnRate)
     if (isNaN(rate) || rate < 0 || rate > 100) {
-      res.status(400).json({ error: 'Taxa de retorno deve ser entre 0 e 100' })
+      res.status(400).json({ error: ErrorCode.INVALID_RETURN_RATE })
       return
     }
   }
@@ -159,21 +160,21 @@ export async function updateSettings(req: AuthRequest, res: Response): Promise<v
   const { name, username, sharePublicProfile, showFinancialValues, language } = req.body
 
   if (name !== undefined && !name.trim()) {
-    res.status(400).json({ error: 'Nome não pode ser vazio' })
+    res.status(400).json({ error: ErrorCode.NAME_CANNOT_BE_EMPTY })
     return
   }
 
   if (username !== undefined) {
     if (!username || !/^[a-z0-9-]+$/.test(username)) {
-      res.status(400).json({ error: 'Username deve conter apenas letras minúsculas, números e hífens' })
+      res.status(400).json({ error: ErrorCode.INVALID_USERNAME_FORMAT })
       return
     }
     const existing = await prisma.user.findFirst({ where: { username, NOT: { id: req.userId } } })
-    if (existing) { res.status(409).json({ error: 'Username já em uso' }); return }
+    if (existing) { res.status(409).json({ error: ErrorCode.USERNAME_ALREADY_IN_USE }); return }
   }
 
   if (language !== undefined && !SUPPORTED_LANGUAGES.includes(language)) {
-    res.status(400).json({ error: 'Idioma não suportado' })
+    res.status(400).json({ error: ErrorCode.UNSUPPORTED_LANGUAGE })
     return
   }
 
@@ -194,17 +195,17 @@ export async function updateSettings(req: AuthRequest, res: Response): Promise<v
 export async function updatePassword(req: AuthRequest, res: Response): Promise<void> {
   const { currentPassword, newPassword } = req.body
   if (!currentPassword || !newPassword) {
-    res.status(400).json({ error: 'Senha atual e nova senha são obrigatórias' })
+    res.status(400).json({ error: ErrorCode.CURRENT_AND_NEW_PASSWORD_REQUIRED })
     return
   }
 
   const user = await prisma.user.findUnique({ where: { id: req.userId } })
-  if (!user) { res.status(404).json({ error: 'Usuário não encontrado' }); return }
+  if (!user) { res.status(404).json({ error: ErrorCode.USER_NOT_FOUND }); return }
 
   const valid = await bcrypt.compare(currentPassword, user.passwordHash)
-  if (!valid) { res.status(401).json({ error: 'Senha atual incorreta' }); return }
+  if (!valid) { res.status(401).json({ error: ErrorCode.CURRENT_PASSWORD_INCORRECT }); return }
 
   const passwordHash = await bcrypt.hash(newPassword, 12)
   await prisma.user.update({ where: { id: req.userId }, data: { passwordHash } })
-  res.json({ message: 'Senha atualizada com sucesso' })
+  res.json({ message: 'Password updated successfully' })
 }

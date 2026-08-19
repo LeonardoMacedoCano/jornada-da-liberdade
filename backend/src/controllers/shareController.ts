@@ -1,12 +1,13 @@
 import { Request, Response } from 'express'
 import { prisma } from '../lib/prisma'
+import { ErrorCode } from '../lib/errors'
 
 export async function getPublicProfile(req: Request, res: Response): Promise<void> {
   const { username } = req.params
 
   const user = await prisma.user.findUnique({ where: { username } })
   if (!user || !user.sharePublicProfile) {
-    res.status(404).json({ error: 'Perfil não encontrado ou privado' })
+    res.status(404).json({ error: ErrorCode.PROFILE_NOT_FOUND_OR_PRIVATE })
     return
   }
 

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
+import { ErrorCode } from '../lib/errors'
 
 export interface AuthRequest extends Request {
   userId?: string
@@ -8,7 +9,7 @@ export interface AuthRequest extends Request {
 export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'Token não fornecido' })
+    res.status(401).json({ error: ErrorCode.TOKEN_NOT_PROVIDED })
     return
   }
 
@@ -18,6 +19,6 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
     req.userId = payload.userId
     next()
   } catch {
-    res.status(401).json({ error: 'Token inválido ou expirado' })
+    res.status(401).json({ error: ErrorCode.INVALID_OR_EXPIRED_TOKEN })
   }
 }

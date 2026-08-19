@@ -1,4 +1,4 @@
-import i18n from 'i18next'
+import i18n, { TFunction } from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import en from './locales/en'
 import ptBR from './locales/pt-BR'
@@ -13,6 +13,12 @@ export function toLibLocale(language: string): 'pt' | 'en' {
 
 export function currencySymbol(language: string): string {
   return language.startsWith('pt') ? 'R$' : '$'
+}
+
+export function translateApiError(t: TFunction, data: unknown, fallbackKey: string): string {
+  const errorData = data as { error?: string } | undefined
+  if (!errorData?.error) return t(fallbackKey)
+  return t(`errors.${errorData.error}`, { ...errorData, defaultValue: t(fallbackKey) })
 }
 
 const storedLanguage = localStorage.getItem('language')

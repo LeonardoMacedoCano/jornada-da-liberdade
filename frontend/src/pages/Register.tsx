@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { Button } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
+import { translateApiError } from '../i18n'
 
 const Page = styled.div`
   min-height: 100vh;
@@ -138,8 +139,8 @@ export default function Register() {
     try {
       await register(name, email, password, username)
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-      setError(msg || t('auth.register.errorGeneric'))
+      const data = (err as { response?: { data?: unknown } })?.response?.data
+      setError(translateApiError(t, data, 'auth.register.errorGeneric'))
     } finally {
       setLoading(false)
     }

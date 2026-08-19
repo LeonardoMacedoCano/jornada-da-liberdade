@@ -1,6 +1,7 @@
 import { Response } from 'express'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
+import { ErrorCode } from '../lib/errors'
 
 function serializeMission(mission: any, prog?: any) {
   return {
@@ -52,7 +53,7 @@ export async function getCurrentPhase(req: AuthRequest, res: Response): Promise<
   const currentPhaseId = userProgress?.currentPhaseId ?? 0
 
   const phase = await prisma.phase.findUnique({ where: { id: currentPhaseId } })
-  if (!phase) { res.status(404).json({ error: 'Fase não encontrada' }); return }
+  if (!phase) { res.status(404).json({ error: ErrorCode.PHASE_NOT_FOUND }); return }
 
   const missions = await prisma.mission.findMany({ where: { phaseId: currentPhaseId }, orderBy: { orderIndex: 'asc' } })
   const missionProgresses = await prisma.userMissionProgress.findMany({

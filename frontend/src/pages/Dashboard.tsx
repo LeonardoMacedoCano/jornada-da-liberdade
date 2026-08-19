@@ -4,7 +4,7 @@ import { Button, Loading, useMessage, useToastStack, PaginatedGrid, ToggleSwitch
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
-import { currencySymbol, toLibLocale } from '../i18n'
+import { currencySymbol, toLibLocale, translateApiError } from '../i18n'
 import { getPhaseContent } from '../i18n/content'
 import { Phase, UserProgress, PHASE_HEX_COLORS } from '../types'
 import { buildPhaseAchievementToast } from '../utils/achievementToast'
@@ -282,10 +282,11 @@ export default function Dashboard() {
         notify([buildPhaseAchievementToast(completedPhase, i18n.language, t)])
       }
       if (!completed && res.data.phaseRolledBack) {
-        showError(t('dashboard.phaseRolledBack', { phase: phaseRes.data.name }))
+        showError(t('dashboard.phaseRolledBack', { phase: getPhaseContent(phaseRes.data.slug, i18n.language).name }))
       }
-    } catch (err: any) {
-      showError(err?.response?.data?.error ?? t('dashboard.errorMission'))
+    } catch (err: unknown) {
+      const data = (err as { response?: { data?: unknown } })?.response?.data
+      showError(translateApiError(t, data, 'dashboard.errorMission'))
     }
   }
 
@@ -295,8 +296,9 @@ export default function Dashboard() {
       const phaseRes = await api.get('/phases/current')
       setPhase(phaseRes.data)
       showSuccess(t('dashboard.trackingStarted'))
-    } catch (err: any) {
-      showError(err?.response?.data?.error ?? t('dashboard.errorTracking'))
+    } catch (err: unknown) {
+      const data = (err as { response?: { data?: unknown } })?.response?.data
+      showError(translateApiError(t, data, 'dashboard.errorTracking'))
     }
   }
 
