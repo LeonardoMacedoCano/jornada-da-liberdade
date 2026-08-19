@@ -109,6 +109,10 @@ O seed usa `upsert` — não apaga dados existentes de usuário.
 - O salário mínimo vem de `AppConfig` (chave `minimum_wage`) e é usado para calcular metas de renda passiva em SM
 - Perfil público em `/p/:username` — nunca expõe dados financeiros a não ser que `showFinancialValues = true`
 
+## Decisões de produto deliberadas
+
+- **Login exclusivo via Google (sem email/senha):** decisão de produto, não lacuna. Simplifica onboarding (sem fluxo de recuperação de senha, sem gestão de credenciais) e a maioria do público-alvo já tem conta Google. Não sugerir adicionar login por email/senha sem essa decisão ser revisitada explicitamente.
+
 ## Estilo CSS
 
 O frontend usa **styled-components** com o tema da biblioteca `lcano-react-ui` gerenciado pelo `ThemeControlProvider`.
