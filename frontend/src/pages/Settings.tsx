@@ -1,9 +1,11 @@
 import { useState, useEffect, FormEvent } from 'react'
 import styled from 'styled-components'
-import { Button, useMessage } from 'lcano-react-ui'
+import { Button, ThemeSelector, useMessage } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
+import { useThemeControl } from '../contexts/ThemeControlContext'
 import { SUPPORTED_LANGUAGES, SupportedLanguage, translateApiError } from '../i18n'
+import { THEMES } from '../theme'
 import api from '../services/api'
 
 const Page = styled.div`
@@ -192,6 +194,7 @@ export default function Settings() {
   const [annualReturnRate, setAnnualReturnRate] = useState('11')
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingFinancial, setSavingFinancial] = useState(false)
+  const { themeId, setThemeId } = useThemeControl()
 
   useEffect(() => {
     api.get('/user/profile').then(res => {
@@ -287,6 +290,12 @@ export default function Settings() {
             style={{ borderRadius: '8px', padding: '10px 24px', fontSize: '14px', fontWeight: '600' }}
           />
         </Form>
+      </Card>
+
+      <Card>
+        <CardTitle>{t('settings.appearance')}</CardTitle>
+        <Hint>{t('settings.appearanceHint')}</Hint>
+        <ThemeSelector themes={THEMES} currentTheme={themeId} onThemeChange={setThemeId} />
       </Card>
 
       <Card>
