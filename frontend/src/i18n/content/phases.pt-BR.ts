@@ -1,7 +1,7 @@
 import type { PhaseContent } from './phases.en'
 
 const phasesPtBR: Record<string, PhaseContent> = {
-  tutorial: {
+  'tutorial': {
     name: 'Tutorial',
     title: 'O Despertar',
     subtitle: 'Da ignorância financeira à consciência real',
@@ -9,7 +9,7 @@ const phasesPtBR: Record<string, PhaseContent> = {
     description: 'O início é sempre o mesmo: descobrir que você não sabe onde o dinheiro vai. Antes de investir qualquer centavo, você precisa enxergar sua realidade financeira com clareza total — dívidas, gastos, sobra mensal.',
     flavorText: 'O maior inimigo do seu dinheiro não é o mercado — é o desconhecimento.',
   },
-  quitacao: {
+  'debt-freedom': {
     name: 'Quitação',
     title: 'Quebrando as Correntes',
     subtitle: 'Zerando dívidas com juros acima de 1,5% ao mês',
@@ -17,7 +17,7 @@ const phasesPtBR: Record<string, PhaseContent> = {
     description: 'Nenhum investimento no mundo vence juros de cartão rotativo ou cheque especial. Enquanto essas dívidas existirem, você está numa esteira — se movendo, mas sem sair do lugar. Esta fase não tem portfólio a construir. Tem correntes a quebrar.',
     flavorText: 'Você não pode construir riqueza enquanto paga 200% ao ano para alguém.',
   },
-  recruta: {
+  'recruit': {
     name: 'Recruta',
     title: 'Plantando a Semente',
     subtitle: 'De R$ 1 a R$ 10.000',
@@ -25,7 +25,7 @@ const phasesPtBR: Record<string, PhaseContent> = {
     description: 'Os números são pequenos. Os rendimentos mal aparecem. Essa fase é um teste de caráter, não de dinheiro. O hábito que nasce aqui é o que sustenta todas as fases seguintes.',
     flavorText: 'A semente que ninguém vê é a que vira floresta.',
   },
-  soldado: {
+  'soldier': {
     name: 'Soldado',
     title: 'Construindo a Base',
     subtitle: 'De R$ 10.000 a R$ 50.000',
@@ -33,7 +33,7 @@ const phasesPtBR: Record<string, PhaseContent> = {
     description: 'O portfólio tem forma real. Os rendimentos aparecem nas notificações. A estratégia começa a existir. Disciplina é 90% do trabalho aqui — não análise de ativo, não timing de mercado.',
     flavorText: 'Um soldado não precisa de sorte. Precisa de disciplina.',
   },
-  veterano: {
+  'veteran': {
     name: 'Veterano',
     title: 'A Grande Escalada',
     subtitle: 'De R$ 50.000 a R$ 100.000',
@@ -41,7 +41,7 @@ const phasesPtBR: Record<string, PhaseContent> = {
     description: 'A fase psicologicamente mais difícil. Os números sobem devagar e a sensação de "vai levar uma vida" bate forte. Mas R$ 100k é o verdadeiro ponto de não retorno — o compounding começa a trabalhar visível.',
     flavorText: 'Menos de 3% dos brasileiros chegam aqui. Você vai ser um deles.',
   },
-  elite: {
+  'elite': {
     name: 'Elite',
     title: 'O Compounding Acorda',
     subtitle: 'De R$ 100.000 ao Ponto de Cruzamento',
@@ -49,7 +49,7 @@ const phasesPtBR: Record<string, PhaseContent> = {
     description: 'O portfólio começa a trabalhar de verdade. Em meses bons, a valorização de um dia supera o aporte semanal. O Ponto de Cruzamento se aproxima: quando o retorno mensal superar o aporte mensal.',
     flavorText: 'O momento em que o dinheiro trabalha mais do que você é o momento que muda tudo.',
   },
-  especialista: {
+  'specialist': {
     name: 'Especialista',
     title: 'A Máquina Ganha Vida',
     subtitle: 'Do Ponto de Cruzamento a R$ 600.000',
@@ -57,7 +57,7 @@ const phasesPtBR: Record<string, PhaseContent> = {
     description: 'O Ponto de Cruzamento ficou para trás. O compounding agora é visível todo mês. A renda passiva começa a ter significado real no seu orçamento — não é mais só número no extrato.',
     flavorText: 'Você não precisa mais correr. A máquina já corre por você.',
   },
-  mestre: {
+  'master': {
     name: 'Mestre',
     title: 'Pré-Aposentado',
     subtitle: 'De R$ 600.000 ao Primeiro Milhão',
@@ -65,7 +65,7 @@ const phasesPtBR: Record<string, PhaseContent> = {
     description: 'A renda passiva já cobre uma parte considerável da vida. Você pode mudar de área, virar freelancer, reduzir jornada — ou reinvestir tudo e acelerar as fases finais. O trabalho perdeu o poder de te prender.',
     flavorText: 'Trabalho deixa de ser o que você tem que fazer e vira o que você escolhe fazer.',
   },
-  heroi: {
+  'hero': {
     name: 'Herói',
     title: 'Independência Financeira',
     subtitle: 'De R$ 1.000.000 a R$ 2.000.000',
@@ -73,7 +73,7 @@ const phasesPtBR: Record<string, PhaseContent> = {
     description: 'O portfólio cobre 100% das despesas. Trabalho é 100% opcional. A renda passiva cresce mesmo enquanto você vive bem. Confirmado por meses consecutivos — não foi sorte de mercado.',
     flavorText: 'Você chegou. Trabalho é agora uma escolha, não uma necessidade.',
   },
-  lenda: {
+  'legend': {
     name: 'Lenda',
     title: 'FIRE Completo',
     subtitle: 'Boss Final — R$ 2.000.000+',

@@ -1,7 +1,7 @@
 import { prisma } from './lib/prisma'
 
 export async function seedDatabase(): Promise<void> {
-  console.log('🌱 Iniciando seed...')
+  console.log('🌱 Starting seed...')
 
   await prisma.appConfig.upsert({
     where: { key: 'minimum_wage' },
@@ -14,19 +14,19 @@ export async function seedDatabase(): Promise<void> {
     create: { key: 'minimum_wage_updated_at', value: new Date().toISOString() },
   })
 
-  // Conteúdo (nome, título, descrição, flavor text) mora em frontend/src/i18n/locales,
-  // indexado por slug. Aqui só entram os dados estruturais/mecânicos do jogo.
+  // Content (name, title, description, flavor text) lives in frontend/src/i18n/content,
+  // indexed by slug. Only structural/mechanical game data goes here.
   const phases = [
     { id: 0, slug: 'tutorial', color: 'gray', orderIndex: 0, achievementIcon: '👁️' },
-    { id: 1, slug: 'quitacao', color: 'red', orderIndex: 1, achievementIcon: '⛓️' },
-    { id: 2, slug: 'recruta', color: 'green', orderIndex: 2, achievementIcon: '🌿' },
-    { id: 3, slug: 'soldado', color: 'blue', orderIndex: 3, achievementIcon: '⚔️' },
-    { id: 4, slug: 'veterano', color: 'teal', orderIndex: 4, achievementIcon: '🛡️' },
+    { id: 1, slug: 'debt-freedom', color: 'red', orderIndex: 1, achievementIcon: '⛓️' },
+    { id: 2, slug: 'recruit', color: 'green', orderIndex: 2, achievementIcon: '🌿' },
+    { id: 3, slug: 'soldier', color: 'blue', orderIndex: 3, achievementIcon: '⚔️' },
+    { id: 4, slug: 'veteran', color: 'teal', orderIndex: 4, achievementIcon: '🛡️' },
     { id: 5, slug: 'elite', color: 'purple', orderIndex: 5, achievementIcon: '🦅' },
-    { id: 6, slug: 'especialista', color: 'orange', orderIndex: 6, achievementIcon: '🔥' },
-    { id: 7, slug: 'mestre', color: 'yellow', orderIndex: 7, achievementIcon: '👑' },
-    { id: 8, slug: 'heroi', color: 'amber', orderIndex: 8, achievementIcon: '🏆' },
-    { id: 9, slug: 'lenda', color: 'rose', orderIndex: 9, achievementIcon: '💎' },
+    { id: 6, slug: 'specialist', color: 'orange', orderIndex: 6, achievementIcon: '🔥' },
+    { id: 7, slug: 'master', color: 'yellow', orderIndex: 7, achievementIcon: '👑' },
+    { id: 8, slug: 'hero', color: 'amber', orderIndex: 8, achievementIcon: '🏆' },
+    { id: 9, slug: 'legend', color: 'rose', orderIndex: 9, achievementIcon: '💎' },
   ]
 
   for (const phase of phases) {
@@ -34,287 +34,287 @@ export async function seedDatabase(): Promise<void> {
   }
 
   const missions = [
-    // ─── FASE 0: TUTORIAL ────────────────────────────────────────────────────
+    // ─── PHASE 0: TUTORIAL ───────────────────────────────────────────────────
     {
-      phaseId: 0, slug: 'mapear-dividas', orderIndex: 1,
+      phaseId: 0, slug: 'map-debts', orderIndex: 1,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 0, slug: 'registrar-gastos-30-dias', orderIndex: 2,
+      phaseId: 0, slug: 'track-expenses-30-days', orderIndex: 2,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 0, slug: 'calcular-saldo-mensal', orderIndex: 3,
+      phaseId: 0, slug: 'calculate-monthly-balance', orderIndex: 3,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 0, slug: 'abrir-corretora', orderIndex: 4,
+      phaseId: 0, slug: 'open-brokerage-account', orderIndex: 4,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 0, slug: 'estudar-3-pilares', orderIndex: 5,
-      missionType: 'behavioral', isRequiredForPhase: true,
-      targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
-    },
-
-    // ─── FASE 1: QUITAÇÃO ─────────────────────────────────────────────────────
-    {
-      phaseId: 1, slug: 'criar-reserva-minima-1k', orderIndex: 1,
-      missionType: 'behavioral', isRequiredForPhase: true,
-      targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
-    },
-    {
-      phaseId: 1, slug: 'negociar-dividas-juros-altos', orderIndex: 2,
-      missionType: 'behavioral', isRequiredForPhase: true,
-      targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
-    },
-    {
-      phaseId: 1, slug: 'eliminar-rotativo-cartao', orderIndex: 3,
-      missionType: 'behavioral', isRequiredForPhase: true,
-      targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
-    },
-    {
-      phaseId: 1, slug: 'eliminar-cheque-especial', orderIndex: 4,
-      missionType: 'behavioral', isRequiredForPhase: true,
-      targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
-    },
-    {
-      phaseId: 1, slug: 'zerar-dividas-caras', orderIndex: 5,
+      phaseId: 0, slug: 'learn-3-pillars', orderIndex: 5,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
 
-    // ─── FASE 2: RECRUTA ──────────────────────────────────────────────────────
+    // ─── PHASE 1: DEBT FREEDOM ────────────────────────────────────────────────
     {
-      phaseId: 2, slug: 'reserva-emergencia-3-meses', orderIndex: 1,
+      phaseId: 1, slug: 'build-emergency-fund-1k', orderIndex: 1,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 2, slug: 'meta-500', orderIndex: 2,
+      phaseId: 1, slug: 'negotiate-high-interest-debt', orderIndex: 2,
+      missionType: 'behavioral', isRequiredForPhase: true,
+      targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
+    },
+    {
+      phaseId: 1, slug: 'eliminate-credit-card-revolving', orderIndex: 3,
+      missionType: 'behavioral', isRequiredForPhase: true,
+      targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
+    },
+    {
+      phaseId: 1, slug: 'eliminate-overdraft-debt', orderIndex: 4,
+      missionType: 'behavioral', isRequiredForPhase: true,
+      targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
+    },
+    {
+      phaseId: 1, slug: 'payoff-all-expensive-debt', orderIndex: 5,
+      missionType: 'behavioral', isRequiredForPhase: true,
+      targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
+    },
+
+    // ─── PHASE 2: RECRUIT ─────────────────────────────────────────────────────
+    {
+      phaseId: 2, slug: 'emergency-fund-3-months', orderIndex: 1,
+      missionType: 'behavioral', isRequiredForPhase: true,
+      targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
+    },
+    {
+      phaseId: 2, slug: 'goal-500', orderIndex: 2,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '500.00', targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 2, slug: 'automatizar-aporte', orderIndex: 3,
+      phaseId: 2, slug: 'automate-contribution', orderIndex: 3,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 2, slug: 'dois-tipos-ativos', orderIndex: 4,
+      phaseId: 2, slug: 'two-asset-types', orderIndex: 4,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 2, slug: 'meta-5k', orderIndex: 5,
+      phaseId: 2, slug: 'goal-5k', orderIndex: 5,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '5000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 2, slug: 'meta-10k', orderIndex: 6,
+      phaseId: 2, slug: 'goal-10k', orderIndex: 6,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '10000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
 
-    // ─── FASE 3: SOLDADO ──────────────────────────────────────────────────────
+    // ─── PHASE 3: SOLDIER ─────────────────────────────────────────────────────
     {
-      phaseId: 3, slug: 'reserva-emergencia-6-meses', orderIndex: 1,
+      phaseId: 3, slug: 'emergency-fund-6-months', orderIndex: 1,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 3, slug: 'aumentar-aporte-10-porcento', orderIndex: 2,
+      phaseId: 3, slug: 'increase-contribution-10-percent', orderIndex: 2,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 3, slug: 'tres-ativos-duas-categorias', orderIndex: 3,
+      phaseId: 3, slug: 'three-assets-two-categories', orderIndex: 3,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 3, slug: 'meta-25k', orderIndex: 4,
+      phaseId: 3, slug: 'goal-25k', orderIndex: 4,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '25000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 3, slug: 'documentar-estrategia-alocacao', orderIndex: 5,
+      phaseId: 3, slug: 'document-allocation-strategy', orderIndex: 5,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 3, slug: 'meta-50k', orderIndex: 6,
+      phaseId: 3, slug: 'goal-50k', orderIndex: 6,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '50000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
 
-    // ─── FASE 4: VETERANO ─────────────────────────────────────────────────────
+    // ─── PHASE 4: VETERAN ─────────────────────────────────────────────────────
     {
-      phaseId: 4, slug: 'aporte-minimo-10-porcento-renda', orderIndex: 1,
+      phaseId: 4, slug: 'minimum-contribution-10-percent-income', orderIndex: 1,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 4, slug: 'cinco-ativos-analise-propria', orderIndex: 2,
+      phaseId: 4, slug: 'five-assets-own-analysis', orderIndex: 2,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 4, slug: 'meta-75k', orderIndex: 3,
+      phaseId: 4, slug: 'goal-75k', orderIndex: 3,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '75000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 4, slug: 'aportes-12-meses-consecutivos', orderIndex: 4,
+      phaseId: 4, slug: 'contributions-12-consecutive-months', orderIndex: 4,
       missionType: 'habit', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: 365,
     },
     {
-      phaseId: 4, slug: 'meta-100k', orderIndex: 5,
+      phaseId: 4, slug: 'goal-100k', orderIndex: 5,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '100000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
 
-    // ─── FASE 5: ELITE ────────────────────────────────────────────────────────
+    // ─── PHASE 5: ELITE ───────────────────────────────────────────────────────
     {
-      phaseId: 5, slug: 'meta-150k', orderIndex: 1,
+      phaseId: 5, slug: 'goal-150k', orderIndex: 1,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '150000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 5, slug: 'dois-ativos-internacionais', orderIndex: 2,
+      phaseId: 5, slug: 'two-international-assets', orderIndex: 2,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 5, slug: 'meta-200k', orderIndex: 3,
+      phaseId: 5, slug: 'goal-200k', orderIndex: 3,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '200000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 5, slug: 'ponto-de-cruzamento', orderIndex: 4,
+      phaseId: 5, slug: 'crossover-point', orderIndex: 4,
       missionType: 'crossover', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 5, slug: 'meta-300k', orderIndex: 5,
+      phaseId: 5, slug: 'goal-300k', orderIndex: 5,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '300000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
 
-    // ─── FASE 6: ESPECIALISTA ─────────────────────────────────────────────────
+    // ─── PHASE 6: SPECIALIST ──────────────────────────────────────────────────
     {
-      phaseId: 6, slug: 'meta-400k', orderIndex: 1,
+      phaseId: 6, slug: 'goal-400k', orderIndex: 1,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '400000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 6, slug: 'renda-passiva-2sm', orderIndex: 2,
+      phaseId: 6, slug: 'passive-income-2mw', orderIndex: 2,
       missionType: 'passive_income_sm', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: '2.0', requiredDurationDays: null,
     },
     {
-      phaseId: 6, slug: 'oito-ativos-tres-categorias', orderIndex: 3,
+      phaseId: 6, slug: 'eight-assets-three-categories', orderIndex: 3,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 6, slug: 'meta-500k', orderIndex: 4,
+      phaseId: 6, slug: 'goal-500k', orderIndex: 4,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '500000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 6, slug: 'renda-passiva-3sm', orderIndex: 5,
+      phaseId: 6, slug: 'passive-income-3mw', orderIndex: 5,
       missionType: 'passive_income_sm', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: '3.0', requiredDurationDays: null,
     },
     {
-      phaseId: 6, slug: 'meta-600k', orderIndex: 6,
+      phaseId: 6, slug: 'goal-600k', orderIndex: 6,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '600000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
 
-    // ─── FASE 7: MESTRE ───────────────────────────────────────────────────────
+    // ─── PHASE 7: MASTER ──────────────────────────────────────────────────────
     {
-      phaseId: 7, slug: 'renda-passiva-3-5sm', orderIndex: 1,
+      phaseId: 7, slug: 'passive-income-3-5mw', orderIndex: 1,
       missionType: 'passive_income_sm', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: '3.5', requiredDurationDays: null,
     },
     {
-      phaseId: 7, slug: 'meta-750k', orderIndex: 2,
+      phaseId: 7, slug: 'goal-750k', orderIndex: 2,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '750000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 7, slug: 'passiva-cobre-50-despesas', orderIndex: 3,
+      phaseId: 7, slug: 'passive-covers-50-expenses', orderIndex: 3,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 7, slug: 'renda-passiva-4sm', orderIndex: 4,
+      phaseId: 7, slug: 'passive-income-4mw', orderIndex: 4,
       missionType: 'passive_income_sm', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: '4.0', requiredDurationDays: null,
     },
     {
-      phaseId: 7, slug: 'meta-1M', orderIndex: 5,
+      phaseId: 7, slug: 'goal-1m', orderIndex: 5,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '1000000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
 
-    // ─── FASE 8: HERÓI ────────────────────────────────────────────────────────
+    // ─── PHASE 8: HERO ────────────────────────────────────────────────────────
     {
-      phaseId: 8, slug: 'renda-passiva-5sm', orderIndex: 1,
+      phaseId: 8, slug: 'passive-income-5mw', orderIndex: 1,
       missionType: 'passive_income_sm', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: '5.0', requiredDurationDays: null,
     },
     {
-      phaseId: 8, slug: 'meta-1-5M', orderIndex: 2,
+      phaseId: 8, slug: 'goal-1-5m', orderIndex: 2,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '1500000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 8, slug: 'passiva-cobre-100-despesas', orderIndex: 3,
+      phaseId: 8, slug: 'passive-covers-100-expenses', orderIndex: 3,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 8, slug: 'portfolio-cresce-apos-saques-3m', orderIndex: 4,
+      phaseId: 8, slug: 'portfolio-grows-after-withdrawals-3m', orderIndex: 4,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 8, slug: 'renda-5sm-seis-meses-consecutivos', orderIndex: 5,
+      phaseId: 8, slug: 'passive-income-5mw-six-consecutive-months', orderIndex: 5,
       missionType: 'habit', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: 180,
     },
 
-    // ─── FASE 9: LENDA ────────────────────────────────────────────────────────
+    // ─── PHASE 9: LEGEND ──────────────────────────────────────────────────────
     {
-      phaseId: 9, slug: 'renda-passiva-7sm', orderIndex: 1,
+      phaseId: 9, slug: 'passive-income-7mw', orderIndex: 1,
       missionType: 'passive_income_sm', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: '7.0', requiredDurationDays: null,
     },
     {
-      phaseId: 9, slug: 'meta-2M', orderIndex: 2,
+      phaseId: 9, slug: 'goal-2m', orderIndex: 2,
       missionType: 'portfolio_value', isRequiredForPhase: true,
       targetValue: '2000000.00', targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 9, slug: 'portfolio-cresce-12-meses', orderIndex: 3,
+      phaseId: 9, slug: 'portfolio-grows-12-months', orderIndex: 3,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
-      phaseId: 9, slug: 'renda-7sm-seis-meses-consecutivos', orderIndex: 4,
+      phaseId: 9, slug: 'passive-income-7mw-six-consecutive-months', orderIndex: 4,
       missionType: 'habit', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: 180,
     },
     {
-      phaseId: 9, slug: 'fire-confirmado', orderIndex: 5,
+      phaseId: 9, slug: 'fire-confirmed', orderIndex: 5,
       missionType: 'behavioral', isRequiredForPhase: true,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
@@ -324,7 +324,7 @@ export async function seedDatabase(): Promise<void> {
     await prisma.mission.upsert({ where: { slug: mission.slug }, update: mission, create: mission })
   }
 
-  console.log(`✅ Seed concluído! ${phases.length} fases e ${missions.length} missões.`)
+  console.log(`✅ Seed complete! ${phases.length} phases and ${missions.length} missions.`)
 }
 
 if (require.main === module || process.argv[1]?.endsWith('seed.ts')) {
