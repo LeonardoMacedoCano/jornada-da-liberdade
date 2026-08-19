@@ -110,7 +110,7 @@ const MissionRow = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  height: 84px;
+  min-height: 84px;
   padding: 12px;
   border-radius: 8px;
   background: ${p => p.theme.colors.secondary};
@@ -262,7 +262,7 @@ export default function History() {
             items={phases}
             keyExtractor={p => p.id}
             emptyMessage={t('history.emptyBadges')}
-            minItemWidth="300px"
+            minItemWidth="min(300px, 100%)"
             rowsPerPage={2}
             renderItem={p => {
               const locked = p.status !== 'completed'
@@ -318,7 +318,7 @@ export default function History() {
             items={filtered}
             keyExtractor={mission => mission.id}
             emptyMessage={t('history.emptyMissions')}
-            minItemWidth="320px"
+            minItemWidth="min(320px, 100%)"
             renderItem={mission => (
               <MissionRow onClick={() => setSelectedMission(mission)}>
                 <span style={{ fontSize: 18, flexShrink: 0 }}>{MISSION_TYPE_ICONS[mission.missionType]}</span>
