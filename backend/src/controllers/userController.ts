@@ -2,8 +2,7 @@ import { Response } from 'express'
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
-import { MAX_PHASE_ID } from '../lib/constants'
-import { getUserLanguage, minimumWageFor } from '../lib/localization'
+import { MAX_PHASE_ID, MINIMUM_WAGE } from '../lib/constants'
 import { ErrorCode } from '../lib/errors'
 
 export async function getProfile(req: AuthRequest, res: Response): Promise<void> {
@@ -11,7 +10,7 @@ export async function getProfile(req: AuthRequest, res: Response): Promise<void>
     where: { id: req.userId },
     select: {
       id: true, name: true, email: true, username: true,
-      avatarType: true, language: true, sharePublicProfile: true, showFinancialValues: true, createdAt: true,
+      avatarType: true, sharePublicProfile: true, showFinancialValues: true, createdAt: true,
       progress: true,
     },
   })
@@ -36,8 +35,7 @@ async function autoCompleteMissions(userId: string, progress: {
   monthlyContribution: Prisma.Decimal,
   annualReturnRate: Prisma.Decimal,
   currentPhaseId: number,
-}, language: string): Promise<{ newlyCompleted: number[], phaseAdvanced: boolean, newPhaseId: number }> {
-  const minimumWage = minimumWageFor(language)
+}): Promise<{ newlyCompleted: number[], phaseAdvanced: boolean, newPhaseId: number }> {
   const invested = parseFloat(progress.investedAmount.toString())
   const passiveIncome = parseFloat(progress.monthlyPassiveIncome.toString())
   const contribution = parseFloat(progress.monthlyContribution.toString())
@@ -63,7 +61,7 @@ async function autoCompleteMissions(userId: string, progress: {
     if (mission.missionType === 'portfolio_value' && mission.targetValue !== null) {
       shouldComplete = invested >= parseFloat(mission.targetValue.toString())
     } else if (mission.missionType === 'passive_income_sm' && mission.targetSmMultiple !== null) {
-      const threshold = parseFloat(mission.targetSmMultiple.toString()) * minimumWage
+      const threshold = parseFloat(mission.targetSmMultiple.toString()) * MINIMUM_WAGE
       shouldComplete = passiveIncome >= threshold
     } else if (mission.missionType === 'crossover') {
       shouldComplete = contribution > 0 && monthlyReturn >= contribution
@@ -146,17 +144,14 @@ export async function updateProgress(req: AuthRequest, res: Response): Promise<v
     },
   })
 
-  const language = await getUserLanguage(req.userId!)
-  const result = await autoCompleteMissions(req.userId!, updated, language)
+  const result = await autoCompleteMissions(req.userId!, updated)
 
   const freshProgress = await prisma.userProgress.findUnique({ where: { userId: req.userId! } })
   res.json({ progress: freshProgress ?? updated, ...result })
 }
 
-const SUPPORTED_LANGUAGES = ['en', 'pt-BR']
-
 export async function updateSettings(req: AuthRequest, res: Response): Promise<void> {
-  const { name, username, sharePublicProfile, showFinancialValues, language } = req.body
+  const { name, username, sharePublicProfile, showFinancialValues } = req.body
 
   if (name !== undefined && !name.trim()) {
     res.status(400).json({ error: ErrorCode.NAME_CANNOT_BE_EMPTY })
@@ -172,11 +167,6 @@ export async function updateSettings(req: AuthRequest, res: Response): Promise<v
     if (existing) { res.status(409).json({ error: ErrorCode.USERNAME_ALREADY_IN_USE }); return }
   }
 
-  if (language !== undefined && !SUPPORTED_LANGUAGES.includes(language)) {
-    res.status(400).json({ error: ErrorCode.UNSUPPORTED_LANGUAGE })
-    return
-  }
-
   const user = await prisma.user.update({
     where: { id: req.userId },
     data: {
@@ -184,9 +174,8 @@ export async function updateSettings(req: AuthRequest, res: Response): Promise<v
       ...(username !== undefined && { username }),
       ...(sharePublicProfile !== undefined && { sharePublicProfile }),
       ...(showFinancialValues !== undefined && { showFinancialValues }),
-      ...(language !== undefined && { language }),
     },
-    select: { id: true, name: true, email: true, username: true, language: true, sharePublicProfile: true, showFinancialValues: true },
+    select: { id: true, name: true, email: true, username: true, sharePublicProfile: true, showFinancialValues: true },
   })
   res.json(user)
 }

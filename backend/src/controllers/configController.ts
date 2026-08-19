@@ -1,12 +1,7 @@
 import { Response } from 'express'
 import { AuthRequest } from '../middleware/auth'
-import { getUserLanguage, minimumWageFor } from '../lib/localization'
+import { MINIMUM_WAGE } from '../lib/constants'
 
-export async function getMinimumWage(req: AuthRequest, res: Response): Promise<void> {
-  const language = await getUserLanguage(req.userId!)
-  res.json({
-    value: minimumWageFor(language),
-    currency: language === 'en' ? 'USD' : 'BRL',
-    updatedAt: null,
-  })
+export async function getMinimumWage(_req: AuthRequest, res: Response): Promise<void> {
+  res.json({ value: MINIMUM_WAGE, currency: 'BRL', updatedAt: null })
 }

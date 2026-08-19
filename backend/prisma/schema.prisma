@@ -15,7 +15,6 @@ model User {
   googleId     String   @unique
   username     String   @unique
   avatarType   String   @default("warrior")
-  language     String?
 
   sharePublicProfile   Boolean @default(true)
   showFinancialValues  Boolean @default(false)
@@ -44,9 +43,8 @@ model UserProgress {
 }
 
 // Fases e missões guardam só dados estruturais/mecânicos. Todo texto exibido
-// (nome, título, descrição, flavor text) mora no frontend (src/i18n/locales),
-// indexado por slug — igual ao resto da UI. Isso evita duplicar conteúdo em
-// dois idiomas dentro do banco.
+// (nome, título, descrição, flavor text) mora no frontend (src/i18n/content),
+// indexado por slug — igual ao resto da UI.
 model Phase {
   id              Int    @id
   slug            String @unique
