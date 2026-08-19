@@ -207,7 +207,7 @@ export default function Dashboard() {
   const { notify } = useToastStack()
   const [phase, setPhase] = useState<Phase | null>(null)
   const [progress, setProgress] = useState<UserProgress | null>(null)
-  const [minimumWage, setMinimumWage] = useState(1412)
+  const [minimumWage, setMinimumWage] = useState(1621)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)

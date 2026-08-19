@@ -6,7 +6,7 @@ export async function seedDatabase(): Promise<void> {
   await prisma.appConfig.upsert({
     where: { key: 'minimum_wage' },
     update: {},
-    create: { key: 'minimum_wage', value: '1412.00' },
+    create: { key: 'minimum_wage', value: '1621.00' },
   })
   await prisma.appConfig.upsert({
     where: { key: 'minimum_wage_updated_at' },

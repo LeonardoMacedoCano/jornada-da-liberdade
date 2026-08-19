@@ -160,7 +160,7 @@ const CompletedDate = styled.p`
   margin-top: 4px;
 `
 
-export default function MissionItem({ mission, minimumWage = 1412, onToggle, onStart, compact = false }: MissionItemProps) {
+export default function MissionItem({ mission, minimumWage = 1621, onToggle, onStart, compact = false }: MissionItemProps) {
   const { t, i18n } = useTranslation()
   const content = getMissionContent(mission.slug)
   const isManual = mission.missionType === 'behavioral' || mission.missionType === 'habit'
