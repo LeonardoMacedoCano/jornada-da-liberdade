@@ -34,6 +34,8 @@ export default {
     roadmap: 'Roadmap',
     history: 'History',
     logout: 'Log out',
+    switchToLight: 'Switch to light theme',
+    switchToDark: 'Switch to dark theme',
   },
   languageModal: {
     title: 'Choose your language',
