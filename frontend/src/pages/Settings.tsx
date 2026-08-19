@@ -86,6 +86,12 @@ const Hint = styled.p`
   margin-top: 2px;
 `
 
+const Warning = styled.p`
+  font-size: 12px;
+  color: ${p => p.theme.colors.warning};
+  margin-top: 2px;
+`
+
 const ToggleRow = styled.label`
   display: flex;
   align-items: flex-start;
@@ -279,6 +285,9 @@ export default function Settings() {
               onChange={e => setAnnualReturnRate(e.target.value)}
             />
             <Hint>{t('settings.financialSettingsHint')}</Hint>
+            {(parseFloat(annualReturnRate) || 0) > 15 && (
+              <Warning>{t('settings.annualReturnRateWarning')}</Warning>
+            )}
           </Field>
           <Button
             type="submit"

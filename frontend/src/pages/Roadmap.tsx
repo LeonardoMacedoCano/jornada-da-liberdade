@@ -27,6 +27,12 @@ const Subtitle = styled.p`
   margin-top: 4px;
 `
 
+const InflationNote = styled.p`
+  color: ${p => p.theme.colors.gray}99;
+  font-size: 12px;
+  margin-top: 4px;
+`
+
 const PhaseList = styled.div`
   display: flex;
   flex-direction: column;
@@ -58,7 +64,7 @@ export default function Roadmap() {
   const { t } = useTranslation()
   const { notify } = useToastStack()
   const [phases, setPhases] = useState<Phase[]>([])
-  const [minimumWage, setMinimumWage] = useState(1412)
+  const [minimumWage, setMinimumWage] = useState(1621)
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -101,6 +107,7 @@ export default function Roadmap() {
         <Subtitle>
           {t('roadmap.subtitle', { completed: completedCount, total: phases.length })}
         </Subtitle>
+        <InflationNote>{t('roadmap.nominalValuesNote')}</InflationNote>
       </PageHeader>
 
       <PhaseList>
