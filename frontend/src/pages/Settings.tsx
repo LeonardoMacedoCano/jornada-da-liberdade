@@ -156,7 +156,15 @@ function Toggle({
 }) {
   return (
     <ToggleRow>
-      <ToggleTrack $on={value} onClick={() => onChange(!value)}>
+      <ToggleTrack
+        role="switch"
+        aria-checked={value}
+        aria-label={label}
+        tabIndex={0}
+        $on={value}
+        onClick={() => onChange(!value)}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onChange(!value) } }}
+      >
         <ToggleThumb $on={value} />
       </ToggleTrack>
       <ToggleText>

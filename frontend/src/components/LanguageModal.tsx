@@ -68,10 +68,11 @@ export default function LanguageModal() {
               <Option
                 key={lang}
                 type="button"
+                aria-pressed={selected === lang}
                 $selected={selected === lang}
                 onClick={() => setSelected(lang)}
               >
-                <Flag>{LANGUAGE_LABELS[lang].flag}</Flag>
+                <Flag aria-hidden="true">{LANGUAGE_LABELS[lang].flag}</Flag>
                 {LANGUAGE_LABELS[lang].name}
               </Option>
             ))}
