@@ -4,7 +4,7 @@ import { Button, ThemeSelector, useMessage } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { useThemeControl } from '../contexts/ThemeControlContext'
-import { SUPPORTED_LANGUAGES, SupportedLanguage, translateApiError } from '../i18n'
+import { translateApiError } from '../i18n'
 import { THEMES } from '../theme'
 import api from '../services/api'
 
@@ -86,21 +86,6 @@ const Hint = styled.p`
   margin-top: 2px;
 `
 
-const Select = styled.select`
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 8px;
-  background: ${p => p.theme.colors.primary};
-  border: 1px solid ${p => p.theme.colors.tertiary};
-  color: ${p => p.theme.colors.white};
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.15s;
-  cursor: pointer;
-
-  &:focus { border-color: ${p => p.theme.colors.quaternary}; }
-`
-
 const ToggleRow = styled.label`
   display: flex;
   align-items: flex-start;
@@ -177,20 +162,14 @@ function Toggle({
   )
 }
 
-const LANGUAGE_NAMES: Record<SupportedLanguage, string> = {
-  en: 'English',
-  'pt-BR': 'Português (Brasil)',
-}
-
 export default function Settings() {
   const { user, refreshUser } = useAuth()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const { showSuccess, showError } = useMessage()
   const [name, setName] = useState(user?.name || '')
   const [username, setUsername] = useState(user?.username || '')
   const [sharePublicProfile, setSharePublicProfile] = useState(user?.sharePublicProfile ?? true)
   const [showFinancialValues, setShowFinancialValues] = useState(user?.showFinancialValues ?? false)
-  const [language, setLanguage] = useState<SupportedLanguage>((user?.language as SupportedLanguage) || 'en')
   const [annualReturnRate, setAnnualReturnRate] = useState('11')
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingFinancial, setSavingFinancial] = useState(false)
@@ -207,10 +186,8 @@ export default function Settings() {
     e.preventDefault()
     setSavingProfile(true)
     try {
-      await api.put('/user/settings', { name, username, sharePublicProfile, showFinancialValues, language })
+      await api.put('/user/settings', { name, username, sharePublicProfile, showFinancialValues })
       await refreshUser()
-      await i18n.changeLanguage(language)
-      localStorage.setItem('language', language)
       showSuccess(t('settings.profileSaved'))
     } catch (err: unknown) {
       const data = (err as { response?: { data?: unknown } })?.response?.data
@@ -257,16 +234,6 @@ export default function Settings() {
             <Label>{t('settings.email')} <span style={{ opacity: 0.5 }}>{t('settings.readOnly')}</span></Label>
             <Input type="email" value={user?.email || ''} readOnly $readOnly />
           </Field>
-          <Field>
-            <Label>{t('settings.language')}</Label>
-            <Select value={language} onChange={e => setLanguage(e.target.value as SupportedLanguage)}>
-              {SUPPORTED_LANGUAGES.map(lang => (
-                <option key={lang} value={lang}>{LANGUAGE_NAMES[lang]}</option>
-              ))}
-            </Select>
-            <Hint>{t('settings.languageHint')}</Hint>
-          </Field>
-
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
             <Toggle
               value={sharePublicProfile}

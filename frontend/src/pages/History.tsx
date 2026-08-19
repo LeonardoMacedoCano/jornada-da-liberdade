@@ -266,7 +266,7 @@ export default function History() {
             rowsPerPage={2}
             renderItem={p => {
               const locked = p.status !== 'completed'
-              const content = getPhaseContent(p.slug, i18n.language)
+              const content = getPhaseContent(p.slug)
               return (
                 <BadgeCard
                   icon={locked ? '🔒' : p.achievementIcon}
@@ -302,7 +302,7 @@ export default function History() {
                 $active={filterPhaseId === p.id}
                 onClick={() => setFilterPhaseId(p.id)}
               >
-                {p.achievementIcon} {getPhaseContent(p.slug, i18n.language).name}
+                {p.achievementIcon} {getPhaseContent(p.slug).name}
               </FilterButton>
             ))}
           </FilterRow>
@@ -323,9 +323,9 @@ export default function History() {
               <MissionRow onClick={() => setSelectedMission(mission)}>
                 <span style={{ fontSize: 18, flexShrink: 0 }}>{MISSION_TYPE_ICONS[mission.missionType]}</span>
                 <MissionInfo>
-                  <MissionTitle>{getMissionContent(mission.slug, i18n.language).title}</MissionTitle>
+                  <MissionTitle>{getMissionContent(mission.slug).title}</MissionTitle>
                   <MissionMeta>
-                    <MetaText>{getPhaseContent(mission.phaseSlug, i18n.language).name}</MetaText>
+                    <MetaText>{getPhaseContent(mission.phaseSlug).name}</MetaText>
                     <MetaText>·</MetaText>
                     <MetaText>{t(`mission.types.${mission.missionType}`)}</MetaText>
                   </MissionMeta>
@@ -340,7 +340,7 @@ export default function History() {
       </section>
 
       {selectedPhase && (() => {
-        const content = getPhaseContent(selectedPhase.slug, i18n.language)
+        const content = getPhaseContent(selectedPhase.slug)
         return (
           <Modal
             isOpen
@@ -367,7 +367,7 @@ export default function History() {
       })()}
 
       {selectedMission && (() => {
-        const content = getMissionContent(selectedMission.slug, i18n.language)
+        const content = getMissionContent(selectedMission.slug)
         return (
           <Modal
             isOpen
@@ -376,7 +376,7 @@ export default function History() {
             onClose={() => setSelectedMission(null)}
             content={
               <ModalBody>
-                <ModalEyebrow>{getPhaseContent(selectedMission.phaseSlug, i18n.language).name}</ModalEyebrow>
+                <ModalEyebrow>{getPhaseContent(selectedMission.phaseSlug).name}</ModalEyebrow>
                 <ModalDescription>{content.description}</ModalDescription>
                 <ModalMetaRow>
                   <span>{t(`mission.types.${selectedMission.missionType}`)}</span>

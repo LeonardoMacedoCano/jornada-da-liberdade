@@ -4,7 +4,6 @@ export interface User {
   email: string
   username: string
   avatarType: string
-  language: string | null
   sharePublicProfile: boolean
   showFinancialValues: boolean
   createdAt: string

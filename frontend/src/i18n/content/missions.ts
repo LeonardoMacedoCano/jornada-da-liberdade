@@ -1,6 +1,9 @@
-import type { MissionContent } from './missions.en'
+export interface MissionContent {
+  title: string
+  description: string
+}
 
-const missionsPtBR: Record<string, MissionContent> = {
+const missions: Record<string, MissionContent> = {
   'map-debts': {
     title: 'Mapear todas as dívidas existentes',
     description: 'Liste todas as dívidas ativas em uma planilha ou papel: nome do credor, saldo devedor atual, taxa de juros mensal e valor da parcela. Sem essa clareza, qualquer estratégia financeira é cega.',
@@ -215,4 +218,4 @@ const missionsPtBR: Record<string, MissionContent> = {
   },
 }
 
-export default missionsPtBR
+export default missions

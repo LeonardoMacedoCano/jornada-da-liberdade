@@ -1,6 +1,4 @@
-import type en from './en'
-
-const ptBR: typeof en = {
+const strings = {
   common: {
     appName: 'Jornada da Liberdade',
     tagline: 'Sua jornada rumo à independência financeira',
@@ -16,7 +14,6 @@ const ptBR: typeof en = {
     INVALID_NON_NEGATIVE_FIELD: 'Campo {{field}} inválido — deve ser um número não negativo',
     INVALID_RETURN_RATE: 'Taxa de retorno deve ser entre 0 e 100',
     NAME_CANNOT_BE_EMPTY: 'Nome não pode ser vazio',
-    UNSUPPORTED_LANGUAGE: 'Idioma não suportado',
     GOOGLE_LOGIN_NOT_CONFIGURED: 'Login com Google não está configurado no servidor',
     MISSING_GOOGLE_CREDENTIAL: 'Credencial do Google ausente',
     INVALID_GOOGLE_CREDENTIAL: 'Credencial do Google inválida',
@@ -36,13 +33,6 @@ const ptBR: typeof en = {
     roadmap: 'Roadmap',
     history: 'Histórico',
     logout: 'Sair',
-    switchToLight: 'Mudar para tema claro',
-    switchToDark: 'Mudar para tema escuro',
-  },
-  languageModal: {
-    title: 'Escolha seu idioma',
-    subtitle: 'Você pode mudar isso a qualquer momento em Configurações.',
-    confirm: 'Continuar',
   },
   auth: {
     login: {
@@ -105,8 +95,8 @@ const ptBR: typeof en = {
     savingProfile: 'Salvando...',
     profileSaved: 'Perfil atualizado com sucesso!',
     errorSave: 'Erro ao salvar',
-    language: 'Idioma',
-    languageHint: 'Altera o idioma de toda a interface',
+    appearance: 'Aparência',
+    appearanceHint: 'Escolha o tema visual do app',
     financialSettings: 'Configurações Financeiras',
     financialSettingsHint: 'Usado para estimar seu retorno mensal',
     annualReturnRate: 'Taxa de retorno anual (%)',
@@ -175,4 +165,4 @@ const ptBR: typeof en = {
   },
 }
 
-export default ptBR
+export default strings

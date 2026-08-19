@@ -136,7 +136,7 @@ const MissionList = styled.div`
 
 export default function PhaseCard({ phase, minimumWage = 1412, expanded = false, onToggleExpand, onToggleMission }: PhaseCardProps) {
   const { t, i18n } = useTranslation()
-  const content = getPhaseContent(phase.slug, i18n.language)
+  const content = getPhaseContent(phase.slug)
   const color = PHASE_HEX_COLORS[phase.color] || PHASE_HEX_COLORS.gray
   const isLocked = phase.status === 'locked'
   const isCompleted = phase.status === 'completed'

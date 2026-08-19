@@ -4,7 +4,7 @@ import { Button, Loading, useMessage, useToastStack, PaginatedGrid, ToggleSwitch
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
-import { currencySymbol, toLibLocale, translateApiError } from '../i18n'
+import { translateApiError } from '../i18n'
 import { getPhaseContent } from '../i18n/content'
 import { Phase, UserProgress, PHASE_HEX_COLORS } from '../types'
 import { buildPhaseAchievementToast } from '../utils/achievementToast'
@@ -254,7 +254,7 @@ export default function Dashboard() {
       setProgress(res.data.progress)
       if (res.data.phaseAdvanced) {
         showSuccess(t('dashboard.phaseAdvanced'))
-        if (phase) notify([buildPhaseAchievementToast(phase, i18n.language, t)])
+        if (phase) notify([buildPhaseAchievementToast(phase, t)])
       } else if (res.data.newlyCompleted?.length > 0) {
         showSuccess(t('dashboard.missionsAutoCompleted', { count: res.data.newlyCompleted.length }))
       }
@@ -279,10 +279,10 @@ export default function Dashboard() {
       setProgress(profileRes.data.progress)
       if (completed) showSuccess(t('dashboard.missionCompleted'))
       if (completed && res.data.phaseAdvanced && completedPhase) {
-        notify([buildPhaseAchievementToast(completedPhase, i18n.language, t)])
+        notify([buildPhaseAchievementToast(completedPhase, t)])
       }
       if (!completed && res.data.phaseRolledBack) {
-        showError(t('dashboard.phaseRolledBack', { phase: getPhaseContent(phaseRes.data.slug, i18n.language).name }))
+        showError(t('dashboard.phaseRolledBack', { phase: getPhaseContent(phaseRes.data.slug).name }))
       }
     } catch (err: unknown) {
       const data = (err as { response?: { data?: unknown } })?.response?.data
@@ -336,7 +336,7 @@ export default function Dashboard() {
   )
 
   const phaseColor = phase ? (PHASE_HEX_COLORS[phase.color] || theme.colors.quaternary) : theme.colors.quaternary
-  const phaseContent = phase ? getPhaseContent(phase.slug, i18n.language) : null
+  const phaseContent = phase ? getPhaseContent(phase.slug) : null
 
   return (
     <Page>
@@ -415,7 +415,7 @@ export default function Dashboard() {
                       <Input
                         type="text"
                         inputMode="decimal"
-                        value={focusedField === key ? form[key] : formatGroupedNumber(form[key], toLibLocale(i18n.language))}
+                        value={focusedField === key ? form[key] : formatGroupedNumber(form[key], 'pt')}
                         onFocus={() => setFocusedField(key)}
                         onBlur={() => setFocusedField(null)}
                         onChange={e => setForm(f => ({ ...f, [key]: sanitizeNumericInput(e.target.value, 8, 2, 0) }))}
@@ -441,7 +441,7 @@ export default function Dashboard() {
                 <IndicatorRow>
                   <IndicatorLabel>{t('dashboard.monthlyReturn')}</IndicatorLabel>
                   <IndicatorValue>
-                    {currencySymbol(i18n.language)} {monthlyReturn.toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    R$ {monthlyReturn.toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </IndicatorValue>
                 </IndicatorRow>
                 {showContribution && (
@@ -464,7 +464,7 @@ export default function Dashboard() {
                       <IndicatorRow>
                         <IndicatorLabel style={{ opacity: 0.6 }}>{t('dashboard.minimumWageCurrent')}</IndicatorLabel>
                         <span style={{ fontSize: 12, color: 'inherit', opacity: 0.5 }}>
-                          {currencySymbol(i18n.language)} {minimumWage.toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
+                          R$ {minimumWage.toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
                         </span>
                       </IndicatorRow>
                     </Divider>

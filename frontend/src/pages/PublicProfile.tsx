@@ -4,7 +4,6 @@ import styled, { useTheme } from 'styled-components'
 import { Button, PaginatedGrid, BadgeCard } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import api from '../services/api'
-import { currencySymbol } from '../i18n'
 import { getPhaseContent } from '../i18n/content'
 import { PublicProfile as PublicProfileType, PHASE_HEX_COLORS } from '../types'
 import AvatarDisplay from '../components/AvatarDisplay'
@@ -230,8 +229,8 @@ export default function PublicProfile() {
         {profile.currentPhase && (
           <PhaseCard>
             <PhaseIcon>{profile.currentPhase.achievementIcon}</PhaseIcon>
-            <PhaseName>{getPhaseContent(profile.currentPhase.slug, i18n.language).name}</PhaseName>
-            <PhaseTitle>{getPhaseContent(profile.currentPhase.slug, i18n.language).title}</PhaseTitle>
+            <PhaseName>{getPhaseContent(profile.currentPhase.slug).name}</PhaseName>
+            <PhaseTitle>{getPhaseContent(profile.currentPhase.slug).title}</PhaseTitle>
             <ProgressWrap>
               <ProgressBar percent={profile.progressPercent} color={phaseColor} height="8px" showLabel />
             </ProgressWrap>
@@ -248,7 +247,7 @@ export default function PublicProfile() {
               emptyMessage=""
               minItemWidth="140px"
               renderItem={a => {
-                const content = getPhaseContent(a.phaseSlug, i18n.language)
+                const content = getPhaseContent(a.phaseSlug)
                 return (
                   <BadgeCard
                     icon={a.achievementIcon}
@@ -270,13 +269,13 @@ export default function PublicProfile() {
               <FinancialItem>
                 <FinancialLabel>{t('publicProfile.investedAmount')}</FinancialLabel>
                 <FinancialValue>
-                  {currencySymbol(i18n.language)} {parseFloat(profile.financialData.investedAmount).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
+                  R$ {parseFloat(profile.financialData.investedAmount).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
                 </FinancialValue>
               </FinancialItem>
               <FinancialItem>
                 <FinancialLabel>{t('publicProfile.monthlyPassiveIncome')}</FinancialLabel>
                 <FinancialValue $success>
-                  {currencySymbol(i18n.language)} {parseFloat(profile.financialData.monthlyPassiveIncome).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
+                  R$ {parseFloat(profile.financialData.monthlyPassiveIncome).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
                 </FinancialValue>
               </FinancialItem>
             </FinancialGrid>
