@@ -107,7 +107,7 @@ const missionsPtBR: Record<string, MissionContent> = {
   },
   'goal-100k': {
     title: 'Atingir R$ 100.000 investidos — O Clube dos 100k',
-    description: 'O marco mais simbólico do jogo. Menos de 3% dos brasileiros chegam aqui. A R$ 100k e 11% ao ano, o portfólio gera ~R$ 917/mês — mais do que um salário mínimo gerado passivamente todo mês, sem trabalhar um dia.',
+    description: 'O marco mais simbólico do jogo. Menos de 3% dos brasileiros chegam aqui. A R$ 100k e 11% ao ano, o portfólio gera ~R$ 917/mês — quase dois terços de um salário mínimo gerado passivamente todo mês, sem trabalhar um dia.',
   },
   'goal-150k': {
     title: 'Atingir R$ 150.000 investidos',
