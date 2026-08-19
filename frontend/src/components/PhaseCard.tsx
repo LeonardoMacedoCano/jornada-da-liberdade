@@ -144,8 +144,8 @@ export default function PhaseCard({ phase, minimumWage = 1412, expanded = false,
 
   return (
     <Card $color={color} $isActive={isActive} $isLocked={isLocked}>
-      <Header onClick={onToggleExpand}>
-        <PhaseIcon $locked={isLocked}>{phase.achievementIcon}</PhaseIcon>
+      <Header onClick={onToggleExpand} aria-expanded={expanded}>
+        <PhaseIcon aria-hidden="true" $locked={isLocked}>{phase.achievementIcon}</PhaseIcon>
         <HeaderBody>
           <TopRow>
             <PhaseName $color={color}>{content.name}</PhaseName>
@@ -166,7 +166,7 @@ export default function PhaseCard({ phase, minimumWage = 1412, expanded = false,
             </CompletedDate>
           )}
         </HeaderBody>
-        <Chevron>{expanded ? '▲' : '▼'}</Chevron>
+        <Chevron aria-hidden="true">{expanded ? '▲' : '▼'}</Chevron>
       </Header>
 
       {expanded && (

@@ -36,6 +36,8 @@ const ptBR: typeof en = {
     roadmap: 'Roadmap',
     history: 'Histórico',
     logout: 'Sair',
+    switchToLight: 'Mudar para tema claro',
+    switchToDark: 'Mudar para tema escuro',
   },
   languageModal: {
     title: 'Escolha seu idioma',

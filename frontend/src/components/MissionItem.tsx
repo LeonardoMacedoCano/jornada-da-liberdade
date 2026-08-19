@@ -198,21 +198,24 @@ export default function MissionItem({ mission, minimumWage = 1412, onToggle, onS
       <div style={{ flexShrink: 0, marginTop: 2 }}>
         {showCheckbox ? (
           <CheckButton
+            role="checkbox"
+            aria-checked={mission.isCompleted}
+            aria-label={content.title}
             $completed={mission.isCompleted}
             onClick={() => onToggle!(mission.id, !mission.isCompleted)}
           >
-            {mission.isCompleted && <span style={{ color: 'white', fontSize: 11 }}>✓</span>}
+            {mission.isCompleted && <span aria-hidden="true" style={{ color: 'white', fontSize: 11 }}>✓</span>}
           </CheckButton>
         ) : (
-          <CheckDisplay $completed={mission.isCompleted}>
-            {mission.isCompleted && <span style={{ color: 'white', fontSize: 11 }}>✓</span>}
+          <CheckDisplay role="img" aria-label={mission.isCompleted ? t('phase.completed') : content.title} $completed={mission.isCompleted}>
+            {mission.isCompleted && <span aria-hidden="true" style={{ color: 'white', fontSize: 11 }}>✓</span>}
           </CheckDisplay>
         )}
       </div>
 
       <Body>
         <TitleRow>
-          <span style={{ fontSize: 14 }}>{icon}</span>
+          <span aria-hidden="true" style={{ fontSize: 14 }}>{icon}</span>
           <MissionTitle $completed={mission.isCompleted}>{content.title}</MissionTitle>
           {!mission.isRequiredForPhase && <BadgeOptional>{t('mission.optional')}</BadgeOptional>}
           <BadgeType>{label}</BadgeType>
