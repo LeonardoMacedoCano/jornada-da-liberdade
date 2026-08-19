@@ -377,7 +377,6 @@ export default function Dashboard() {
                 optionB={{ label: t('dashboard.missionsFilter.all'), value: 'all' }}
                 value={missionFilter}
                 onChange={setMissionFilter}
-                width="180px"
               />
             </MissionsHeader>
             {visibleMissions.length === 0 ? (
@@ -388,7 +387,7 @@ export default function Dashboard() {
                 keyExtractor={mission => mission.id}
                 emptyMessage={t('dashboard.noMissionsPending')}
                 minItemWidth="100%"
-                rowsPerPage={5}
+                rowsPerPage={3}
                 renderItem={mission => (
                   <MissionItem
                     mission={mission}
