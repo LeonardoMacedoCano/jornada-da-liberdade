@@ -1,5 +1,4 @@
 import { Response } from 'express'
-import bcrypt from 'bcryptjs'
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
@@ -190,22 +189,4 @@ export async function updateSettings(req: AuthRequest, res: Response): Promise<v
     select: { id: true, name: true, email: true, username: true, language: true, sharePublicProfile: true, showFinancialValues: true },
   })
   res.json(user)
-}
-
-export async function updatePassword(req: AuthRequest, res: Response): Promise<void> {
-  const { currentPassword, newPassword } = req.body
-  if (!currentPassword || !newPassword) {
-    res.status(400).json({ error: ErrorCode.CURRENT_AND_NEW_PASSWORD_REQUIRED })
-    return
-  }
-
-  const user = await prisma.user.findUnique({ where: { id: req.userId } })
-  if (!user) { res.status(404).json({ error: ErrorCode.USER_NOT_FOUND }); return }
-
-  const valid = await bcrypt.compare(currentPassword, user.passwordHash)
-  if (!valid) { res.status(401).json({ error: ErrorCode.CURRENT_PASSWORD_INCORRECT }); return }
-
-  const passwordHash = await bcrypt.hash(newPassword, 12)
-  await prisma.user.update({ where: { id: req.userId }, data: { passwordHash } })
-  res.json({ message: 'Password updated successfully' })
 }
