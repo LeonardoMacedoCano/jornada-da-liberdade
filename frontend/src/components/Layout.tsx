@@ -2,7 +2,6 @@ import styled from 'styled-components'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
-import { useThemeControl } from '../contexts/ThemeControlContext'
 
 const Nav = styled.nav`
   background: ${p => p.theme.colors.secondary};
@@ -98,26 +97,6 @@ const LogoutButton = styled.button`
   }
 `
 
-const ThemeToggleButton = styled.button`
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  font-size: 16px;
-  background: transparent;
-  border: none;
-  color: ${p => p.theme.colors.gray};
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover {
-    color: ${p => p.theme.colors.white};
-    background: ${p => p.theme.colors.white}0d;
-  }
-`
-
 const Main = styled.main`
   max-width: 1152px;
   margin: 0 auto;
@@ -128,7 +107,6 @@ export default function Layout() {
   const { user, logout } = useAuth()
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { mode, toggleMode } = useThemeControl()
 
   function handleLogout() {
     logout()
@@ -149,14 +127,6 @@ export default function Layout() {
             <StyledNavLink to="/history">{t('nav.history')}</StyledNavLink>
           </NavLinks>
           <NavActions>
-            <ThemeToggleButton
-              type="button"
-              onClick={toggleMode}
-              aria-label={mode === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')}
-              title={mode === 'dark' ? t('nav.switchToLight') : t('nav.switchToDark')}
-            >
-              <span aria-hidden="true">{mode === 'dark' ? '☀️' : '🌙'}</span>
-            </ThemeToggleButton>
             <UserNavLink to="/settings" aria-label={t('settings.title')}>
               <span className="name">{user?.name}</span>
               <span className="icon" aria-hidden="true">⚙️</span>

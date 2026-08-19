@@ -55,7 +55,7 @@ const LoadingWrap = styled.div`
 `
 
 export default function Roadmap() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const { notify } = useToastStack()
   const [phases, setPhases] = useState<Phase[]>([])
   const [minimumWage, setMinimumWage] = useState(1412)
@@ -81,7 +81,7 @@ export default function Roadmap() {
       const phasesRes = await api.get('/phases')
       setPhases(phasesRes.data)
       if (completed && res.data.phaseAdvanced && completedPhase) {
-        notify([buildPhaseAchievementToast(completedPhase, i18n.language, t)])
+        notify([buildPhaseAchievementToast(completedPhase, t)])
       }
     } catch { /* ignore */ }
   }

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { ToastStack } from 'lcano-react-ui'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import { toLibLocale } from './i18n'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Roadmap from './pages/Roadmap'
@@ -11,7 +10,6 @@ import History from './pages/History'
 import Settings from './pages/Settings'
 import PublicProfile from './pages/PublicProfile'
 import Layout from './components/Layout'
-import LanguageModal from './components/LanguageModal'
 
 const FullScreen = styled.div`
   min-height: 100vh;
@@ -36,7 +34,6 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
     </FullScreen>
   )
   if (!user) return <Navigate to="/login" replace />
-  if (!user.language) return <LanguageModal />
   return <>{children}</>
 }
 
@@ -48,10 +45,9 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
 function AchievementToastStack() {
   const navigate = useNavigate()
-  const { i18n } = useTranslation()
   return (
     <ToastStack
-      locale={toLibLocale(i18n.language)}
+      locale="pt"
       onItemClick={() => navigate('/history')}
     />
   )

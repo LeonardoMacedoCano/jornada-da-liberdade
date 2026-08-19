@@ -3,8 +3,8 @@ import type { ToastStackItem } from 'lcano-react-ui'
 import { Phase } from '../types'
 import { getPhaseContent } from '../i18n/content'
 
-export function buildPhaseAchievementToast(phase: Pick<Phase, 'slug' | 'achievementIcon'>, language: string, t: TFunction): ToastStackItem {
-  const content = getPhaseContent(phase.slug, language)
+export function buildPhaseAchievementToast(phase: Pick<Phase, 'slug' | 'achievementIcon'>, t: TFunction): ToastStackItem {
+  const content = getPhaseContent(phase.slug)
   return {
     icon: phase.achievementIcon,
     eyebrow: t('achievement.unlocked'),

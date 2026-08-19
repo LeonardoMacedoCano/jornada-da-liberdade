@@ -69,13 +69,13 @@ export async function googleAuth(req: Request, res: Response): Promise<void> {
   }
 
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '30d' })
-  res.json({ token, user: { id: user.id, name: user.name, email: user.email, username: user.username, language: user.language } })
+  res.json({ token, user: { id: user.id, name: user.name, email: user.email, username: user.username } })
 }
 
 export async function me(req: AuthRequest, res: Response): Promise<void> {
   const user = await prisma.user.findUnique({
     where: { id: req.userId },
-    select: { id: true, name: true, email: true, username: true, avatarType: true, language: true, sharePublicProfile: true, showFinancialValues: true, createdAt: true },
+    select: { id: true, name: true, email: true, username: true, avatarType: true, sharePublicProfile: true, showFinancialValues: true, createdAt: true },
   })
   if (!user) {
     res.status(404).json({ error: ErrorCode.USER_NOT_FOUND })

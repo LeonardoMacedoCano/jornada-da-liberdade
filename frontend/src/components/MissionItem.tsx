@@ -1,6 +1,5 @@
 import styled from 'styled-components'
 import { useTranslation } from 'react-i18next'
-import { currencySymbol } from '../i18n'
 import { getMissionContent } from '../i18n/content'
 import { Mission, MISSION_TYPE_ICONS } from '../types'
 
@@ -163,7 +162,7 @@ const CompletedDate = styled.p`
 
 export default function MissionItem({ mission, minimumWage = 1412, onToggle, onStart, compact = false }: MissionItemProps) {
   const { t, i18n } = useTranslation()
-  const content = getMissionContent(mission.slug, i18n.language)
+  const content = getMissionContent(mission.slug)
   const isManual = mission.missionType === 'behavioral' || mission.missionType === 'habit'
   const icon = MISSION_TYPE_ICONS[mission.missionType]
   const label = t(`mission.types.${mission.missionType}`)
@@ -176,12 +175,12 @@ export default function MissionItem({ mission, minimumWage = 1412, onToggle, onS
 
   function formatTarget() {
     if (mission.missionType === 'portfolio_value' && mission.targetValue) {
-      const value = `${currencySymbol(i18n.language)} ${parseFloat(mission.targetValue).toLocaleString(i18n.language, { minimumFractionDigits: 0 })}`
+      const value = `R$ ${parseFloat(mission.targetValue).toLocaleString(i18n.language, { minimumFractionDigits: 0 })}`
       return t('mission.targetPortfolio', { value })
     }
     if (mission.missionType === 'passive_income_sm' && mission.targetSmMultiple) {
       const multiple = parseFloat(mission.targetSmMultiple)
-      const value = `${currencySymbol(i18n.language)} ${(multiple * minimumWage).toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      const value = `R$ ${(multiple * minimumWage).toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
       return t('mission.targetPassiveSm', { multiple, value })
     }
     if (mission.missionType === 'crossover') {

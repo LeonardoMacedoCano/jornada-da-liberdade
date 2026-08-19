@@ -1,6 +1,13 @@
-import type { PhaseContent } from './phases.en'
+export interface PhaseContent {
+  name: string
+  title: string
+  subtitle: string
+  description: string
+  flavorText: string
+  achievementName: string
+}
 
-const phasesPtBR: Record<string, PhaseContent> = {
+const phases: Record<string, PhaseContent> = {
   'tutorial': {
     name: 'Tutorial',
     title: 'O Despertar',
@@ -83,4 +90,4 @@ const phasesPtBR: Record<string, PhaseContent> = {
   },
 }
 
-export default phasesPtBR
+export default phases

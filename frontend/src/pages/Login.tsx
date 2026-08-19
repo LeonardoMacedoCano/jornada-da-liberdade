@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { GoogleSignInButton } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
-import { toLibLocale, translateApiError } from '../i18n'
+import { translateApiError } from '../i18n'
 
 const Page = styled.div`
   min-height: 100vh;
@@ -83,7 +83,7 @@ const StatusText = styled.p`
 
 export default function Login() {
   const { loginWithGoogle, googleClientId } = useAuth()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [error, setError] = useState('')
 
   async function handleCredential(credential: string) {
@@ -111,7 +111,7 @@ export default function Login() {
             {googleClientId === undefined ? (
               <StatusText>{t('common.loading')}</StatusText>
             ) : googleClientId ? (
-              <GoogleSignInButton clientId={googleClientId} onCredential={handleCredential} locale={toLibLocale(i18n.language)} />
+              <GoogleSignInButton clientId={googleClientId} onCredential={handleCredential} locale="pt" />
             ) : (
               <ErrorBox>{t('auth.login.notConfigured')}</ErrorBox>
             )}

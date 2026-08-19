@@ -1,14 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import i18n from '../i18n'
 import api from '../services/api'
 import { User } from '../types'
-
-function syncLanguage(user: User | null) {
-  if (user?.language) {
-    localStorage.setItem('language', user.language)
-    i18n.changeLanguage(user.language)
-  }
-}
 
 interface AuthContextType {
   user: User | null
@@ -35,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (token) {
       api.get('/auth/me')
-        .then(res => { setUser(res.data); syncLanguage(res.data) })
+        .then(res => setUser(res.data))
         .catch(() => { localStorage.removeItem('token'); setToken(null) })
         .finally(() => setLoading(false))
     } else {
@@ -48,7 +40,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('token', res.data.token)
     setToken(res.data.token)
     setUser(res.data.user)
-    syncLanguage(res.data.user)
   }
 
   function logout() {
@@ -60,7 +51,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function refreshUser() {
     const res = await api.get('/auth/me')
     setUser(res.data)
-    syncLanguage(res.data)
   }
 
   return (
