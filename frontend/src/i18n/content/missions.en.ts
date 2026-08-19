@@ -10,7 +10,7 @@ const missionsEn: Record<string, MissionContent> = {
   },
   'track-expenses-30-days': {
     title: 'Track every expense for 30 days',
-    description: 'For one full month, write down every expense, no matter how small. Use an app (Mint, YNAB, Copilot), a spreadsheet, or a notebook. You can’t cut what you can’t see — and what you can’t see always grows.',
+    description: 'For one full month, write down every expense, no matter how small. Use an app (YNAB, Copilot, Rocket Money), a spreadsheet, or a notebook. You can’t cut what you can’t see — and what you can’t see always grows.',
   },
   'calculate-monthly-balance': {
     title: 'Calculate your available monthly balance',
@@ -54,7 +54,7 @@ const missionsEn: Record<string, MissionContent> = {
   },
   'automate-contribution': {
     title: 'Automate a fixed monthly contribution (pay yourself first)',
-    description: 'Set a fixed amount — even if it’s just $50 — and schedule an automatic transfer for the day after payday. The trick with automatic contributions is that the money disappears before you think about spending it. That turns investing into an involuntary habit.',
+    description: 'Set a fixed amount — even if it’s just $50 — and schedule an automatic transfer for the day after payday. If your employer offers a 401(k) match, route contributions there first up to the full match: it’s an instant, guaranteed return that beats almost anything else available to you. The trick with automatic contributions is that the money disappears before you think about spending it. That turns investing into an involuntary habit.',
   },
   'two-asset-types': {
     title: 'Hold at least 2 different types of assets',
@@ -66,7 +66,7 @@ const missionsEn: Record<string, MissionContent> = {
   },
   'goal-10k': {
     title: 'Reach $10,000 invested',
-    description: 'A historic milestone: you’ve joined the select group of people with real invested net worth. At $10,000 and 11% a year, the portfolio generates ~$92/month — almost a utility bill paid by your own money. Compounding has begun.',
+    description: 'A real milestone: this is money working for you, not just sitting in a checking account. At $10,000 and 11% a year, the portfolio generates ~$92/month — almost a utility bill paid by your own money. Compounding has begun.',
   },
   'emergency-fund-6-months': {
     title: 'Build a 6-month emergency fund',
@@ -110,7 +110,7 @@ const missionsEn: Record<string, MissionContent> = {
   },
   'goal-100k': {
     title: 'Reach $100,000 invested — The 100k Club',
-    description: 'The most symbolic milestone in the game. Fewer than 3% of people ever get here. At $100k and 11% a year, the portfolio generates ~$917/month — more than a full month’s minimum wage, generated passively, without working a single day.',
+    description: 'The most symbolic milestone in the game. Most Americans never get here — Fed Reserve data puts the typical household’s financial assets at well under half this amount. At $100k and 11% a year, the portfolio generates ~$917/month — nearly three-quarters of a month’s minimum-wage pay, generated passively, without working a single day.',
   },
   'goal-150k': {
     title: 'Reach $150,000 invested',
@@ -146,7 +146,7 @@ const missionsEn: Record<string, MissionContent> = {
   },
   'goal-500k': {
     title: 'Reach $500,000 invested — Half a Million',
-    description: 'Half a million. $500k at 11% a year generates ~$4,583/month. You’re now among the top 0.5% in terms of invested net worth.',
+    description: 'Half a million. $500k at 11% a year generates ~$4,583/month. You’re now ahead of the large majority of U.S. households in invested net worth — a serious milestone, even if the club is less exclusive here than in most of the world.',
   },
   'passive-income-3mw': {
     title: 'Monthly passive income ≥ 3× minimum wage',
@@ -174,7 +174,7 @@ const missionsEn: Record<string, MissionContent> = {
   },
   'goal-1m': {
     title: 'Reach $1,000,000 invested — Your First Million',
-    description: 'Your first million. $1M at 11% a year generates ~$9,167/month — more than 6× minimum wage, passively, every month. Fewer than 1% of people ever get here. It wasn’t luck — it was discipline, compounded over years.',
+    description: 'Your first million. $1M at 11% a year generates ~$9,167/month — more than 7× minimum wage, passively, every month. Roughly 1 in 10 U.S. households ever cross this line in investable assets — still a minority, but nowhere near as rare here as in most of the world. It wasn’t luck — it was discipline, compounded over years.',
   },
   'passive-income-5mw': {
     title: 'Monthly passive income ≥ 5× minimum wage',
@@ -202,7 +202,7 @@ const missionsEn: Record<string, MissionContent> = {
   },
   'goal-2m': {
     title: 'Reach $2,000,000 invested',
-    description: 'Two million. $2M at 11% a year generates ~$18,333/month. Your net worth generates more per month than the annual income of most people. Your wealth is perpetual: you spend comfortably and the capital still grows.',
+    description: 'Two million. $2M at 11% a year generates ~$18,333/month — in about four months, your net worth generates what the median American household earns in a full year. Your wealth is perpetual: you spend comfortably and the capital still grows.',
   },
   'portfolio-grows-12-months': {
     title: 'Portfolio grows after withdrawals for 12 consecutive months',
