@@ -14,7 +14,7 @@ const missions: Record<string, MissionContent> = {
   },
   'calculate-monthly-balance': {
     title: 'Calcular seu saldo mensal disponível',
-    description: 'Com base nos gastos registrados: subtraia o total de despesas da sua renda líquida mensal. Esse número — positivo ou negativo — é o seu ponto de partida real. Se for negativo, você está acumulando dívidas todo mês sem perceber.',
+    description: 'Com base nos gastos registrados: subtraia o total de despesas da sua renda líquida mensal. Esse número — positivo ou negativo — é o seu ponto de partida real. Se for negativo, você está acumulando dívidas todo mês sem perceber. Nesse caso, o problema a resolver antes de qualquer outra coisa é esse: corte gastos não essenciais e/ou busque aumentar sua renda até o saldo ficar positivo. Não é possível quitar dívidas nem investir de forma sustentável enquanto você gasta mais do que ganha.',
   },
   'open-brokerage-account': {
     title: 'Abrir conta em corretora ou banco digital',
@@ -22,7 +22,7 @@ const missions: Record<string, MissionContent> = {
   },
   'learn-3-pillars': {
     title: 'Estudar os 3 pilares do investimento',
-    description: 'Entenda o básico de: Renda Fixa (CDB, Tesouro Direto, LCI/LCA), Renda Variável (ações, ETFs, FIIs) e Reserva de Emergência (diferença entre guardar e investir). Sem esse mínimo, você investe por impulso — não por estratégia.',
+    description: 'Entenda o básico de: Renda Fixa (CDB — Certificado de Depósito Bancário, Tesouro Direto — títulos públicos do governo, LCI/LCA — letras de crédito isentas de IR para pessoa física), Renda Variável (ações, ETFs — fundos que replicam um índice, FIIs — Fundos Imobiliários) e Reserva de Emergência (diferença entre guardar e investir). Entenda também a tributação básica: Renda Fixa tem Imposto de Renda regressivo (de 22,5% a 15% conforme o prazo), FIIs são isentos de IR sobre dividendos mas pagam IR sobre ganho de capital na venda, e ações têm isenção de IR em vendas de até R$ 20.000/mês. Todo rendimento mostrado neste jogo é bruto — o valor líquido no seu bolso é menor. Sem esse mínimo, você investe por impulso — não por estratégia.',
   },
   'build-emergency-fund-1k': {
     title: 'Criar reserva de emergência mínima de R$ 1.000',
@@ -50,7 +50,7 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-500': {
     title: 'Atingir R$ 500 investidos',
-    description: 'Primeiro contato real com o mercado. Pode ser Tesouro Selic, CDB de qualquer banco ou um ETF como o BOVA11. O objetivo não é o rendimento — é quebrar a inércia e sentir o dinheiro crescendo fora da conta corrente.',
+    description: 'Primeiro contato real com o mercado. Pode ser Tesouro Selic, CDB de qualquer banco ou um ETF (fundo negociado em bolsa que replica um índice) como o BOVA11, que replica o Ibovespa. O objetivo não é o rendimento — é quebrar a inércia e sentir o dinheiro crescendo fora da conta corrente.',
   },
   'automate-contribution': {
     title: 'Automatizar aporte mensal fixo (pague-se primeiro)',
@@ -62,11 +62,11 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-5k': {
     title: 'Atingir R$ 5.000 investidos',
-    description: 'O portfólio começa a tomar forma. A R$ 5.000 e 11% ao ano, o rendimento mensal estimado é ~R$ 46 — modesto, mas real. O hábito está plantado e o próximo marco está próximo.',
+    description: 'O portfólio começa a tomar forma. A R$ 5.000 e 11% ao ano (padrão do jogo, ajustável em Configurações), o rendimento mensal estimado é ~R$ 46 — modesto, mas real. O hábito está plantado e o próximo marco está próximo.',
   },
   'goal-10k': {
     title: 'Atingir R$ 10.000 investidos',
-    description: 'Marco histórico: você entrou no seleto grupo de brasileiros com patrimônio financeiro real. A R$ 10.000 e 11% ao ano, o portfólio gera ~R$ 92/mês — quase uma conta de luz paga pelo seu dinheiro. O compounding começou.',
+    description: 'Marco histórico: você entrou no seleto grupo de brasileiros com patrimônio financeiro real. A R$ 10.000 e 11% ao ano (padrão do jogo, ajustável em Configurações), o portfólio gera ~R$ 92/mês — quase uma conta de luz paga pelo seu dinheiro. O compounding começou.',
   },
   'emergency-fund-6-months': {
     title: 'Completar reserva de emergência para 6 meses de gastos',
@@ -82,7 +82,7 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-25k': {
     title: 'Atingir R$ 25.000 investidos',
-    description: 'Metade do caminho para os R$ 50k. A R$ 25.000 e 11% ao ano, o portfólio gera ~R$ 229/mês — já começa a aparecer no extrato de forma perceptível.',
+    description: 'Metade do caminho para os R$ 50k. A R$ 25.000 e 11% ao ano (padrão do jogo, ajustável em Configurações), o portfólio gera ~R$ 229/mês — já começa a aparecer no extrato de forma perceptível.',
   },
   'document-allocation-strategy': {
     title: 'Documentar estratégia de alocação por categoria',
@@ -90,7 +90,7 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-50k': {
     title: 'Atingir R$ 50.000 investidos',
-    description: 'A base está construída. R$ 50k investidos a 11% ao ano geram ~R$ 458/mês — praticamente um 13º salário gerado passivamente a cada 2 meses. Você é um soldado disciplinado.',
+    description: 'A base está construída. R$ 50k investidos a 11% ao ano (padrão do jogo, ajustável em Configurações) geram ~R$ 458/mês — praticamente um 13º salário gerado passivamente a cada 2 meses. Você é um soldado disciplinado.',
   },
   'minimum-contribution-10-percent-income': {
     title: 'Aportar pelo menos 10% da renda bruta mensalmente',
@@ -102,7 +102,7 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-75k': {
     title: 'Atingir R$ 75.000 investidos',
-    description: 'Três quartos do caminho para os R$ 100k. A R$ 75k e 11% ao ano, o portfólio gera ~R$ 688/mês. A aceleração está próxima — cada aporte importa mais agora porque o compounding já se alimenta de uma base maior.',
+    description: 'Três quartos do caminho para os R$ 100k. A R$ 75k e 11% ao ano (padrão do jogo, ajustável em Configurações), o portfólio gera ~R$ 688/mês. A aceleração está próxima — cada aporte importa mais agora porque o compounding já se alimenta de uma base maior.',
   },
   'contributions-12-consecutive-months': {
     title: 'Manter aportes mensais por 12 meses consecutivos',
@@ -110,19 +110,19 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-100k': {
     title: 'Atingir R$ 100.000 investidos — O Clube dos 100k',
-    description: 'O marco mais simbólico do jogo. Menos de 3% dos brasileiros chegam aqui. A R$ 100k e 11% ao ano, o portfólio gera ~R$ 917/mês — quase dois terços de um salário mínimo gerado passivamente todo mês, sem trabalhar um dia.',
+    description: 'O marco mais simbólico do jogo. Menos de 3% dos brasileiros chegam aqui. A R$ 100k e 11% ao ano (padrão do jogo, ajustável em Configurações), o portfólio gera ~R$ 917/mês — quase dois terços de um salário mínimo gerado passivamente todo mês, sem trabalhar um dia.',
   },
   'goal-150k': {
     title: 'Atingir R$ 150.000 investidos',
-    description: 'O portfólio tem massa crítica. A R$ 150k e 11% ao ano, o rendimento mensal estimado é ~R$ 1.375. Em meses bons de mercado, a valorização de um único dia pode superar o valor do seu aporte semanal.',
+    description: 'O portfólio tem massa crítica. A R$ 150k e 11% ao ano (padrão do jogo, ajustável em Configurações), o rendimento mensal estimado é ~R$ 1.375. Em meses bons de mercado, a valorização de um único dia pode superar o valor do seu aporte semanal.',
   },
   'two-international-assets': {
     title: 'Ter pelo menos 2 ativos internacionais na carteira',
-    description: 'Inclua ETFs globais (IVVB11, WRLD11) ou BDRs de empresas internacionais. Diversificação geográfica protege a carteira de crises localizadas no Brasil — quando o real desvaloriza, ativos em dólar ou euro compensam parte das perdas.',
+    description: 'Inclua ETFs globais como IVVB11 (replica o S&P 500) ou WRLD11 (replica um índice de ações do mundo todo), ou BDRs — recibos negociados na B3 que representam ações de empresas estrangeiras (ex: Apple, Google). Diversificação geográfica protege a carteira de crises localizadas no Brasil — quando o real desvaloriza, ativos em dólar ou euro compensam parte das perdas.',
   },
   'goal-200k': {
     title: 'Atingir R$ 200.000 investidos',
-    description: 'R$ 200k a 11% ao ano geram ~R$ 1.833/mês. O rendimento mensal do portfólio já supera um salário mínimo. Dois terços do caminho para o Ponto de Cruzamento.',
+    description: 'R$ 200k a 11% ao ano (padrão do jogo, ajustável em Configurações) geram ~R$ 1.833/mês. O rendimento mensal do portfólio já supera um salário mínimo. Dois terços do caminho para o Ponto de Cruzamento.',
   },
   'crossover-point': {
     title: 'Ponto de Cruzamento: retorno mensal ≥ aporte mensal',
@@ -130,11 +130,11 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-300k': {
     title: 'Atingir R$ 300.000 investidos',
-    description: 'R$ 300k a 11% ao ano geram ~R$ 2.750/mês — praticamente 2 salários mínimos gerados pelo patrimônio. O Ponto de Cruzamento já ficou para trás.',
+    description: 'R$ 300k a 11% ao ano (padrão do jogo, ajustável em Configurações) geram ~R$ 2.750/mês — praticamente 2 salários mínimos gerados pelo patrimônio. O Ponto de Cruzamento já ficou para trás.',
   },
   'goal-400k': {
     title: 'Atingir R$ 400.000 investidos',
-    description: 'R$ 400k a 11% ao ano geram ~R$ 3.667/mês. O portfólio trabalha mais do que muitos empregos formais no Brasil. O compounding agora é sentido de forma concreta todo mês.',
+    description: 'R$ 400k a 11% ao ano (padrão do jogo, ajustável em Configurações) geram ~R$ 3.667/mês. O portfólio trabalha mais do que muitos empregos formais no Brasil. O compounding agora é sentido de forma concreta todo mês.',
   },
   'passive-income-2mw': {
     title: 'Renda passiva mensal ≥ 2× salário mínimo',
@@ -146,7 +146,7 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-500k': {
     title: 'Atingir R$ 500.000 investidos — Meio Milhão',
-    description: 'Meio milhão. R$ 500k a 11% ao ano geram ~R$ 4.583/mês. Você está entre os top 0,5% dos brasileiros em termos de patrimônio financeiro investido.',
+    description: 'Meio milhão. R$ 500k a 11% ao ano (padrão do jogo, ajustável em Configurações) geram ~R$ 4.583/mês. Você está entre os top 0,5% dos brasileiros em termos de patrimônio financeiro investido.',
   },
   'passive-income-3mw': {
     title: 'Renda passiva mensal ≥ 3× salário mínimo',
@@ -154,7 +154,7 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-600k': {
     title: 'Atingir R$ 600.000 investidos',
-    description: 'R$ 600k a 11% ao ano geram ~R$ 5.500/mês. A máquina está em pleno funcionamento. A fase seguinte é o caminho para o primeiro milhão.',
+    description: 'R$ 600k a 11% ao ano (padrão do jogo, ajustável em Configurações) geram ~R$ 5.500/mês. A máquina está em pleno funcionamento. A fase seguinte é o caminho para o primeiro milhão.',
   },
   'passive-income-3-5mw': {
     title: 'Renda passiva mensal ≥ 3,5× salário mínimo',
@@ -162,7 +162,7 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-750k': {
     title: 'Atingir R$ 750.000 investidos',
-    description: '75% do caminho para o primeiro milhão. R$ 750k a 11% ao ano geram ~R$ 6.875/mês — mais de 4× o salário mínimo em rendimentos mensais. A aceleração final está próxima.',
+    description: '75% do caminho para o primeiro milhão. R$ 750k a 11% ao ano (padrão do jogo, ajustável em Configurações) geram ~R$ 6.875/mês — mais de 4× o salário mínimo em rendimentos mensais. A aceleração final está próxima.',
   },
   'passive-covers-50-expenses': {
     title: 'Renda passiva cobre pelo menos 50% das despesas mensais',
@@ -174,7 +174,7 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-1m': {
     title: 'Atingir R$ 1.000.000 investidos — O Primeiro Milhão',
-    description: 'O primeiro milhão. R$ 1M a 11% ao ano gera ~R$ 9.167/mês — mais de 6× o salário mínimo passivamente, todo mês. Menos de 1% dos brasileiros chegam aqui. Não foi sorte — foi disciplina composta por anos.',
+    description: 'O primeiro milhão. R$ 1M a 11% ao ano (padrão do jogo, ajustável em Configurações) gera ~R$ 9.167/mês — mais de 6× o salário mínimo passivamente, todo mês. Menos de 1% dos brasileiros chegam aqui. Não foi sorte — foi disciplina composta por anos.',
   },
   'passive-income-5mw': {
     title: 'Renda passiva mensal ≥ 5× salário mínimo',
@@ -182,7 +182,7 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-1-5m': {
     title: 'Atingir R$ 1.500.000 investidos',
-    description: 'R$ 1,5M a 11% ao ano geram ~R$ 13.750/mês. O portfólio acumula mais por mês do que a maioria das pessoas recebe em salário. Você está na fase final da jornada.',
+    description: 'R$ 1,5M a 11% ao ano (padrão do jogo, ajustável em Configurações) geram ~R$ 13.750/mês. O portfólio acumula mais por mês do que a maioria das pessoas recebe em salário. Você está na fase final da jornada.',
   },
   'passive-covers-100-expenses': {
     title: 'Renda passiva cobre 100% das despesas por 3 meses consecutivos',
@@ -202,7 +202,7 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-2m': {
     title: 'Atingir R$ 2.000.000 investidos',
-    description: 'Dois milhões. R$ 2M a 11% ao ano geram ~R$ 18.333/mês. O patrimônio gera mais por mês do que a renda anual de 80% dos brasileiros. A riqueza é perpétua: você gasta confortavelmente e o capital ainda cresce.',
+    description: 'Dois milhões. R$ 2M a 11% ao ano (padrão do jogo, ajustável em Configurações) geram ~R$ 18.333/mês. O patrimônio gera mais por mês do que a renda anual de 80% dos brasileiros. A riqueza é perpétua: você gasta confortavelmente e o capital ainda cresce.',
   },
   'portfolio-grows-12-months': {
     title: 'Portfólio cresce após saques por 12 meses consecutivos',

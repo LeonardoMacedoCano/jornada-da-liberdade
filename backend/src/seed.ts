@@ -6,7 +6,7 @@ export async function seedDatabase(): Promise<void> {
   await prisma.appConfig.upsert({
     where: { key: 'minimum_wage' },
     update: {},
-    create: { key: 'minimum_wage', value: '1412.00' },
+    create: { key: 'minimum_wage', value: '1621.00' },
   })
   await prisma.appConfig.upsert({
     where: { key: 'minimum_wage_updated_at' },
@@ -69,17 +69,17 @@ export async function seedDatabase(): Promise<void> {
     },
     {
       phaseId: 1, slug: 'negotiate-high-interest-debt', orderIndex: 2,
-      missionType: 'behavioral', isRequiredForPhase: true,
+      missionType: 'behavioral', isRequiredForPhase: false,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
       phaseId: 1, slug: 'eliminate-credit-card-revolving', orderIndex: 3,
-      missionType: 'behavioral', isRequiredForPhase: true,
+      missionType: 'behavioral', isRequiredForPhase: false,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {
       phaseId: 1, slug: 'eliminate-overdraft-debt', orderIndex: 4,
-      missionType: 'behavioral', isRequiredForPhase: true,
+      missionType: 'behavioral', isRequiredForPhase: false,
       targetValue: null, targetSmMultiple: null, requiredDurationDays: null,
     },
     {

@@ -134,7 +134,7 @@ const MissionList = styled.div`
   gap: 8px;
 `
 
-export default function PhaseCard({ phase, minimumWage = 1412, expanded = false, onToggleExpand, onToggleMission }: PhaseCardProps) {
+export default function PhaseCard({ phase, minimumWage = 1621, expanded = false, onToggleExpand, onToggleMission }: PhaseCardProps) {
   const { t, i18n } = useTranslation()
   const content = getPhaseContent(phase.slug)
   const color = PHASE_HEX_COLORS[phase.color] || PHASE_HEX_COLORS.gray

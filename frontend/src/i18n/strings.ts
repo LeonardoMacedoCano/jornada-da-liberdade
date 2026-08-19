@@ -33,6 +33,8 @@ const strings = {
     roadmap: 'Roadmap',
     history: 'Histórico',
     logout: 'Sair',
+    openMenu: 'Abrir menu',
+    closeMenu: 'Fechar menu',
   },
   auth: {
     login: {
@@ -41,6 +43,7 @@ const strings = {
       cardTitle: 'Entre com o Google para começar ou continuar sua jornada',
       errorGeneric: 'Erro ao entrar com o Google',
       notConfigured: 'Login com Google ainda não foi configurado. Defina GOOGLE_CLIENT_ID no servidor.',
+      footerNote: 'Seus dados financeiros ficam privados por padrão — você decide o que compartilhar.',
     },
   },
   dashboard: {
@@ -71,7 +74,7 @@ const strings = {
     trackingStarted: 'Rastreamento iniciado!',
     errorTracking: 'Erro ao iniciar rastreamento.',
     indicators: 'Indicadores',
-    monthlyReturn: 'Retorno mensal estimado',
+    monthlyReturn: 'Retorno mensal estimado (bruto)',
     crossoverPoint: 'Ponto de Cruzamento',
     crossoverReached: '✓ Atingido',
     passiveIncomeSm: 'Renda passiva em salários mínimos',
@@ -98,8 +101,9 @@ const strings = {
     appearance: 'Aparência',
     appearanceHint: 'Escolha o tema visual do app',
     financialSettings: 'Configurações Financeiras',
-    financialSettingsHint: 'Usado para estimar seu retorno mensal',
+    financialSettingsHint: 'Usado para estimar seu retorno mensal. Referência histórica: CDI ~10-13% a.a., Ibovespa ~11-12% a.a. no longo prazo.',
     annualReturnRate: 'Taxa de retorno anual (%)',
+    annualReturnRateWarning: 'Taxa acima de 15% ao ano raramente se sustenta por décadas — considere usar uma referência mais conservadora para não distorcer suas metas.',
     saveFinancialSettings: 'Salvar',
     financialSettingsSaved: 'Configurações financeiras atualizadas!',
     errorFinancialSettings: 'Erro ao salvar configurações financeiras',
@@ -107,6 +111,7 @@ const strings = {
   roadmap: {
     title: 'Roadmap da Jornada',
     subtitle: '{{completed}}/{{total}} fases concluídas — Todas as fases são visíveis para motivar seu avanço',
+    nominalValuesNote: 'Todas as metas em R$ são valores nominais — não ajustados pela inflação ao longo da jornada.',
   },
   history: {
     title: 'Histórico',
