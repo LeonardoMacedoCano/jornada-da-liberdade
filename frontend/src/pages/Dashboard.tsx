@@ -341,11 +341,11 @@ export default function Dashboard() {
   return (
     <Page>
       <Header>
-        <AvatarDisplay phaseId={progress?.currentPhaseId ?? 0} size="md" />
+        <AvatarDisplay icon={phase?.achievementIcon ?? '💎'} size="md" />
         <HeaderText>
           <UserName>{t('dashboard.greeting', { name: user?.name })}</UserName>
           <UserPhase>
-            {phase && phaseContent ? `${phase.achievementIcon} ${phaseContent.name} — ${phaseContent.title}` : t('dashboard.loadingPhase')}
+            {phase && phaseContent ? `${phaseContent.name} — ${phaseContent.title}` : t('dashboard.loadingPhase')}
           </UserPhase>
           <UserHandle>@{user?.username}</UserHandle>
         </HeaderText>

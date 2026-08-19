@@ -274,7 +274,7 @@ export default function History() {
                   description={`${content.name} — ${content.title}`}
                   meta={!locked && p.completedAt ? t('phase.completedOn', { date: new Date(p.completedAt).toLocaleDateString(i18n.language) }) : undefined}
                   active={!locked}
-                  height="92px"
+                  height="132px"
                   onClick={locked ? undefined : () => setSelectedPhase(p)}
                 />
               )

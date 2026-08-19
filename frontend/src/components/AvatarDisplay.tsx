@@ -1,15 +1,10 @@
 import styled from 'styled-components'
 
 interface AvatarDisplayProps {
-  phaseId: number
+  icon: string
   size?: 'sm' | 'md' | 'lg'
   showTitle?: boolean
   phaseName?: string
-}
-
-const PHASE_AVATARS: Record<number, string> = {
-  0: '🌱', 1: '🌿', 2: '⚔️', 3: '🛡️',
-  4: '🦅', 5: '🔥', 6: '👑', 7: '🏆', 8: '💎',
 }
 
 const SIZE_MAP = {
@@ -42,13 +37,12 @@ const TitleText = styled.span`
   color: ${p => p.theme.colors.gray};
 `
 
-export default function AvatarDisplay({ phaseId, size = 'md', showTitle = false, phaseName }: AvatarDisplayProps) {
-  const avatar = PHASE_AVATARS[phaseId] ?? '🌱'
+export default function AvatarDisplay({ icon, size = 'md', showTitle = false, phaseName }: AvatarDisplayProps) {
   const sizeStyle = SIZE_MAP[size]
 
   return (
     <Wrapper>
-      <Circle $size={sizeStyle}>{avatar}</Circle>
+      <Circle $size={sizeStyle}>{icon}</Circle>
       {showTitle && phaseName && <TitleText>{phaseName}</TitleText>}
     </Wrapper>
   )

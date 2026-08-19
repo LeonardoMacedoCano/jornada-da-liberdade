@@ -217,7 +217,7 @@ export default function PublicProfile() {
     <Page>
       <Container>
         <ProfileHeader>
-          <AvatarDisplay phaseId={profile.currentPhase?.id ?? 0} size="lg" />
+          <AvatarDisplay icon={profile.currentPhase?.achievementIcon ?? '💎'} size="lg" />
           <div>
             <ProfileName>{profile.name}</ProfileName>
             <ProfileHandle>@{profile.username}</ProfileHandle>
