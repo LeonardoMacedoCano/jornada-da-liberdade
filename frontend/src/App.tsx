@@ -5,7 +5,6 @@ import { ToastStack } from 'lcano-react-ui'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { toLibLocale } from './i18n'
 import Login from './pages/Login'
-import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Roadmap from './pages/Roadmap'
 import History from './pages/History'
@@ -65,7 +64,7 @@ export default function App() {
         <AchievementToastStack />
         <Routes>
           <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
-          <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
+          <Route path="/register" element={<Navigate to="/login" replace />} />
           <Route path="/p/:username" element={<PublicProfile />} />
           <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
             <Route index element={<Dashboard />} />

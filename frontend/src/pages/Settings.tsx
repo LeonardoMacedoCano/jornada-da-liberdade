@@ -181,11 +181,8 @@ export default function Settings() {
   const [sharePublicProfile, setSharePublicProfile] = useState(user?.sharePublicProfile ?? true)
   const [showFinancialValues, setShowFinancialValues] = useState(user?.showFinancialValues ?? false)
   const [language, setLanguage] = useState<SupportedLanguage>((user?.language as SupportedLanguage) || 'en')
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
   const [annualReturnRate, setAnnualReturnRate] = useState('11')
   const [savingProfile, setSavingProfile] = useState(false)
-  const [savingPassword, setSavingPassword] = useState(false)
   const [savingFinancial, setSavingFinancial] = useState(false)
 
   useEffect(() => {
@@ -209,22 +206,6 @@ export default function Settings() {
       showError(translateApiError(t, data, 'settings.errorSave'))
     } finally {
       setSavingProfile(false)
-    }
-  }
-
-  async function handlePasswordSave(e: FormEvent) {
-    e.preventDefault()
-    setSavingPassword(true)
-    try {
-      await api.put('/user/password', { currentPassword, newPassword })
-      showSuccess(t('settings.passwordChanged'))
-      setCurrentPassword('')
-      setNewPassword('')
-    } catch (err: unknown) {
-      const data = (err as { response?: { data?: unknown } })?.response?.data
-      showError(translateApiError(t, data, 'settings.errorPassword'))
-    } finally {
-      setSavingPassword(false)
     }
   }
 
@@ -320,40 +301,6 @@ export default function Settings() {
             variant="quaternary"
             description={savingFinancial ? t('settings.savingProfile') : t('settings.saveFinancialSettings')}
             disabled={savingFinancial}
-            style={{ borderRadius: '8px', padding: '10px 24px', fontSize: '14px', fontWeight: '600' }}
-          />
-        </Form>
-      </Card>
-
-      <Card>
-        <CardTitle>{t('settings.changePassword')}</CardTitle>
-        <Form onSubmit={handlePasswordSave}>
-          <Field>
-            <Label>{t('settings.currentPassword')}</Label>
-            <Input
-              type="password"
-              value={currentPassword}
-              onChange={e => setCurrentPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-            />
-          </Field>
-          <Field>
-            <Label>{t('settings.newPassword')}</Label>
-            <Input
-              type="password"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              required
-              minLength={6}
-              placeholder={t('settings.newPasswordHint')}
-            />
-          </Field>
-          <Button
-            type="submit"
-            variant="quaternary"
-            description={savingPassword ? t('settings.savingPassword') : t('settings.savePassword')}
-            disabled={savingPassword}
             style={{ borderRadius: '8px', padding: '10px 24px', fontSize: '14px', fontWeight: '600' }}
           />
         </Form>

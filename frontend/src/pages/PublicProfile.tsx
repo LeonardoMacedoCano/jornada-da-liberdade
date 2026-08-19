@@ -287,7 +287,7 @@ export default function PublicProfile() {
           <ShareButton username={profile.username} />
           <CtaText>
             {t('publicProfile.ctaText')}{' '}
-            <CtaLink to="/register">{t('publicProfile.ctaLink')}</CtaLink>
+            <CtaLink to="/login">{t('publicProfile.ctaLink')}</CtaLink>
           </CtaText>
         </CtaSection>
       </Container>
