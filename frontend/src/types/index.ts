@@ -83,7 +83,7 @@ export const PHASE_HEX_COLORS: Record<string, string> = {
   purple: '#a855f7',
   orange: '#f97316',
   yellow: '#eab308',
-  amber:  '#f59e0b',
+  amber:  '#d97706',
   rose:   '#f43f5e',
 }
 
