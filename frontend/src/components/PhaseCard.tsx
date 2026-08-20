@@ -1,16 +1,19 @@
 import styled from 'styled-components'
 import { useTranslation } from 'react-i18next'
 import { getPhaseContent } from '../i18n/content'
-import { Phase, PHASE_HEX_COLORS } from '../types'
+import { Mission, Phase, PHASE_HEX_COLORS } from '../types'
+import { MissionFinancials } from '../utils/missionProgress'
 import ProgressBar from './ProgressBar'
 import MissionItem from './MissionItem'
 
 interface PhaseCardProps {
   phase: Phase
   minimumWage?: number
+  financials?: MissionFinancials
   expanded?: boolean
   onToggleExpand?: () => void
   onToggleMission?: (id: number, completed: boolean) => void
+  onUndoMission?: (mission: Mission) => void
 }
 
 const Card = styled.div<{ $color: string; $isActive: boolean; $isLocked: boolean }>`
@@ -134,7 +137,7 @@ const MissionList = styled.div`
   gap: 8px;
 `
 
-export default function PhaseCard({ phase, minimumWage = 1621, expanded = false, onToggleExpand, onToggleMission }: PhaseCardProps) {
+export default function PhaseCard({ phase, minimumWage = 1621, financials, expanded = false, onToggleExpand, onToggleMission, onUndoMission }: PhaseCardProps) {
   const { t, i18n } = useTranslation()
   const content = getPhaseContent(phase.slug)
   const color = PHASE_HEX_COLORS[phase.color] || PHASE_HEX_COLORS.gray
@@ -179,7 +182,9 @@ export default function PhaseCard({ phase, minimumWage = 1621, expanded = false,
                 key={mission.id}
                 mission={mission}
                 minimumWage={minimumWage}
-                onToggle={isActive ? onToggleMission : undefined}
+                financials={financials}
+                onToggle={!isLocked ? onToggleMission : undefined}
+                onUndo={onUndoMission}
               />
             ))}
           </MissionList>

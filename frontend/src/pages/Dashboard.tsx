@@ -1,13 +1,15 @@
 import { useState, useEffect, FormEvent } from 'react'
 import styled, { useTheme } from 'styled-components'
-import { Button, Loading, useMessage, useToastStack, PaginatedGrid, ToggleSwitch, formatGroupedNumber, sanitizeNumericInput } from 'lcano-react-ui'
+import { Button, Loading, useMessage, useToastStack, useConfirmModal, PaginatedGrid, ToggleSwitch, formatGroupedNumber, sanitizeNumericInput } from 'lcano-react-ui'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import api from '../services/api'
 import { translateApiError } from '../i18n'
 import { getPhaseContent } from '../i18n/content'
-import { Phase, UserProgress, PHASE_HEX_COLORS } from '../types'
+import { Mission, Phase, UserProgress, PHASE_HEX_COLORS } from '../types'
 import { buildPhaseAchievementToast } from '../utils/achievementToast'
+import { buildUndoConfirmMessage } from '../utils/missionUndo'
+import { MissionFinancials } from '../utils/missionProgress'
 import AvatarDisplay from '../components/AvatarDisplay'
 import ProgressBar from '../components/ProgressBar'
 import MissionItem from '../components/MissionItem'
@@ -205,6 +207,7 @@ export default function Dashboard() {
   const theme = useTheme()
   const { showSuccess, showError } = useMessage()
   const { notify } = useToastStack()
+  const { confirm, ConfirmModalComponent } = useConfirmModal()
   const [phase, setPhase] = useState<Phase | null>(null)
   const [progress, setProgress] = useState<UserProgress | null>(null)
   const [minimumWage, setMinimumWage] = useState(1621)
@@ -282,7 +285,7 @@ export default function Dashboard() {
         notify([buildPhaseAchievementToast(completedPhase, t)])
       }
       if (!completed && res.data.phaseRolledBack) {
-        showError(t('dashboard.phaseRolledBack', { phase: getPhaseContent(phaseRes.data.slug).name }))
+        showError(t('mission.phaseRolledBack', { phase: getPhaseContent(phaseRes.data.slug).name }))
       }
     } catch (err: unknown) {
       const data = (err as { response?: { data?: unknown } })?.response?.data
@@ -300,6 +303,13 @@ export default function Dashboard() {
       const data = (err as { response?: { data?: unknown } })?.response?.data
       showError(translateApiError(t, data, 'dashboard.errorTracking'))
     }
+  }
+
+  async function handleUndoMission(mission: Mission) {
+    const { title, description } = buildUndoConfirmMessage(mission, phase ?? undefined)
+    const ok = await confirm(title, description)
+    if (!ok) return
+    await handleToggleMission(mission.id, false)
   }
 
   const currentPhaseId = progress?.currentPhaseId ?? 0
@@ -322,6 +332,13 @@ export default function Dashboard() {
   const monthlyReturn = invested * (annualRate / 100 / 12)
   const crossoverReached = contribution > 0 && monthlyReturn >= contribution
   const smMultiple = minimumWage > 0 ? passive / minimumWage : 0
+
+  const financials: MissionFinancials = {
+    investedAmount: invested,
+    monthlyContribution: contribution,
+    monthlyPassiveIncome: passive,
+    annualReturnRate: annualRate,
+  }
 
   if (loading) return (
     <LoadingWrap>
@@ -394,7 +411,9 @@ export default function Dashboard() {
                   <MissionItem
                     mission={mission}
                     minimumWage={minimumWage}
+                    financials={financials}
                     onToggle={handleToggleMission}
+                    onUndo={handleUndoMission}
                     onStart={handleStartMission}
                   />
                 )}
@@ -475,6 +494,7 @@ export default function Dashboard() {
           </SideCol>
         )}
       </Grid>
+      {ConfirmModalComponent}
     </Page>
   )
 }
