@@ -99,14 +99,14 @@ O seed usa `upsert` — não apaga dados existentes de usuário.
 - `UserProgress` — dados financeiros do jogador (atualiza e dispara auto-complete)
 - `UserMissionProgress` — estado de cada missão por usuário (concluída/data)
 - `UserPhaseHistory` — registro histórico de quando cada fase foi concluída
-- `AppConfig` — configurações globais (ex: salário mínimo atual)
+- `AppConfig` — configurações globais key/value (não usado atualmente; salário mínimo vem da env `MINIMUM_WAGE`, não do banco)
 
 ## Convenções
 
 - Cores das fases: `gray | red | green | blue | teal | purple | orange | yellow | amber | rose`
 - Todas as rotas da API ficam sob `/api`
 - Autenticação via JWT no header `Authorization: Bearer <token>`
-- O salário mínimo vem de `AppConfig` (chave `minimum_wage`) e é usado para calcular metas de renda passiva em SM
+- O salário mínimo vem da env `MINIMUM_WAGE` (formato decimal com ponto, ex: `1621.00`) e é usado para calcular metas de renda passiva em SM. Atualize manualmente todo janeiro, quando o valor nacional muda
 - Perfil público em `/p/:username` — nunca expõe dados financeiros a não ser que `showFinancialValues = true`
 
 ## Decisões de produto deliberadas

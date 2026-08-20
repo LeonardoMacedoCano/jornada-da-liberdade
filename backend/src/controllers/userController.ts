@@ -42,7 +42,7 @@ async function autoCompleteMissions(userId: string, progress: {
   const contribution = parseFloat(progress.monthlyContribution.toString())
   const annualRate = parseFloat(progress.annualReturnRate.toString())
   const monthlyReturn = invested * (annualRate / 100 / 12)
-  const { value: minimumWage } = await getMinimumWage()
+  const { value: minimumWage } = getMinimumWage()
 
   const maxPhase = Math.min(progress.currentPhaseId + 1, MAX_PHASE_ID)
   const missions = await prisma.mission.findMany({

@@ -3,17 +3,6 @@ import { prisma } from './lib/prisma'
 export async function seedDatabase(): Promise<void> {
   console.log('🌱 Starting seed...')
 
-  await prisma.appConfig.upsert({
-    where: { key: 'minimum_wage' },
-    update: {},
-    create: { key: 'minimum_wage', value: '1621.00' },
-  })
-  await prisma.appConfig.upsert({
-    where: { key: 'minimum_wage_updated_at' },
-    update: {},
-    create: { key: 'minimum_wage_updated_at', value: new Date().toISOString() },
-  })
-
   // Content (name, title, description, flavor text) lives in frontend/src/i18n/content,
   // indexed by slug. Only structural/mechanical game data goes here.
   const phases = [
