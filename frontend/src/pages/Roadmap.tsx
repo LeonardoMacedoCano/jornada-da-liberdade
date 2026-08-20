@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Loading, useMessage, useToastStack, useConfirmModal } from 'lcano-react-ui'
-import { useTranslation } from 'react-i18next'
 import api from '../services/api'
+import { interpolate } from '../i18n'
+import strings from '../i18n/strings'
 import { getPhaseContent } from '../i18n/content'
 import { Mission, Phase } from '../types'
 import { buildPhaseAchievementToast } from '../utils/achievementToast'
@@ -71,7 +72,6 @@ const LoadingWrap = styled.div`
 `
 
 export default function Roadmap() {
-  const { t } = useTranslation()
   const { notify } = useToastStack()
   const { showError } = useMessage()
   const { confirm, ConfirmModalComponent } = useConfirmModal()
@@ -110,12 +110,12 @@ export default function Roadmap() {
       const phasesRes = await api.get('/phases')
       setPhases(phasesRes.data)
       if (completed && res.data.phaseAdvanced && completedPhase) {
-        notify([buildPhaseAchievementToast(completedPhase, t)])
+        notify([buildPhaseAchievementToast(completedPhase)])
       }
       if (!completed && res.data.phaseRolledBack) {
         const newPhaseSlug = phasesRes.data.find((p: Phase) => p.id === res.data.newPhaseId)?.slug
         if (newPhaseSlug) {
-          showError(t('mission.phaseRolledBack', { phase: getPhaseContent(newPhaseSlug).name }))
+          showError(interpolate(strings.mission.phaseRolledBack, { phase: getPhaseContent(newPhaseSlug).name }))
         }
       }
     } catch { /* ignore */ }
@@ -140,11 +140,11 @@ export default function Roadmap() {
   return (
     <Page>
       <PageHeader>
-        <Title>{t('roadmap.title')}</Title>
+        <Title>{strings.roadmap.title}</Title>
         <Subtitle>
-          {t('roadmap.subtitle', { completed: completedCount, total: phases.length })}
+          {interpolate(strings.roadmap.subtitle, { completed: completedCount, total: phases.length })}
         </Subtitle>
-        <InflationNote>{t('roadmap.nominalValuesNote')}</InflationNote>
+        <InflationNote>{strings.roadmap.nominalValuesNote}</InflationNote>
       </PageHeader>
 
       <PhaseList>

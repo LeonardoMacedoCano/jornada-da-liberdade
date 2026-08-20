@@ -1,6 +1,7 @@
 import styled from 'styled-components'
-import { useTranslation } from 'react-i18next'
 import { getPhaseContent } from '../i18n/content'
+import strings from '../i18n/strings'
+import { interpolate } from '../i18n'
 import { Mission, Phase, PHASE_HEX_COLORS } from '../types'
 import { MissionFinancials } from '../utils/missionProgress'
 import ProgressBar from './ProgressBar'
@@ -138,7 +139,6 @@ const MissionList = styled.div`
 `
 
 export default function PhaseCard({ phase, minimumWage = 1621, financials, expanded = false, onToggleExpand, onToggleMission, onUndoMission }: PhaseCardProps) {
-  const { t, i18n } = useTranslation()
   const content = getPhaseContent(phase.slug)
   const color = PHASE_HEX_COLORS[phase.color] || PHASE_HEX_COLORS.gray
   const isLocked = phase.status === 'locked'
@@ -152,9 +152,9 @@ export default function PhaseCard({ phase, minimumWage = 1621, financials, expan
         <HeaderBody>
           <TopRow>
             <PhaseName $color={color}>{content.name}</PhaseName>
-            {isCompleted && <StatusBadge $variant="completed">{t('phase.completed')}</StatusBadge>}
-            {isActive && <StatusBadge $variant="active">{t('phase.active')}</StatusBadge>}
-            {isLocked && <StatusBadge $variant="locked">{t('phase.locked')}</StatusBadge>}
+            {isCompleted && <StatusBadge $variant="completed">{strings.phase.completed}</StatusBadge>}
+            {isActive && <StatusBadge $variant="active">{strings.phase.active}</StatusBadge>}
+            {isLocked && <StatusBadge $variant="locked">{strings.phase.locked}</StatusBadge>}
           </TopRow>
           <PhaseTitle>{content.title}</PhaseTitle>
           <PhaseSubtitle>{content.subtitle}</PhaseSubtitle>
@@ -165,7 +165,7 @@ export default function PhaseCard({ phase, minimumWage = 1621, financials, expan
           )}
           {isCompleted && phase.completedAt && (
             <CompletedDate>
-              {t('phase.completedOn', { date: new Date(phase.completedAt).toLocaleDateString(i18n.language) })}
+              {interpolate(strings.phase.completedOn, { date: new Date(phase.completedAt).toLocaleDateString('pt-BR') })}
             </CompletedDate>
           )}
         </HeaderBody>

@@ -1,6 +1,7 @@
 import styled from 'styled-components'
-import { useTranslation } from 'react-i18next'
 import { getMissionContent } from '../i18n/content'
+import strings from '../i18n/strings'
+import { interpolate } from '../i18n'
 import { Mission, MISSION_TYPE_ICONS } from '../types'
 import { computeMissionProgressPercent, MissionFinancials } from '../utils/missionProgress'
 
@@ -164,11 +165,10 @@ const CompletedDate = styled.p`
 `
 
 export default function MissionItem({ mission, minimumWage = 1621, financials, onToggle, onUndo, onStart, compact = false }: MissionItemProps) {
-  const { t, i18n } = useTranslation()
   const content = getMissionContent(mission.slug)
   const isManual = mission.missionType === 'behavioral' || mission.missionType === 'habit'
   const icon = MISSION_TYPE_ICONS[mission.missionType]
-  const label = t(`mission.types.${mission.missionType}`)
+  const label = strings.mission.types[mission.missionType]
 
   const elapsedDays = mission.startedAt
     ? Math.floor((Date.now() - new Date(mission.startedAt).getTime()) / 86400000)
@@ -178,16 +178,16 @@ export default function MissionItem({ mission, minimumWage = 1621, financials, o
 
   function formatTarget() {
     if (mission.missionType === 'portfolio_value' && mission.targetValue) {
-      const value = `R$ ${parseFloat(mission.targetValue).toLocaleString(i18n.language, { minimumFractionDigits: 0 })}`
-      return t('mission.targetPortfolio', { value })
+      const value = `R$ ${parseFloat(mission.targetValue).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`
+      return interpolate(strings.mission.targetPortfolio, { value })
     }
     if (mission.missionType === 'passive_income_sm' && mission.targetSmMultiple) {
       const multiple = parseFloat(mission.targetSmMultiple)
-      const value = `R$ ${(multiple * minimumWage).toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      return t('mission.targetPassiveSm', { multiple, value })
+      const value = `R$ ${(multiple * minimumWage).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      return interpolate(strings.mission.targetPassiveSm, { multiple, value })
     }
     if (mission.missionType === 'crossover') {
-      return t('mission.targetCrossover')
+      return strings.mission.targetCrossover
     }
     return null
   }
@@ -214,14 +214,14 @@ export default function MissionItem({ mission, minimumWage = 1621, financials, o
           <CheckButton
             role="checkbox"
             aria-checked={mission.isCompleted}
-            aria-label={mission.isCompleted ? t('mission.undoAria', { title: content.title }) : content.title}
+            aria-label={mission.isCompleted ? interpolate(strings.mission.undoAria, { title: content.title }) : content.title}
             $completed={mission.isCompleted}
             onClick={handleCheckClick}
           >
             {mission.isCompleted && <span aria-hidden="true" style={{ color: 'white', fontSize: 11 }}>✓</span>}
           </CheckButton>
         ) : (
-          <CheckDisplay role="img" aria-label={mission.isCompleted ? t('phase.completed') : content.title} $completed={mission.isCompleted}>
+          <CheckDisplay role="img" aria-label={mission.isCompleted ? strings.phase.completed : content.title} $completed={mission.isCompleted}>
             {mission.isCompleted && <span aria-hidden="true" style={{ color: 'white', fontSize: 11 }}>✓</span>}
           </CheckDisplay>
         )}
@@ -231,7 +231,7 @@ export default function MissionItem({ mission, minimumWage = 1621, financials, o
         <TitleRow>
           <span aria-hidden="true" style={{ fontSize: 14 }}>{icon}</span>
           <MissionTitle $completed={mission.isCompleted}>{content.title}</MissionTitle>
-          {!mission.isRequiredForPhase && <BadgeOptional>{t('mission.optional')}</BadgeOptional>}
+          {!mission.isRequiredForPhase && <BadgeOptional>{strings.mission.optional}</BadgeOptional>}
           <BadgeType>{label}</BadgeType>
         </TitleRow>
 
@@ -241,7 +241,7 @@ export default function MissionItem({ mission, minimumWage = 1621, financials, o
         {progressPercent !== null && (
           <MiniProgress>
             <MiniProgressRow>
-              <span>{t('mission.percentComplete', { percent: progressPercent })}</span>
+              <span>{interpolate(strings.mission.percentComplete, { percent: progressPercent })}</span>
             </MiniProgressRow>
             <MiniTrack>
               <MiniFill $width={progressPercent} />
@@ -252,18 +252,18 @@ export default function MissionItem({ mission, minimumWage = 1621, financials, o
         {mission.missionType === 'habit' && !mission.isCompleted && (
           <div style={{ marginTop: 8 }}>
             {!mission.startedAt && onStart ? (
-              <StartButton onClick={() => onStart(mission.id)}>{t('mission.startTracking')}</StartButton>
+              <StartButton onClick={() => onStart(mission.id)}>{strings.mission.startTracking}</StartButton>
             ) : mission.startedAt ? (
               <MiniProgress>
                 <MiniProgressRow>
-                  <span>{t('mission.habitProgress')}</span>
-                  <span>{t('mission.habitDays', { elapsed: Math.min(elapsedDays!, requiredDays), required: requiredDays })}</span>
+                  <span>{strings.mission.habitProgress}</span>
+                  <span>{interpolate(strings.mission.habitDays, { elapsed: Math.min(elapsedDays!, requiredDays), required: requiredDays })}</span>
                 </MiniProgressRow>
                 <MiniTrack>
                   <MiniFill $width={Math.min((elapsedDays! / requiredDays) * 100, 100)} />
                 </MiniTrack>
                 {habitCanComplete && (
-                  <CompletedDate>{t('mission.habitReady')}</CompletedDate>
+                  <CompletedDate>{strings.mission.habitReady}</CompletedDate>
                 )}
               </MiniProgress>
             ) : null}
@@ -272,7 +272,7 @@ export default function MissionItem({ mission, minimumWage = 1621, financials, o
 
         {mission.completedAt && (
           <CompletedDate>
-            {t('mission.completedOn', { date: new Date(mission.completedAt).toLocaleDateString(i18n.language) })}
+            {interpolate(strings.mission.completedOn, { date: new Date(mission.completedAt).toLocaleDateString('pt-BR') })}
           </CompletedDate>
         )}
       </Body>

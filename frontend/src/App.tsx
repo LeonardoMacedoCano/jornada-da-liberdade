@@ -1,8 +1,8 @@
 import styled from 'styled-components'
-import { useTranslation } from 'react-i18next'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { ToastStack } from 'lcano-react-ui'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import strings from './i18n/strings'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Roadmap from './pages/Roadmap'
@@ -27,10 +27,9 @@ const LoadingText = styled.div`
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
-  const { t } = useTranslation()
   if (loading) return (
     <FullScreen>
-      <LoadingText>{t('common.loading')}</LoadingText>
+      <LoadingText>{strings.common.loading}</LoadingText>
     </FullScreen>
   )
   if (!user) return <Navigate to="/login" replace />
