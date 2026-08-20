@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import styled, { useTheme } from 'styled-components'
 import { Button, PaginatedGrid, BadgeCard } from 'lcano-react-ui'
-import { useTranslation } from 'react-i18next'
 import api from '../services/api'
 import { getPhaseContent } from '../i18n/content'
+import strings from '../i18n/strings'
+import { interpolate } from '../i18n'
 import { PublicProfile as PublicProfileType, PHASE_HEX_COLORS } from '../types'
 import AvatarDisplay from '../components/AvatarDisplay'
 import ProgressBar from '../components/ProgressBar'
@@ -168,7 +169,6 @@ const LoadingText = styled.div`
 
 export default function PublicProfile() {
   const { username } = useParams<{ username: string }>()
-  const { t, i18n } = useTranslation()
   const theme = useTheme()
   const [profile, setProfile] = useState<PublicProfileType | null>(null)
   const [notFound, setNotFound] = useState(false)
@@ -184,7 +184,7 @@ export default function PublicProfile() {
   if (loading) return (
     <Page>
       <Center>
-        <LoadingText>{t('publicProfile.loading')}</LoadingText>
+        <LoadingText>{strings.publicProfile.loading}</LoadingText>
       </Center>
     </Page>
   )
@@ -193,11 +193,11 @@ export default function PublicProfile() {
     <Page>
       <Center>
         <div style={{ fontSize: 56 }}>🔒</div>
-        <NotFoundTitle>{t('publicProfile.notFoundTitle')}</NotFoundTitle>
-        <NotFoundText>{t('publicProfile.notFoundText')}</NotFoundText>
+        <NotFoundTitle>{strings.publicProfile.notFoundTitle}</NotFoundTitle>
+        <NotFoundText>{strings.publicProfile.notFoundText}</NotFoundText>
         <Button
           variant="quaternary"
-          description={t('publicProfile.createAccount')}
+          description={strings.publicProfile.createAccount}
           onClick={() => window.location.href = '/login'}
           style={{ borderRadius: '8px', padding: '12px 24px', fontSize: '16px', fontWeight: '600' }}
         />
@@ -221,7 +221,7 @@ export default function PublicProfile() {
             <ProfileName>{profile.name}</ProfileName>
             <ProfileHandle>@{profile.username}</ProfileHandle>
             <ProfileMeta>
-              {t('publicProfile.daysSince', { days: daysSinceStart, date: new Date(profile.createdAt).toLocaleDateString(i18n.language) })}
+              {interpolate(strings.publicProfile.daysSince, { days: daysSinceStart, date: new Date(profile.createdAt).toLocaleDateString('pt-BR') })}
             </ProfileMeta>
           </div>
         </ProfileHeader>
@@ -234,13 +234,13 @@ export default function PublicProfile() {
             <ProgressWrap>
               <ProgressBar percent={profile.progressPercent} color={phaseColor} height="8px" showLabel />
             </ProgressWrap>
-            <ProgressNote>{t('publicProfile.phaseProgress', { percent: profile.progressPercent })}</ProgressNote>
+            <ProgressNote>{interpolate(strings.publicProfile.phaseProgress, { percent: profile.progressPercent })}</ProgressNote>
           </PhaseCard>
         )}
 
         {profile.achievements.length > 0 && (
           <Card>
-            <SectionLabel>🏆 {t('publicProfile.achievements', { count: profile.achievements.length })}</SectionLabel>
+            <SectionLabel>🏆 {interpolate(strings.publicProfile.achievements, { count: profile.achievements.length })}</SectionLabel>
             <PaginatedGrid
               items={profile.achievements}
               keyExtractor={a => a.phaseId}
@@ -253,7 +253,7 @@ export default function PublicProfile() {
                     icon={a.achievementIcon}
                     title={content.achievementName}
                     description={content.name}
-                    meta={t('phase.completedOn', { date: new Date(a.completedAt).toLocaleDateString(i18n.language) })}
+                    meta={interpolate(strings.phase.completedOn, { date: new Date(a.completedAt).toLocaleDateString('pt-BR') })}
                     height="130px"
                   />
                 )
@@ -264,18 +264,18 @@ export default function PublicProfile() {
 
         {profile.financialData && (
           <Card>
-            <SectionLabel>📊 {t('publicProfile.financialData')}</SectionLabel>
+            <SectionLabel>📊 {strings.publicProfile.financialData}</SectionLabel>
             <FinancialGrid>
               <FinancialItem>
-                <FinancialLabel>{t('publicProfile.investedAmount')}</FinancialLabel>
+                <FinancialLabel>{strings.publicProfile.investedAmount}</FinancialLabel>
                 <FinancialValue>
-                  R$ {parseFloat(profile.financialData.investedAmount).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
+                  R$ {parseFloat(profile.financialData.investedAmount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </FinancialValue>
               </FinancialItem>
               <FinancialItem>
-                <FinancialLabel>{t('publicProfile.monthlyPassiveIncome')}</FinancialLabel>
+                <FinancialLabel>{strings.publicProfile.monthlyPassiveIncome}</FinancialLabel>
                 <FinancialValue $success>
-                  R$ {parseFloat(profile.financialData.monthlyPassiveIncome).toLocaleString(i18n.language, { minimumFractionDigits: 2 })}
+                  R$ {parseFloat(profile.financialData.monthlyPassiveIncome).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </FinancialValue>
               </FinancialItem>
             </FinancialGrid>
@@ -285,8 +285,8 @@ export default function PublicProfile() {
         <CtaSection>
           <ShareButton username={profile.username} />
           <CtaText>
-            {t('publicProfile.ctaText')}{' '}
-            <CtaLink to="/login">{t('publicProfile.ctaLink')}</CtaLink>
+            {strings.publicProfile.ctaText}{' '}
+            <CtaLink to="/login">{strings.publicProfile.ctaLink}</CtaLink>
           </CtaText>
         </CtaSection>
       </Container>

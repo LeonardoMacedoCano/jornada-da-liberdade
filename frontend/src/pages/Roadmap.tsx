@@ -1,11 +1,22 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Loading, useToastStack } from 'lcano-react-ui'
-import { useTranslation } from 'react-i18next'
+import { Loading, useMessage, useToastStack, useConfirmModal } from 'lcano-react-ui'
 import api from '../services/api'
-import { Phase } from '../types'
+import { interpolate } from '../i18n'
+import strings from '../i18n/strings'
+import { getPhaseContent } from '../i18n/content'
+import { Mission, Phase } from '../types'
 import { buildPhaseAchievementToast } from '../utils/achievementToast'
+import { buildUndoConfirmMessage } from '../utils/missionUndo'
+import { MissionFinancials } from '../utils/missionProgress'
 import PhaseCard from '../components/PhaseCard'
+
+const EMPTY_FINANCIALS: MissionFinancials = {
+  investedAmount: 0,
+  monthlyContribution: 0,
+  monthlyPassiveIncome: 0,
+  annualReturnRate: 11,
+}
 
 const Page = styled.div`
   display: flex;
@@ -61,10 +72,12 @@ const LoadingWrap = styled.div`
 `
 
 export default function Roadmap() {
-  const { t } = useTranslation()
   const { notify } = useToastStack()
+  const { showError } = useMessage()
+  const { confirm, ConfirmModalComponent } = useConfirmModal()
   const [phases, setPhases] = useState<Phase[]>([])
   const [minimumWage, setMinimumWage] = useState(1621)
+  const [financials, setFinancials] = useState<MissionFinancials>(EMPTY_FINANCIALS)
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -72,9 +85,19 @@ export default function Roadmap() {
     Promise.all([
       api.get('/phases'),
       api.get('/config/minimum-wage'),
-    ]).then(([phasesRes, wageRes]) => {
+      api.get('/user/profile'),
+    ]).then(([phasesRes, wageRes, profileRes]) => {
       setPhases(phasesRes.data)
       setMinimumWage(wageRes.data.value)
+      const prog = profileRes.data.progress
+      if (prog) {
+        setFinancials({
+          investedAmount: parseFloat(prog.investedAmount) || 0,
+          monthlyContribution: parseFloat(prog.monthlyContribution) || 0,
+          monthlyPassiveIncome: parseFloat(prog.monthlyPassiveIncome) || 0,
+          annualReturnRate: parseFloat(prog.annualReturnRate) || 11,
+        })
+      }
       const active = phasesRes.data.find((p: Phase) => p.status === 'active')
       if (active) setExpandedId(active.id)
     }).finally(() => setLoading(false))
@@ -87,9 +110,23 @@ export default function Roadmap() {
       const phasesRes = await api.get('/phases')
       setPhases(phasesRes.data)
       if (completed && res.data.phaseAdvanced && completedPhase) {
-        notify([buildPhaseAchievementToast(completedPhase, t)])
+        notify([buildPhaseAchievementToast(completedPhase)])
+      }
+      if (!completed && res.data.phaseRolledBack) {
+        const newPhaseSlug = phasesRes.data.find((p: Phase) => p.id === res.data.newPhaseId)?.slug
+        if (newPhaseSlug) {
+          showError(interpolate(strings.mission.phaseRolledBack, { phase: getPhaseContent(newPhaseSlug).name }))
+        }
       }
     } catch { /* ignore */ }
+  }
+
+  async function handleUndoMission(mission: Mission) {
+    const owningPhase = phases.find(p => p.id === mission.phaseId)
+    const { title, description } = buildUndoConfirmMessage(mission, owningPhase)
+    const ok = await confirm(title, description)
+    if (!ok) return
+    await handleToggleMission(mission.id, false)
   }
 
   if (loading) return (
@@ -103,11 +140,11 @@ export default function Roadmap() {
   return (
     <Page>
       <PageHeader>
-        <Title>{t('roadmap.title')}</Title>
+        <Title>{strings.roadmap.title}</Title>
         <Subtitle>
-          {t('roadmap.subtitle', { completed: completedCount, total: phases.length })}
+          {interpolate(strings.roadmap.subtitle, { completed: completedCount, total: phases.length })}
         </Subtitle>
-        <InflationNote>{t('roadmap.nominalValuesNote')}</InflationNote>
+        <InflationNote>{strings.roadmap.nominalValuesNote}</InflationNote>
       </PageHeader>
 
       <PhaseList>
@@ -117,13 +154,16 @@ export default function Roadmap() {
             <PhaseCard
               phase={phase}
               minimumWage={minimumWage}
+              financials={financials}
               expanded={expandedId === phase.id}
               onToggleExpand={() => setExpandedId(expandedId === phase.id ? null : phase.id)}
               onToggleMission={handleToggleMission}
+              onUndoMission={handleUndoMission}
             />
           </PhaseWrapper>
         ))}
       </PhaseList>
+      {ConfirmModalComponent}
     </Page>
   )
 }

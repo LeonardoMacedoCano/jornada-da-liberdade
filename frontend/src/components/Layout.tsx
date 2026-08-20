@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { IconButton } from 'lcano-react-ui'
-import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
+import strings from '../i18n/strings'
 
 const MOBILE_BREAKPOINT = 700
 
@@ -207,7 +207,6 @@ const Main = styled.main`
 
 export default function Layout() {
   const { user, logout } = useAuth()
-  const { t } = useTranslation()
   const navigate = useNavigate()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const drawerRef = useRef<HTMLElement>(null)
@@ -230,21 +229,21 @@ export default function Layout() {
         <NavInner>
           <Brand>
             <span style={{ fontSize: 22 }}>💎</span>
-            <BrandName>{t('common.appName')}</BrandName>
+            <BrandName>{strings.common.appName}</BrandName>
           </Brand>
           <NavLinks>
-            <StyledNavLink to="/" end>{t('nav.dashboard')}</StyledNavLink>
-            <StyledNavLink to="/roadmap">{t('nav.roadmap')}</StyledNavLink>
-            <StyledNavLink to="/history">{t('nav.history')}</StyledNavLink>
+            <StyledNavLink to="/" end>{strings.nav.dashboard}</StyledNavLink>
+            <StyledNavLink to="/roadmap">{strings.nav.roadmap}</StyledNavLink>
+            <StyledNavLink to="/history">{strings.nav.history}</StyledNavLink>
           </NavLinks>
           <NavActions>
-            <UserNavLink to="/settings" aria-label={t('settings.title')}>
+            <UserNavLink to="/settings" aria-label={strings.settings.title}>
               {user?.name}
             </UserNavLink>
-            <LogoutButton onClick={handleLogout}>{t('nav.logout')}</LogoutButton>
+            <LogoutButton onClick={handleLogout}>{strings.nav.logout}</LogoutButton>
           </NavActions>
           <MenuToggle>
-            <IconButton icon="☰" label={t('nav.openMenu')} onClick={() => setDrawerOpen(true)} />
+            <IconButton icon="☰" label={strings.nav.openMenu} onClick={() => setDrawerOpen(true)} />
           </MenuToggle>
         </NavInner>
       </Nav>
@@ -254,21 +253,21 @@ export default function Layout() {
       <Drawer ref={drawerRef} $open={drawerOpen}>
         <DrawerHeader>
           <span style={{ fontSize: 22 }}>💎</span>
-          <DrawerTitle>{t('common.appName')}</DrawerTitle>
-          <IconButton icon="✕" label={t('nav.closeMenu')} onClick={() => setDrawerOpen(false)} />
+          <DrawerTitle>{strings.common.appName}</DrawerTitle>
+          <IconButton icon="✕" label={strings.nav.closeMenu} onClick={() => setDrawerOpen(false)} />
         </DrawerHeader>
 
         <DrawerNavList>
-          <DrawerNavLink to="/" end onClick={() => setDrawerOpen(false)}>{t('nav.dashboard')}</DrawerNavLink>
-          <DrawerNavLink to="/roadmap" onClick={() => setDrawerOpen(false)}>{t('nav.roadmap')}</DrawerNavLink>
-          <DrawerNavLink to="/history" onClick={() => setDrawerOpen(false)}>{t('nav.history')}</DrawerNavLink>
+          <DrawerNavLink to="/" end onClick={() => setDrawerOpen(false)}>{strings.nav.dashboard}</DrawerNavLink>
+          <DrawerNavLink to="/roadmap" onClick={() => setDrawerOpen(false)}>{strings.nav.roadmap}</DrawerNavLink>
+          <DrawerNavLink to="/history" onClick={() => setDrawerOpen(false)}>{strings.nav.history}</DrawerNavLink>
         </DrawerNavList>
 
         <DrawerFooter>
           <DrawerNavLink to="/settings" onClick={() => setDrawerOpen(false)}>
-            {t('settings.title')} — {user?.name}
+            {strings.settings.title} — {user?.name}
           </DrawerNavLink>
-          <DrawerLogoutButton onClick={handleLogout}>{t('nav.logout')}</DrawerLogoutButton>
+          <DrawerLogoutButton onClick={handleLogout}>{strings.nav.logout}</DrawerLogoutButton>
         </DrawerFooter>
       </Drawer>
 

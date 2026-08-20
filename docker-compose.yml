@@ -9,6 +9,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - MINIMUM_WAGE=${MINIMUM_WAGE:-1621.00}
       - PORT=${BACKEND_PORT:-3001}
       - NODE_ENV=${NODE_ENV:-production}
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:5173}

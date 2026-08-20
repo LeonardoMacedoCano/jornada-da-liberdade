@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Loading, PaginatedGrid, BadgeCard, Modal } from 'lcano-react-ui'
-import { useTranslation } from 'react-i18next'
 import api from '../services/api'
 import { getPhaseContent, getMissionContent } from '../i18n/content'
+import strings from '../i18n/strings'
+import { interpolate } from '../i18n'
 import { Phase, Mission, MISSION_TYPE_ICONS } from '../types'
 
 interface CompletedMission extends Mission {
@@ -207,7 +208,6 @@ const ModalCompletedDate = styled.span`
 `
 
 export default function History() {
-  const { t, i18n } = useTranslation()
   const [phases, setPhases] = useState<Phase[]>([])
   const [completedMissions, setCompletedMissions] = useState<CompletedMission[]>([])
   const [filterPhaseId, setFilterPhaseId] = useState<number | null>(null)
@@ -247,21 +247,21 @@ export default function History() {
   return (
     <Page>
       <PageHeader>
-        <Title>{t('history.title')}</Title>
-        <Subtitle>{t('history.subtitle')}</Subtitle>
+        <Title>{strings.history.title}</Title>
+        <Subtitle>{strings.history.subtitle}</Subtitle>
       </PageHeader>
 
       <section>
         <SectionHeader>
-          <SectionTitle>{t('history.showcaseTitle')}</SectionTitle>
-          <CountLabel>{t('history.unlockedCount', { count: unlockedCount, total: phases.length })}</CountLabel>
+          <SectionTitle>{strings.history.showcaseTitle}</SectionTitle>
+          <CountLabel>{interpolate(strings.history.unlockedCount, { count: unlockedCount, total: phases.length })}</CountLabel>
         </SectionHeader>
 
         <ShowcaseCard>
           <PaginatedGrid
             items={phases}
             keyExtractor={p => p.id}
-            emptyMessage={t('history.emptyBadges')}
+            emptyMessage={strings.history.emptyBadges}
             minItemWidth="min(300px, 100%)"
             rowsPerPage={2}
             renderItem={p => {
@@ -272,7 +272,7 @@ export default function History() {
                   icon={locked ? '🔒' : p.achievementIcon}
                   title={content.achievementName}
                   description={`${content.name} — ${content.title}`}
-                  meta={!locked && p.completedAt ? t('phase.completedOn', { date: new Date(p.completedAt).toLocaleDateString(i18n.language) }) : undefined}
+                  meta={!locked && p.completedAt ? interpolate(strings.phase.completedOn, { date: new Date(p.completedAt).toLocaleDateString('pt-BR') }) : undefined}
                   active={!locked}
                   height="132px"
                   onClick={locked ? undefined : () => setSelectedPhase(p)}
@@ -281,7 +281,7 @@ export default function History() {
             }}
           />
           {unlockedCount === 0 && (
-            <EmptyText>{t('history.emptyBadges')}</EmptyText>
+            <EmptyText>{strings.history.emptyBadges}</EmptyText>
           )}
         </ShowcaseCard>
       </section>
@@ -289,12 +289,12 @@ export default function History() {
       <section>
         <TimelineHeader>
           <SectionTitle>
-            {t('history.completedMissionsTitle')}{' '}
+            {strings.history.completedMissionsTitle}{' '}
             <CountLabel>({filtered.length})</CountLabel>
           </SectionTitle>
           <FilterRow>
             <FilterButton $active={filterPhaseId === null} onClick={() => setFilterPhaseId(null)}>
-              {t('history.filterAll')}
+              {strings.history.filterAll}
             </FilterButton>
             {phases.filter(p => p.missions.some(m => m.isCompleted)).map(p => (
               <FilterButton
@@ -311,13 +311,13 @@ export default function History() {
         {filtered.length === 0 ? (
           <EmptyCard>
             <EmptyIcon>🎯</EmptyIcon>
-            <p>{t('history.emptyMissions')}</p>
+            <p>{strings.history.emptyMissions}</p>
           </EmptyCard>
         ) : (
           <PaginatedGrid
             items={filtered}
             keyExtractor={mission => mission.id}
-            emptyMessage={t('history.emptyMissions')}
+            emptyMessage={strings.history.emptyMissions}
             minItemWidth="min(320px, 100%)"
             renderItem={mission => (
               <MissionRow onClick={() => setSelectedMission(mission)}>
@@ -327,11 +327,11 @@ export default function History() {
                   <MissionMeta>
                     <MetaText>{getPhaseContent(mission.phaseSlug).name}</MetaText>
                     <MetaText>·</MetaText>
-                    <MetaText>{t(`mission.types.${mission.missionType}`)}</MetaText>
+                    <MetaText>{strings.mission.types[mission.missionType]}</MetaText>
                   </MissionMeta>
                 </MissionInfo>
                 <MissionDate>
-                  {mission.completedAt ? new Date(mission.completedAt).toLocaleDateString(i18n.language) : ''}
+                  {mission.completedAt ? new Date(mission.completedAt).toLocaleDateString('pt-BR') : ''}
                 </MissionDate>
               </MissionRow>
             )}
@@ -356,7 +356,7 @@ export default function History() {
                 {selectedPhase.completedAt && (
                   <ModalMetaRow>
                     <ModalCompletedDate>
-                      {t('phase.completedOn', { date: new Date(selectedPhase.completedAt).toLocaleDateString(i18n.language) })}
+                      {interpolate(strings.phase.completedOn, { date: new Date(selectedPhase.completedAt).toLocaleDateString('pt-BR') })}
                     </ModalCompletedDate>
                   </ModalMetaRow>
                 )}
@@ -379,12 +379,12 @@ export default function History() {
                 <ModalEyebrow>{getPhaseContent(selectedMission.phaseSlug).name}</ModalEyebrow>
                 <ModalDescription>{content.description}</ModalDescription>
                 <ModalMetaRow>
-                  <span>{t(`mission.types.${selectedMission.missionType}`)}</span>
+                  <span>{strings.mission.types[selectedMission.missionType]}</span>
                   {selectedMission.completedAt && (
                     <>
                       <span>·</span>
                       <ModalCompletedDate>
-                        {t('mission.completedOn', { date: new Date(selectedMission.completedAt).toLocaleDateString(i18n.language) })}
+                        {interpolate(strings.mission.completedOn, { date: new Date(selectedMission.completedAt).toLocaleDateString('pt-BR') })}
                       </ModalCompletedDate>
                     </>
                   )}

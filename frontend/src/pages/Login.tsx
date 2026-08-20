@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { GoogleSignInButton } from 'lcano-react-ui'
-import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { translateApiError } from '../i18n'
+import strings from '../i18n/strings'
 import { getPhaseContent } from '../i18n/content'
 import { PHASE_HEX_COLORS } from '../types'
 
@@ -143,7 +143,6 @@ const FooterNote = styled.p`
 
 export default function Login() {
   const { loginWithGoogle, googleClientId } = useAuth()
-  const { t } = useTranslation()
   const [error, setError] = useState('')
   const tutorialFlavor = getPhaseContent('tutorial').flavorText
 
@@ -153,7 +152,7 @@ export default function Login() {
       await loginWithGoogle(credential)
     } catch (err: unknown) {
       const data = (err as { response?: { data?: unknown } })?.response?.data
-      setError(translateApiError(t, data, 'auth.login.errorGeneric'))
+      setError(translateApiError(data, strings.auth.login.errorGeneric))
     }
   }
 
@@ -162,8 +161,8 @@ export default function Login() {
       <Wrapper>
         <Hero>
           <IconRing>💎</IconRing>
-          <HeroTitle>{t('auth.login.heroTitle')}</HeroTitle>
-          <HeroSub>{t('auth.login.heroSub')}</HeroSub>
+          <HeroTitle>{strings.auth.login.heroTitle}</HeroTitle>
+          <HeroSub>{strings.auth.login.heroSub}</HeroSub>
           <FlavorQuote>&quot;{tutorialFlavor}&quot;</FlavorQuote>
           <PhaseDots aria-hidden="true">
             {Object.values(PHASE_HEX_COLORS).map(color => (
@@ -173,19 +172,19 @@ export default function Login() {
         </Hero>
         <Card>
           <CardAccent />
-          <CardTitle>{t('auth.login.cardTitle')}</CardTitle>
+          <CardTitle>{strings.auth.login.cardTitle}</CardTitle>
           {error && <ErrorBox>{error}</ErrorBox>}
           <ButtonWrap>
             {googleClientId === undefined ? (
-              <StatusText>{t('common.loading')}</StatusText>
+              <StatusText>{strings.common.loading}</StatusText>
             ) : googleClientId ? (
               <GoogleSignInButton clientId={googleClientId} onCredential={handleCredential} locale="pt" />
             ) : (
-              <ErrorBox>{t('auth.login.notConfigured')}</ErrorBox>
+              <ErrorBox>{strings.auth.login.notConfigured}</ErrorBox>
             )}
           </ButtonWrap>
         </Card>
-        <FooterNote>{t('auth.login.footerNote')}</FooterNote>
+        <FooterNote>{strings.auth.login.footerNote}</FooterNote>
       </Wrapper>
     </Page>
   )

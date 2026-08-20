@@ -1,22 +1,14 @@
-import i18n, { TFunction } from 'i18next'
-import { initReactI18next } from 'react-i18next'
 import strings from './strings'
 
-export function translateApiError(t: TFunction, data: unknown, fallbackKey: string): string {
-  const errorData = data as { error?: string } | undefined
-  if (!errorData?.error) return t(fallbackKey)
-  return t(`errors.${errorData.error}`, { ...errorData, defaultValue: t(fallbackKey) })
+export function interpolate(template: string, vars?: Record<string, unknown>): string {
+  if (!vars) return template
+  return template.replace(/\{\{(\w+)\}\}/g, (match, key) => (key in vars ? String(vars[key]) : match))
 }
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources: { 'pt-BR': { translation: strings } },
-    lng: 'pt-BR',
-    fallbackLng: 'pt-BR',
-    interpolation: { escapeValue: false },
-  })
+export function translateApiError(data: unknown, fallback: string): string {
+  const code = (data as { error?: string } | undefined)?.error
+  const template = code ? (strings.errors as Record<string, string>)[code] : undefined
+  return template ? interpolate(template, data as Record<string, unknown>) : fallback
+}
 
 document.documentElement.lang = 'pt-BR'
-
-export default i18n

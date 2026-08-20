@@ -150,11 +150,6 @@ export async function uncompleteMission(req: AuthRequest, res: Response): Promis
   const mission = await prisma.mission.findUnique({ where: { id: missionId } })
   if (!mission) { res.status(404).json({ error: ErrorCode.MISSION_NOT_FOUND }); return }
 
-  if (!['behavioral', 'habit'].includes(mission.missionType)) {
-    res.status(400).json({ error: ErrorCode.ONLY_MANUAL_MISSIONS_CAN_BE_UNCOMPLETED })
-    return
-  }
-
   await prisma.userMissionProgress.upsert({
     where: { userId_missionId: { userId, missionId } },
     update: {

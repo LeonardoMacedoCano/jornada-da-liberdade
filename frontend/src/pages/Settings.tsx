@@ -1,10 +1,10 @@
 import { useState, useEffect, FormEvent } from 'react'
 import styled from 'styled-components'
 import { Button, ThemeSelector, useMessage } from 'lcano-react-ui'
-import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { useThemeControl } from '../contexts/ThemeControlContext'
-import { translateApiError } from '../i18n'
+import { translateApiError, interpolate } from '../i18n'
+import strings from '../i18n/strings'
 import { THEMES } from '../theme'
 import api from '../services/api'
 
@@ -170,7 +170,6 @@ function Toggle({
 
 export default function Settings() {
   const { user, refreshUser } = useAuth()
-  const { t } = useTranslation()
   const { showSuccess, showError } = useMessage()
   const [name, setName] = useState(user?.name || '')
   const [username, setUsername] = useState(user?.username || '')
@@ -194,10 +193,10 @@ export default function Settings() {
     try {
       await api.put('/user/settings', { name, username, sharePublicProfile, showFinancialValues })
       await refreshUser()
-      showSuccess(t('settings.profileSaved'))
+      showSuccess(strings.settings.profileSaved)
     } catch (err: unknown) {
       const data = (err as { response?: { data?: unknown } })?.response?.data
-      showError(translateApiError(t, data, 'settings.errorSave'))
+      showError(translateApiError(data, strings.settings.errorSave))
     } finally {
       setSavingProfile(false)
     }
@@ -208,10 +207,10 @@ export default function Settings() {
     setSavingFinancial(true)
     try {
       await api.put('/user/progress', { annualReturnRate: parseFloat(annualReturnRate) || 11 })
-      showSuccess(t('settings.financialSettingsSaved'))
+      showSuccess(strings.settings.financialSettingsSaved)
     } catch (err: unknown) {
       const data = (err as { response?: { data?: unknown } })?.response?.data
-      showError(translateApiError(t, data, 'settings.errorFinancialSettings'))
+      showError(translateApiError(data, strings.settings.errorFinancialSettings))
     } finally {
       setSavingFinancial(false)
     }
@@ -220,45 +219,45 @@ export default function Settings() {
   return (
     <Page>
       <PageHeader>
-        <Title>{t('settings.title')}</Title>
-        <Subtitle>{t('settings.subtitle')}</Subtitle>
+        <Title>{strings.settings.title}</Title>
+        <Subtitle>{strings.settings.subtitle}</Subtitle>
       </PageHeader>
 
       <Card>
-        <CardTitle>{t('settings.profile')}</CardTitle>
+        <CardTitle>{strings.settings.profile}</CardTitle>
         <Form onSubmit={handleProfileSave}>
           <Field>
-            <Label>{t('settings.name')}</Label>
+            <Label>{strings.settings.name}</Label>
             <Input type="text" value={name} onChange={e => setName(e.target.value)} />
           </Field>
           <Field>
-            <Label>{t('settings.username')}</Label>
+            <Label>{strings.settings.username}</Label>
             <Input type="text" value={username} onChange={e => setUsername(e.target.value.toLowerCase())} />
-            <Hint>{t('settings.publicProfileUrl', { username })}</Hint>
+            <Hint>{interpolate(strings.settings.publicProfileUrl, { username })}</Hint>
           </Field>
           <Field>
-            <Label>{t('settings.email')} <span style={{ opacity: 0.5 }}>{t('settings.readOnly')}</span></Label>
+            <Label>{strings.settings.email} <span style={{ opacity: 0.5 }}>{strings.settings.readOnly}</span></Label>
             <Input type="email" value={user?.email || ''} readOnly $readOnly />
           </Field>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
             <Toggle
               value={sharePublicProfile}
               onChange={setSharePublicProfile}
-              label={t('settings.publicProfileActive')}
-              hint={t('settings.publicProfileHint', { username })}
+              label={strings.settings.publicProfileActive}
+              hint={interpolate(strings.settings.publicProfileHint, { username })}
             />
             <Toggle
               value={showFinancialValues}
               onChange={setShowFinancialValues}
-              label={t('settings.showFinancialValues')}
-              hint={t('settings.showFinancialValuesHint')}
+              label={strings.settings.showFinancialValues}
+              hint={strings.settings.showFinancialValuesHint}
             />
           </div>
 
           <Button
             type="submit"
             variant="quaternary"
-            description={savingProfile ? t('settings.savingProfile') : t('settings.saveProfile')}
+            description={savingProfile ? strings.settings.savingProfile : strings.settings.saveProfile}
             disabled={savingProfile}
             style={{ borderRadius: '8px', padding: '10px 24px', fontSize: '14px', fontWeight: '600' }}
           />
@@ -266,16 +265,16 @@ export default function Settings() {
       </Card>
 
       <Card>
-        <CardTitle>{t('settings.appearance')}</CardTitle>
-        <Hint>{t('settings.appearanceHint')}</Hint>
+        <CardTitle>{strings.settings.appearance}</CardTitle>
+        <Hint>{strings.settings.appearanceHint}</Hint>
         <ThemeSelector themes={THEMES} currentTheme={themeId} onThemeChange={setThemeId} />
       </Card>
 
       <Card>
-        <CardTitle>{t('settings.financialSettings')}</CardTitle>
+        <CardTitle>{strings.settings.financialSettings}</CardTitle>
         <Form onSubmit={handleFinancialSave}>
           <Field>
-            <Label>{t('settings.annualReturnRate')}</Label>
+            <Label>{strings.settings.annualReturnRate}</Label>
             <Input
               type="number"
               step="0.01"
@@ -284,15 +283,15 @@ export default function Settings() {
               value={annualReturnRate}
               onChange={e => setAnnualReturnRate(e.target.value)}
             />
-            <Hint>{t('settings.financialSettingsHint')}</Hint>
+            <Hint>{strings.settings.financialSettingsHint}</Hint>
             {(parseFloat(annualReturnRate) || 0) > 15 && (
-              <Warning>{t('settings.annualReturnRateWarning')}</Warning>
+              <Warning>{strings.settings.annualReturnRateWarning}</Warning>
             )}
           </Field>
           <Button
             type="submit"
             variant="quaternary"
-            description={savingFinancial ? t('settings.savingProfile') : t('settings.saveFinancialSettings')}
+            description={savingFinancial ? strings.settings.savingProfile : strings.settings.saveFinancialSettings}
             disabled={savingFinancial}
             style={{ borderRadius: '8px', padding: '10px 24px', fontSize: '14px', fontWeight: '600' }}
           />

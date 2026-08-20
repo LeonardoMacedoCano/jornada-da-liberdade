@@ -1,12 +1,16 @@
 import styled from 'styled-components'
-import { useTranslation } from 'react-i18next'
 import { getMissionContent } from '../i18n/content'
+import strings from '../i18n/strings'
+import { interpolate } from '../i18n'
 import { Mission, MISSION_TYPE_ICONS } from '../types'
+import { computeMissionProgressPercent, MissionFinancials } from '../utils/missionProgress'
 
 interface MissionItemProps {
   mission: Mission
   minimumWage?: number
+  financials?: MissionFinancials
   onToggle?: (id: number, completed: boolean) => void
+  onUndo?: (mission: Mission) => void
   onStart?: (id: number) => void
   compact?: boolean
 }
@@ -45,7 +49,7 @@ const CheckButton = styled.button<{ $completed: boolean }>`
   margin-top: 2px;
 
   &:hover {
-    border-color: ${p => p.$completed ? p.theme.colors.success : p.theme.colors.white};
+    border-color: ${p => p.$completed ? p.theme.colors.warning : p.theme.colors.white};
   }
 `
 
@@ -124,21 +128,21 @@ const StartButton = styled.button`
   &:hover { background: ${p => p.theme.colors.quaternary}66; }
 `
 
-const HabitProgress = styled.div`
+const MiniProgress = styled.div`
   margin-top: 8px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 `
 
-const HabitProgressRow = styled.div`
+const MiniProgressRow = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 12px;
   color: ${p => p.theme.colors.gray};
 `
 
-const HabitTrack = styled.div`
+const MiniTrack = styled.div`
   width: 100%;
   background: ${p => p.theme.colors.white}0d;
   border-radius: 999px;
@@ -146,7 +150,7 @@ const HabitTrack = styled.div`
   overflow: hidden;
 `
 
-const HabitFill = styled.div<{ $width: number }>`
+const MiniFill = styled.div<{ $width: number }>`
   background: ${p => p.theme.colors.quaternary};
   height: 6px;
   border-radius: 999px;
@@ -160,12 +164,11 @@ const CompletedDate = styled.p`
   margin-top: 4px;
 `
 
-export default function MissionItem({ mission, minimumWage = 1621, onToggle, onStart, compact = false }: MissionItemProps) {
-  const { t, i18n } = useTranslation()
+export default function MissionItem({ mission, minimumWage = 1621, financials, onToggle, onUndo, onStart, compact = false }: MissionItemProps) {
   const content = getMissionContent(mission.slug)
   const isManual = mission.missionType === 'behavioral' || mission.missionType === 'habit'
   const icon = MISSION_TYPE_ICONS[mission.missionType]
-  const label = t(`mission.types.${mission.missionType}`)
+  const label = strings.mission.types[mission.missionType]
 
   const elapsedDays = mission.startedAt
     ? Math.floor((Date.now() - new Date(mission.startedAt).getTime()) / 86400000)
@@ -175,38 +178,50 @@ export default function MissionItem({ mission, minimumWage = 1621, onToggle, onS
 
   function formatTarget() {
     if (mission.missionType === 'portfolio_value' && mission.targetValue) {
-      const value = `R$ ${parseFloat(mission.targetValue).toLocaleString(i18n.language, { minimumFractionDigits: 0 })}`
-      return t('mission.targetPortfolio', { value })
+      const value = `R$ ${parseFloat(mission.targetValue).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`
+      return interpolate(strings.mission.targetPortfolio, { value })
     }
     if (mission.missionType === 'passive_income_sm' && mission.targetSmMultiple) {
       const multiple = parseFloat(mission.targetSmMultiple)
-      const value = `R$ ${(multiple * minimumWage).toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      return t('mission.targetPassiveSm', { multiple, value })
+      const value = `R$ ${(multiple * minimumWage).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      return interpolate(strings.mission.targetPassiveSm, { multiple, value })
     }
     if (mission.missionType === 'crossover') {
-      return t('mission.targetCrossover')
+      return strings.mission.targetCrossover
     }
     return null
   }
 
   const target = formatTarget()
-  const showCheckbox = isManual && onToggle && (mission.missionType !== 'habit' || habitCanComplete || mission.isCompleted)
+  const progressPercent = financials ? computeMissionProgressPercent(mission, financials, minimumWage) : null
+
+  const canComplete = isManual && !!onToggle && (mission.missionType !== 'habit' || habitCanComplete)
+  const canUndo = mission.isCompleted && !!onUndo
+  const interactive = mission.isCompleted ? canUndo : canComplete
+
+  function handleCheckClick() {
+    if (mission.isCompleted) {
+      onUndo?.(mission)
+    } else if (canComplete) {
+      onToggle?.(mission.id, true)
+    }
+  }
 
   return (
     <Item $completed={mission.isCompleted}>
       <div style={{ flexShrink: 0, marginTop: 2 }}>
-        {showCheckbox ? (
+        {interactive ? (
           <CheckButton
             role="checkbox"
             aria-checked={mission.isCompleted}
-            aria-label={content.title}
+            aria-label={mission.isCompleted ? interpolate(strings.mission.undoAria, { title: content.title }) : content.title}
             $completed={mission.isCompleted}
-            onClick={() => onToggle!(mission.id, !mission.isCompleted)}
+            onClick={handleCheckClick}
           >
             {mission.isCompleted && <span aria-hidden="true" style={{ color: 'white', fontSize: 11 }}>✓</span>}
           </CheckButton>
         ) : (
-          <CheckDisplay role="img" aria-label={mission.isCompleted ? t('phase.completed') : content.title} $completed={mission.isCompleted}>
+          <CheckDisplay role="img" aria-label={mission.isCompleted ? strings.phase.completed : content.title} $completed={mission.isCompleted}>
             {mission.isCompleted && <span aria-hidden="true" style={{ color: 'white', fontSize: 11 }}>✓</span>}
           </CheckDisplay>
         )}
@@ -216,37 +231,48 @@ export default function MissionItem({ mission, minimumWage = 1621, onToggle, onS
         <TitleRow>
           <span aria-hidden="true" style={{ fontSize: 14 }}>{icon}</span>
           <MissionTitle $completed={mission.isCompleted}>{content.title}</MissionTitle>
-          {!mission.isRequiredForPhase && <BadgeOptional>{t('mission.optional')}</BadgeOptional>}
+          {!mission.isRequiredForPhase && <BadgeOptional>{strings.mission.optional}</BadgeOptional>}
           <BadgeType>{label}</BadgeType>
         </TitleRow>
 
         {!compact && <Description>{content.description}</Description>}
         {target && <Target>{target}</Target>}
 
+        {progressPercent !== null && (
+          <MiniProgress>
+            <MiniProgressRow>
+              <span>{interpolate(strings.mission.percentComplete, { percent: progressPercent })}</span>
+            </MiniProgressRow>
+            <MiniTrack>
+              <MiniFill $width={progressPercent} />
+            </MiniTrack>
+          </MiniProgress>
+        )}
+
         {mission.missionType === 'habit' && !mission.isCompleted && (
           <div style={{ marginTop: 8 }}>
             {!mission.startedAt && onStart ? (
-              <StartButton onClick={() => onStart(mission.id)}>{t('mission.startTracking')}</StartButton>
+              <StartButton onClick={() => onStart(mission.id)}>{strings.mission.startTracking}</StartButton>
             ) : mission.startedAt ? (
-              <HabitProgress>
-                <HabitProgressRow>
-                  <span>{t('mission.habitProgress')}</span>
-                  <span>{t('mission.habitDays', { elapsed: Math.min(elapsedDays!, requiredDays), required: requiredDays })}</span>
-                </HabitProgressRow>
-                <HabitTrack>
-                  <HabitFill $width={Math.min((elapsedDays! / requiredDays) * 100, 100)} />
-                </HabitTrack>
+              <MiniProgress>
+                <MiniProgressRow>
+                  <span>{strings.mission.habitProgress}</span>
+                  <span>{interpolate(strings.mission.habitDays, { elapsed: Math.min(elapsedDays!, requiredDays), required: requiredDays })}</span>
+                </MiniProgressRow>
+                <MiniTrack>
+                  <MiniFill $width={Math.min((elapsedDays! / requiredDays) * 100, 100)} />
+                </MiniTrack>
                 {habitCanComplete && (
-                  <CompletedDate>{t('mission.habitReady')}</CompletedDate>
+                  <CompletedDate>{strings.mission.habitReady}</CompletedDate>
                 )}
-              </HabitProgress>
+              </MiniProgress>
             ) : null}
           </div>
         )}
 
         {mission.completedAt && (
           <CompletedDate>
-            {t('mission.completedOn', { date: new Date(mission.completedAt).toLocaleDateString(i18n.language) })}
+            {interpolate(strings.mission.completedOn, { date: new Date(mission.completedAt).toLocaleDateString('pt-BR') })}
           </CompletedDate>
         )}
       </Body>
