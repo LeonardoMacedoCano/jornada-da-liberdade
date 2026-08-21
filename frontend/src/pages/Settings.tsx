@@ -267,7 +267,15 @@ export default function Settings() {
       <Card>
         <CardTitle>{strings.settings.appearance}</CardTitle>
         <Hint>{strings.settings.appearanceHint}</Hint>
-        <ThemeSelector themes={THEMES} currentTheme={themeId} onThemeChange={setThemeId} />
+        <ThemeSelector
+          value={themeId}
+          onChange={setThemeId}
+          options={THEMES.map(t => ({
+            id: t.id,
+            title: t.title,
+            swatch: [t.primaryColor, t.secondaryColor, t.tertiaryColor, t.quaternaryColor],
+          }))}
+        />
       </Card>
 
       <Card>
