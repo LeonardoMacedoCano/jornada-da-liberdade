@@ -31,9 +31,9 @@ const strings = {
     dashboard: 'Dashboard',
     roadmap: 'Roadmap',
     history: 'Histórico',
+    settings: 'Configurações',
     logout: 'Sair',
-    openMenu: 'Abrir menu',
-    closeMenu: 'Fechar menu',
+    mainNavigation: 'Navegação principal',
   },
   auth: {
     login: {
