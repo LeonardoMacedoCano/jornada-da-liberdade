@@ -8,10 +8,23 @@ import './i18n'
 import './index.css'
 
 const GlobalStyle = createGlobalStyle`
+  html, body, #root {
+    height: 100%;
+  }
+
   body {
     background-color: ${p => p.theme.colors.primary};
     color: ${p => p.theme.colors.white};
     font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  button {
+    border: 0;
+    outline: 0;
+    cursor: pointer;
+    background: none;
+    color: inherit;
+    font-family: inherit;
   }
 
   * {
