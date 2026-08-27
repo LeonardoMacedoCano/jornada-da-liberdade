@@ -2,7 +2,7 @@ import { useState, useEffect, FormEvent } from 'react'
 import styled, { useTheme } from 'styled-components'
 import { Button, Loading, useMessage, useToastStack, useConfirmModal, PaginatedGrid, ToggleSwitch, formatGroupedNumber, sanitizeNumericInput } from 'lcano-react-ui'
 import { useAuth } from '../contexts/AuthContext'
-import api from '../services/api'
+import api, { extractApiErrorData } from '../services/api'
 import { translateApiError, interpolate } from '../i18n'
 import strings from '../i18n/strings'
 import { getPhaseContent } from '../i18n/content'
@@ -287,8 +287,7 @@ export default function Dashboard() {
         showError(interpolate(strings.mission.phaseRolledBack, { phase: getPhaseContent(phaseRes.data.slug).name }))
       }
     } catch (err: unknown) {
-      const data = (err as { response?: { data?: unknown } })?.response?.data
-      showError(translateApiError(data, strings.dashboard.errorMission))
+      showError(translateApiError(extractApiErrorData(err), strings.dashboard.errorMission))
     }
   }
 
@@ -299,8 +298,7 @@ export default function Dashboard() {
       setPhase(phaseRes.data)
       showSuccess(strings.dashboard.trackingStarted)
     } catch (err: unknown) {
-      const data = (err as { response?: { data?: unknown } })?.response?.data
-      showError(translateApiError(data, strings.dashboard.errorTracking))
+      showError(translateApiError(extractApiErrorData(err), strings.dashboard.errorTracking))
     }
   }
 

@@ -19,4 +19,8 @@ api.interceptors.response.use(
   }
 )
 
+export function extractApiErrorData(err: unknown): unknown {
+  return (err as { response?: { data?: unknown } })?.response?.data
+}
+
 export default api
