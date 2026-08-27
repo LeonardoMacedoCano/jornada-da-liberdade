@@ -5,6 +5,7 @@ import { AuthRequest } from '../middleware/auth'
 import { MAX_PHASE_ID } from '../lib/constants'
 import { getMinimumWage } from '../lib/appConfig'
 import { ErrorCode } from '../lib/errors'
+import { advancePhaseIfComplete } from '../services/progressionService'
 
 export async function getProfile(req: AuthRequest, res: Response): Promise<void> {
   const user = await prisma.user.findUnique({
@@ -17,17 +18,6 @@ export async function getProfile(req: AuthRequest, res: Response): Promise<void>
   })
   if (!user) { res.status(404).json({ error: ErrorCode.USER_NOT_FOUND }); return }
   res.json(user)
-}
-
-function serializeMission(mission: any, prog?: any) {
-  return {
-    ...mission,
-    targetValue: mission.targetValue?.toString() ?? null,
-    targetSmMultiple: mission.targetSmMultiple?.toString() ?? null,
-    isCompleted: prog?.isCompleted ?? false,
-    completedAt: prog?.completedAt ?? null,
-    startedAt: prog?.startedAt ?? null,
-  }
 }
 
 async function autoCompleteMissions(userId: string, progress: {
@@ -79,37 +69,9 @@ async function autoCompleteMissions(userId: string, progress: {
     }
   }
 
-  let currentPhaseId = progress.currentPhaseId
-  let phaseAdvanced = false
+  const { phaseAdvanced, newPhaseId } = await advancePhaseIfComplete(userId, progress.currentPhaseId)
 
-  if (currentPhaseId < MAX_PHASE_ID) {
-    const requiredMissions = await prisma.mission.findMany({
-      where: { phaseId: currentPhaseId, isRequiredForPhase: true },
-    })
-    const completedProgress = await prisma.userMissionProgress.findMany({
-      where: { userId, missionId: { in: requiredMissions.map(m => m.id) }, isCompleted: true },
-    })
-
-    if (completedProgress.length === requiredMissions.length && requiredMissions.length > 0) {
-      try {
-        await prisma.$transaction([
-          prisma.userPhaseHistory.create({
-            data: { userId, phaseId: currentPhaseId, portfolioValueAtCompletion: progress.investedAmount },
-          }),
-          prisma.userProgress.update({
-            where: { userId },
-            data: { currentPhaseId: currentPhaseId + 1 },
-          }),
-        ])
-        currentPhaseId = currentPhaseId + 1
-        phaseAdvanced = true
-      } catch (e: any) {
-        if (e.code !== 'P2002') throw e
-      }
-    }
-  }
-
-  return { newlyCompleted, phaseAdvanced, newPhaseId: currentPhaseId }
+  return { newlyCompleted, phaseAdvanced, newPhaseId }
 }
 
 export async function updateProgress(req: AuthRequest, res: Response): Promise<void> {
