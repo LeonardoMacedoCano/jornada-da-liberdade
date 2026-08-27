@@ -40,10 +40,6 @@ export async function googleAuth(req: Request, res: Response): Promise<void> {
   }
 
   const { credential } = req.body
-  if (!credential) {
-    res.status(400).json({ error: ErrorCode.MISSING_GOOGLE_CREDENTIAL })
-    return
-  }
 
   let googleUser
   try {

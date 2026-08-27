@@ -5,8 +5,14 @@ import { ErrorCode } from '../lib/errors'
 import { serializeMission } from '../lib/missionSerializer'
 import { advancePhaseIfComplete } from '../services/progressionService'
 
+function parseMissionId(param: string): number | null {
+  const id = Number(param)
+  return Number.isInteger(id) && id > 0 ? id : null
+}
+
 export async function getMissions(req: AuthRequest, res: Response): Promise<void> {
-  const phaseId = req.query.phaseId ? parseInt(req.query.phaseId as string) : undefined
+  const rawPhaseId = req.query.phaseId ? Number(req.query.phaseId) : undefined
+  const phaseId = rawPhaseId !== undefined && Number.isInteger(rawPhaseId) ? rawPhaseId : undefined
   const userId = req.userId!
 
   const missions = await prisma.mission.findMany({
@@ -23,7 +29,8 @@ export async function getMissions(req: AuthRequest, res: Response): Promise<void
 }
 
 export async function completeMission(req: AuthRequest, res: Response): Promise<void> {
-  const missionId = parseInt(req.params.id)
+  const missionId = parseMissionId(req.params.id)
+  if (missionId === null) { res.status(400).json({ error: ErrorCode.INVALID_MISSION_ID }); return }
   const userId = req.userId!
 
   const mission = await prisma.mission.findUnique({ where: { id: missionId } })
@@ -73,7 +80,8 @@ export async function completeMission(req: AuthRequest, res: Response): Promise<
 }
 
 export async function startMission(req: AuthRequest, res: Response): Promise<void> {
-  const missionId = parseInt(req.params.id)
+  const missionId = parseMissionId(req.params.id)
+  if (missionId === null) { res.status(400).json({ error: ErrorCode.INVALID_MISSION_ID }); return }
   const userId = req.userId!
 
   const mission = await prisma.mission.findUnique({ where: { id: missionId } })
@@ -102,7 +110,8 @@ export async function startMission(req: AuthRequest, res: Response): Promise<voi
 }
 
 export async function uncompleteMission(req: AuthRequest, res: Response): Promise<void> {
-  const missionId = parseInt(req.params.id)
+  const missionId = parseMissionId(req.params.id)
+  if (missionId === null) { res.status(400).json({ error: ErrorCode.INVALID_MISSION_ID }); return }
   const userId = req.userId!
 
   const mission = await prisma.mission.findUnique({ where: { id: missionId } })

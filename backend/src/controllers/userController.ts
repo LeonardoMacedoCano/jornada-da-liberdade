@@ -1,10 +1,12 @@
 import { Response } from 'express'
 import { Prisma } from '@prisma/client'
+import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
 import { getMinimumWage } from '../lib/appConfig'
 import { ErrorCode } from '../lib/errors'
 import { advancePhaseIfComplete } from '../services/progressionService'
+import { updateProgressSchema, updateSettingsSchema } from '../lib/schemas'
 
 export async function getProfile(req: AuthRequest, res: Response): Promise<void> {
   const user = await prisma.user.findUnique({
@@ -77,21 +79,7 @@ async function autoCompleteMissions(userId: string, progress: {
 }
 
 export async function updateProgress(req: AuthRequest, res: Response): Promise<void> {
-  const { investedAmount, monthlyPassiveIncome, monthlyContribution, annualReturnRate } = req.body
-
-  for (const [key, val] of Object.entries({ investedAmount, monthlyPassiveIncome, monthlyContribution })) {
-    if (val !== undefined && (isNaN(Number(val)) || Number(val) < 0)) {
-      res.status(400).json({ error: ErrorCode.INVALID_NON_NEGATIVE_FIELD, field: key })
-      return
-    }
-  }
-  if (annualReturnRate !== undefined) {
-    const rate = Number(annualReturnRate)
-    if (isNaN(rate) || rate < 0 || rate > 100) {
-      res.status(400).json({ error: ErrorCode.INVALID_RETURN_RATE })
-      return
-    }
-  }
+  const { investedAmount, monthlyPassiveIncome, monthlyContribution, annualReturnRate } = req.body as z.infer<typeof updateProgressSchema>
 
   const updated = await prisma.userProgress.upsert({
     where: { userId: req.userId! },
@@ -117,18 +105,9 @@ export async function updateProgress(req: AuthRequest, res: Response): Promise<v
 }
 
 export async function updateSettings(req: AuthRequest, res: Response): Promise<void> {
-  const { name, username, sharePublicProfile, showFinancialValues } = req.body
-
-  if (name !== undefined && !name.trim()) {
-    res.status(400).json({ error: ErrorCode.NAME_CANNOT_BE_EMPTY })
-    return
-  }
+  const { name, username, sharePublicProfile, showFinancialValues } = req.body as z.infer<typeof updateSettingsSchema>
 
   if (username !== undefined) {
-    if (!username || !/^[a-z0-9-]+$/.test(username)) {
-      res.status(400).json({ error: ErrorCode.INVALID_USERNAME_FORMAT })
-      return
-    }
     const existing = await prisma.user.findFirst({ where: { username, NOT: { id: req.userId } } })
     if (existing) { res.status(409).json({ error: ErrorCode.USERNAME_ALREADY_IN_USE }); return }
   }
