@@ -2,7 +2,6 @@ import { Response } from 'express'
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
-import { MAX_PHASE_ID } from '../lib/constants'
 import { getMinimumWage } from '../lib/appConfig'
 import { ErrorCode } from '../lib/errors'
 import { advancePhaseIfComplete } from '../services/progressionService'
@@ -34,9 +33,12 @@ async function autoCompleteMissions(userId: string, progress: {
   const monthlyReturn = invested * (annualRate / 100 / 12)
   const { value: minimumWage } = getMinimumWage()
 
-  const maxPhase = Math.min(progress.currentPhaseId + 1, MAX_PHASE_ID)
+  // Sem limitar por fase: um único aporte grande pode satisfazer o alvo
+  // financeiro de várias fases futuras de uma vez, e o avanço de fase em
+  // si continua bloqueado pelas missões manuais (behavioral/habit) de cada
+  // fase intermediária — ver advancePhaseIfComplete.
   const missions = await prisma.mission.findMany({
-    where: { phaseId: { lte: maxPhase }, missionType: { in: ['portfolio_value', 'passive_income_sm', 'crossover'] } },
+    where: { missionType: { in: ['portfolio_value', 'passive_income_sm', 'crossover'] } },
   })
 
   const alreadyCompleted = await prisma.userMissionProgress.findMany({
