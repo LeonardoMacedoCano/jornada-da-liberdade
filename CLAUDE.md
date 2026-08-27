@@ -31,11 +31,13 @@ Backend sobe em `http://localhost:3001`, frontend em `http://localhost:5173`.
 /
 ├── backend/
 │   ├── src/
-│   │   ├── index.ts          # Entry point: migrations + seed + servidor Express
+│   │   ├── index.ts          # Entry point: seed automático (se banco vazio) + servidor Express
 │   │   ├── seed.ts           # Fases e missões do jogo (fonte da verdade)
-│   │   ├── migrate.ts        # Executa migrations Prisma programaticamente
 │   │   ├── routes/           # index → auth, user, phases, missions, config, share
-│   │   └── controllers/      # Lógica de negócio por domínio
+│   │   ├── controllers/      # HTTP: parseia request, chama services/prisma, formata resposta
+│   │   ├── services/         # Regras de negócio (ex: progressionService — avanço de fase)
+│   │   ├── middleware/       # auth (JWT) e validate (zod)
+│   │   └── lib/              # prisma, errors, schemas (zod), serializers, appConfig
 │   └── prisma/schema.prisma  # Modelos de dados
 └── frontend/
     └── src/
@@ -45,6 +47,8 @@ Backend sobe em `http://localhost:3001`, frontend em `http://localhost:5173`.
         ├── services/api.ts   # Axios configurado
         └── types/index.ts    # Interfaces + constantes de UI
 ```
+
+As migrations do Prisma **não** rodam via código do backend — o `Dockerfile` executa `npx prisma migrate deploy` antes de subir `node dist/index.js` (ver `CMD` em `backend/Dockerfile`). Em desenvolvimento local, rode `npm run db:migrate` manualmente.
 
 ## Mecânicas do jogo
 
@@ -62,23 +66,25 @@ Backend sobe em `http://localhost:3001`, frontend em `http://localhost:5173`.
 
 - Uma fase avança quando todas as missões `isRequiredForPhase = true` estão completas.
 - Missões opcionais (`isRequiredForPhase = false`) aparecem na fase mas não bloqueiam o avanço.
-- O backend recalcula missões automáticas sempre que `/user/progress` (PUT) é chamado.
+- O backend recalcula missões automáticas sempre que `/user/progress` (PUT) é chamado, e o avanço de fase (`services/progressionService.ts`) percorre várias fases em sequência na mesma chamada — um aporte grande de uma vez pode avançar mais de uma fase de uma só vez, desde que as missões manuais das fases intermediárias já estejam concluídas.
 - A fase do usuário está em `UserProgress.currentPhaseId`.
 
 ### Fases (10 no total)
 
-| id | Slug | Range |
+| id | Slug (`seed.ts`) | Range |
 |---|---|---|
 | 0 | tutorial | Diagnóstico financeiro — consciência antes de ação |
-| 1 | quitacao | Eliminar dívidas com juros acima de 1,5% ao mês |
-| 2 | recruta | R$ 1 a R$ 10.000 |
-| 3 | soldado | R$ 10k a R$ 50k |
-| 4 | veterano | R$ 50k a R$ 100k — Clube dos 100k |
+| 1 | debt-freedom | Eliminar dívidas com juros acima de 1,5% ao mês |
+| 2 | recruit | R$ 1 a R$ 10.000 |
+| 3 | soldier | R$ 10k a R$ 50k |
+| 4 | veteran | R$ 50k a R$ 100k — Clube dos 100k |
 | 5 | elite | R$ 100k ao Ponto de Cruzamento (~R$ 300k) |
-| 6 | especialista | R$ 300k a R$ 600k |
-| 7 | mestre | R$ 600k ao Primeiro Milhão |
-| 8 | heroi | R$ 1M a R$ 2M — Independência Financeira |
-| 9 | lenda | R$ 2M+ — FIRE Completo |
+| 6 | specialist | R$ 300k a R$ 600k |
+| 7 | master | R$ 600k ao Primeiro Milhão |
+| 8 | hero | R$ 1M a R$ 2M — Independência Financeira |
+| 9 | legend | R$ 2M+ — FIRE Completo |
+
+Os nomes de exibição em português (Tutorial, Quitação, Recruta, Soldado, Veterano, Elite, Especialista, Mestre, Herói, Lenda) ficam em `frontend/src/i18n/content/phases.ts` — não confundir com o slug estrutural acima.
 
 ## Onde fica o conteúdo do jogo
 
