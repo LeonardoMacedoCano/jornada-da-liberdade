@@ -1,22 +1,18 @@
 import { Response } from 'express'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
-import { MAX_PHASE_ID } from '../lib/constants'
 import { ErrorCode } from '../lib/errors'
+import { serializeMission } from '../lib/missionSerializer'
+import { advancePhaseIfComplete } from '../services/progressionService'
 
-function serializeMission(mission: any, prog?: any) {
-  return {
-    ...mission,
-    targetValue: mission.targetValue?.toString() ?? null,
-    targetSmMultiple: mission.targetSmMultiple?.toString() ?? null,
-    isCompleted: prog?.isCompleted ?? false,
-    completedAt: prog?.completedAt ?? null,
-    startedAt: prog?.startedAt ?? null,
-  }
+function parseMissionId(param: string): number | null {
+  const id = Number(param)
+  return Number.isInteger(id) && id > 0 ? id : null
 }
 
 export async function getMissions(req: AuthRequest, res: Response): Promise<void> {
-  const phaseId = req.query.phaseId ? parseInt(req.query.phaseId as string) : undefined
+  const rawPhaseId = req.query.phaseId ? Number(req.query.phaseId) : undefined
+  const phaseId = rawPhaseId !== undefined && Number.isInteger(rawPhaseId) ? rawPhaseId : undefined
   const userId = req.userId!
 
   const missions = await prisma.mission.findMany({
@@ -32,40 +28,9 @@ export async function getMissions(req: AuthRequest, res: Response): Promise<void
   res.json(missions.map(mission => serializeMission(mission, progressMap.get(mission.id))))
 }
 
-async function checkAndAdvancePhase(userId: string, phaseId: number): Promise<boolean> {
-  if (phaseId >= MAX_PHASE_ID) return false
-
-  const requiredMissions = await prisma.mission.findMany({
-    where: { phaseId, isRequiredForPhase: true },
-  })
-  if (requiredMissions.length === 0) return false
-
-  const completedCount = await prisma.userMissionProgress.count({
-    where: { userId, missionId: { in: requiredMissions.map(m => m.id) }, isCompleted: true },
-  })
-  if (completedCount < requiredMissions.length) return false
-
-  const userProgress = await prisma.userProgress.findUnique({ where: { userId } })
-
-  try {
-    await prisma.$transaction([
-      prisma.userPhaseHistory.create({
-        data: { userId, phaseId, portfolioValueAtCompletion: userProgress?.investedAmount },
-      }),
-      prisma.userProgress.update({
-        where: { userId },
-        data: { currentPhaseId: phaseId + 1 },
-      }),
-    ])
-    return true
-  } catch (e: any) {
-    if (e.code === 'P2002') return false
-    throw e
-  }
-}
-
 export async function completeMission(req: AuthRequest, res: Response): Promise<void> {
-  const missionId = parseInt(req.params.id)
+  const missionId = parseMissionId(req.params.id)
+  if (missionId === null) { res.status(400).json({ error: ErrorCode.INVALID_MISSION_ID }); return }
   const userId = req.userId!
 
   const mission = await prisma.mission.findUnique({ where: { id: missionId } })
@@ -108,14 +73,15 @@ export async function completeMission(req: AuthRequest, res: Response): Promise<
   let phaseAdvanced = false
 
   if (mission.phaseId === currentPhaseId) {
-    phaseAdvanced = await checkAndAdvancePhase(userId, currentPhaseId)
+    phaseAdvanced = (await advancePhaseIfComplete(userId, currentPhaseId)).phaseAdvanced
   }
 
   res.json({ progress, phaseAdvanced })
 }
 
 export async function startMission(req: AuthRequest, res: Response): Promise<void> {
-  const missionId = parseInt(req.params.id)
+  const missionId = parseMissionId(req.params.id)
+  if (missionId === null) { res.status(400).json({ error: ErrorCode.INVALID_MISSION_ID }); return }
   const userId = req.userId!
 
   const mission = await prisma.mission.findUnique({ where: { id: missionId } })
@@ -144,7 +110,8 @@ export async function startMission(req: AuthRequest, res: Response): Promise<voi
 }
 
 export async function uncompleteMission(req: AuthRequest, res: Response): Promise<void> {
-  const missionId = parseInt(req.params.id)
+  const missionId = parseMissionId(req.params.id)
+  if (missionId === null) { res.status(400).json({ error: ErrorCode.INVALID_MISSION_ID }); return }
   const userId = req.userId!
 
   const mission = await prisma.mission.findUnique({ where: { id: missionId } })

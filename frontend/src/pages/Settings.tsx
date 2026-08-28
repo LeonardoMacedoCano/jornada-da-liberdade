@@ -6,7 +6,7 @@ import { useThemeControl } from '../contexts/ThemeControlContext'
 import { translateApiError, interpolate } from '../i18n'
 import strings from '../i18n/strings'
 import { THEMES } from '../theme'
-import api from '../services/api'
+import api, { extractApiErrorData } from '../services/api'
 
 const Page = styled.div`
   max-width: 672px;
@@ -195,8 +195,7 @@ export default function Settings() {
       await refreshUser()
       showSuccess(strings.settings.profileSaved)
     } catch (err: unknown) {
-      const data = (err as { response?: { data?: unknown } })?.response?.data
-      showError(translateApiError(data, strings.settings.errorSave))
+      showError(translateApiError(extractApiErrorData(err), strings.settings.errorSave))
     } finally {
       setSavingProfile(false)
     }
@@ -209,8 +208,7 @@ export default function Settings() {
       await api.put('/user/progress', { annualReturnRate: parseFloat(annualReturnRate) || 11 })
       showSuccess(strings.settings.financialSettingsSaved)
     } catch (err: unknown) {
-      const data = (err as { response?: { data?: unknown } })?.response?.data
-      showError(translateApiError(data, strings.settings.errorFinancialSettings))
+      showError(translateApiError(extractApiErrorData(err), strings.settings.errorFinancialSettings))
     } finally {
       setSavingFinancial(false)
     }

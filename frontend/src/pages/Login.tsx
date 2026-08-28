@@ -2,6 +2,7 @@ import { useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { GoogleSignInButton } from 'lcano-react-ui'
 import { useAuth } from '../contexts/AuthContext'
+import { extractApiErrorData } from '../services/api'
 import { translateApiError } from '../i18n'
 import strings from '../i18n/strings'
 import { getPhaseContent } from '../i18n/content'
@@ -151,8 +152,7 @@ export default function Login() {
     try {
       await loginWithGoogle(credential)
     } catch (err: unknown) {
-      const data = (err as { response?: { data?: unknown } })?.response?.data
-      setError(translateApiError(data, strings.auth.login.errorGeneric))
+      setError(translateApiError(extractApiErrorData(err), strings.auth.login.errorGeneric))
     }
   }
 

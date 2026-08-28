@@ -1,10 +1,12 @@
 import { Response } from 'express'
 import { Prisma } from '@prisma/client'
+import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
-import { MAX_PHASE_ID } from '../lib/constants'
 import { getMinimumWage } from '../lib/appConfig'
 import { ErrorCode } from '../lib/errors'
+import { advancePhaseIfComplete } from '../services/progressionService'
+import { updateProgressSchema, updateSettingsSchema } from '../lib/schemas'
 
 export async function getProfile(req: AuthRequest, res: Response): Promise<void> {
   const user = await prisma.user.findUnique({
@@ -17,17 +19,6 @@ export async function getProfile(req: AuthRequest, res: Response): Promise<void>
   })
   if (!user) { res.status(404).json({ error: ErrorCode.USER_NOT_FOUND }); return }
   res.json(user)
-}
-
-function serializeMission(mission: any, prog?: any) {
-  return {
-    ...mission,
-    targetValue: mission.targetValue?.toString() ?? null,
-    targetSmMultiple: mission.targetSmMultiple?.toString() ?? null,
-    isCompleted: prog?.isCompleted ?? false,
-    completedAt: prog?.completedAt ?? null,
-    startedAt: prog?.startedAt ?? null,
-  }
 }
 
 async function autoCompleteMissions(userId: string, progress: {
@@ -44,9 +35,12 @@ async function autoCompleteMissions(userId: string, progress: {
   const monthlyReturn = invested * (annualRate / 100 / 12)
   const { value: minimumWage } = getMinimumWage()
 
-  const maxPhase = Math.min(progress.currentPhaseId + 1, MAX_PHASE_ID)
+  // Not capped by phase: a single large contribution can satisfy the
+  // financial target of several future phases at once. Phase advancement
+  // itself stays gated by each intermediate phase's manual missions — see
+  // advancePhaseIfComplete.
   const missions = await prisma.mission.findMany({
-    where: { phaseId: { lte: maxPhase }, missionType: { in: ['portfolio_value', 'passive_income_sm', 'crossover'] } },
+    where: { missionType: { in: ['portfolio_value', 'passive_income_sm', 'crossover'] } },
   })
 
   const alreadyCompleted = await prisma.userMissionProgress.findMany({
@@ -79,55 +73,13 @@ async function autoCompleteMissions(userId: string, progress: {
     }
   }
 
-  let currentPhaseId = progress.currentPhaseId
-  let phaseAdvanced = false
+  const { phaseAdvanced, newPhaseId } = await advancePhaseIfComplete(userId, progress.currentPhaseId)
 
-  if (currentPhaseId < MAX_PHASE_ID) {
-    const requiredMissions = await prisma.mission.findMany({
-      where: { phaseId: currentPhaseId, isRequiredForPhase: true },
-    })
-    const completedProgress = await prisma.userMissionProgress.findMany({
-      where: { userId, missionId: { in: requiredMissions.map(m => m.id) }, isCompleted: true },
-    })
-
-    if (completedProgress.length === requiredMissions.length && requiredMissions.length > 0) {
-      try {
-        await prisma.$transaction([
-          prisma.userPhaseHistory.create({
-            data: { userId, phaseId: currentPhaseId, portfolioValueAtCompletion: progress.investedAmount },
-          }),
-          prisma.userProgress.update({
-            where: { userId },
-            data: { currentPhaseId: currentPhaseId + 1 },
-          }),
-        ])
-        currentPhaseId = currentPhaseId + 1
-        phaseAdvanced = true
-      } catch (e: any) {
-        if (e.code !== 'P2002') throw e
-      }
-    }
-  }
-
-  return { newlyCompleted, phaseAdvanced, newPhaseId: currentPhaseId }
+  return { newlyCompleted, phaseAdvanced, newPhaseId }
 }
 
 export async function updateProgress(req: AuthRequest, res: Response): Promise<void> {
-  const { investedAmount, monthlyPassiveIncome, monthlyContribution, annualReturnRate } = req.body
-
-  for (const [key, val] of Object.entries({ investedAmount, monthlyPassiveIncome, monthlyContribution })) {
-    if (val !== undefined && (isNaN(Number(val)) || Number(val) < 0)) {
-      res.status(400).json({ error: ErrorCode.INVALID_NON_NEGATIVE_FIELD, field: key })
-      return
-    }
-  }
-  if (annualReturnRate !== undefined) {
-    const rate = Number(annualReturnRate)
-    if (isNaN(rate) || rate < 0 || rate > 100) {
-      res.status(400).json({ error: ErrorCode.INVALID_RETURN_RATE })
-      return
-    }
-  }
+  const { investedAmount, monthlyPassiveIncome, monthlyContribution, annualReturnRate } = req.body as z.infer<typeof updateProgressSchema>
 
   const updated = await prisma.userProgress.upsert({
     where: { userId: req.userId! },
@@ -153,18 +105,9 @@ export async function updateProgress(req: AuthRequest, res: Response): Promise<v
 }
 
 export async function updateSettings(req: AuthRequest, res: Response): Promise<void> {
-  const { name, username, sharePublicProfile, showFinancialValues } = req.body
-
-  if (name !== undefined && !name.trim()) {
-    res.status(400).json({ error: ErrorCode.NAME_CANNOT_BE_EMPTY })
-    return
-  }
+  const { name, username, sharePublicProfile, showFinancialValues } = req.body as z.infer<typeof updateSettingsSchema>
 
   if (username !== undefined) {
-    if (!username || !/^[a-z0-9-]+$/.test(username)) {
-      res.status(400).json({ error: ErrorCode.INVALID_USERNAME_FORMAT })
-      return
-    }
     const existing = await prisma.user.findFirst({ where: { username, NOT: { id: req.userId } } })
     if (existing) { res.status(409).json({ error: ErrorCode.USERNAME_ALREADY_IN_USE }); return }
   }

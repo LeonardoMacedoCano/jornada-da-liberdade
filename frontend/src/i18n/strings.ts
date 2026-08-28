@@ -18,6 +18,7 @@ const strings = {
     MISSING_GOOGLE_CREDENTIAL: 'Credencial do Google ausente',
     INVALID_GOOGLE_CREDENTIAL: 'Credencial do Google inválida',
     MISSION_NOT_FOUND: 'Missão não encontrada',
+    INVALID_MISSION_ID: 'ID de missão inválido',
     ONLY_MANUAL_MISSIONS_CAN_BE_COMPLETED: 'Apenas missões comportamentais e de hábito podem ser marcadas manualmente',
     START_TRACKING_FIRST: 'Inicie o rastreamento antes de concluir esta missão',
     HABIT_DURATION_NOT_MET: 'Ainda faltam {{remainingDays}} dia(s) para completar esta missão',

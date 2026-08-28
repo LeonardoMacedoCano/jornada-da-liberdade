@@ -2,17 +2,7 @@ import { Response } from 'express'
 import { prisma } from '../lib/prisma'
 import { AuthRequest } from '../middleware/auth'
 import { ErrorCode } from '../lib/errors'
-
-function serializeMission(mission: any, prog?: any) {
-  return {
-    ...mission,
-    targetValue: mission.targetValue?.toString() ?? null,
-    targetSmMultiple: mission.targetSmMultiple?.toString() ?? null,
-    isCompleted: prog?.isCompleted ?? false,
-    completedAt: prog?.completedAt ?? null,
-    startedAt: prog?.startedAt ?? null,
-  }
-}
+import { serializeMission } from '../lib/missionSerializer'
 
 export async function getAllPhases(req: AuthRequest, res: Response): Promise<void> {
   const userId = req.userId!

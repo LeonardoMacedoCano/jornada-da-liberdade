@@ -1,8 +1,8 @@
 import { useState, useEffect, FormEvent } from 'react'
-import styled, { useTheme } from 'styled-components'
+import { useTheme } from 'styled-components'
 import { Button, Loading, useMessage, useToastStack, useConfirmModal, PaginatedGrid, ToggleSwitch, formatGroupedNumber, sanitizeNumericInput } from 'lcano-react-ui'
 import { useAuth } from '../contexts/AuthContext'
-import api from '../services/api'
+import api, { extractApiErrorData } from '../services/api'
 import { translateApiError, interpolate } from '../i18n'
 import strings from '../i18n/strings'
 import { getPhaseContent } from '../i18n/content'
@@ -14,184 +14,12 @@ import AvatarDisplay from '../components/AvatarDisplay'
 import ProgressBar from '../components/ProgressBar'
 import MissionItem from '../components/MissionItem'
 import ShareButton from '../components/ShareButton'
-
-const Page = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  animation: fadeIn 0.3s ease-out;
-`
-
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 16px;
-`
-
-const HeaderText = styled.div``
-
-const UserName = styled.h1`
-  font-size: 24px;
-  font-weight: 700;
-  color: ${p => p.theme.colors.white};
-`
-
-const UserPhase = styled.p`
-  color: ${p => p.theme.colors.gray};
-`
-
-const UserHandle = styled.p`
-  font-size: 14px;
-  color: ${p => p.theme.colors.gray}99;
-  margin-top: 4px;
-`
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-
-  @media (min-width: 1024px) {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-`
-
-const MainCol = styled.div<{ $fullWidth?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  @media (min-width: 1024px) {
-    grid-column: ${p => p.$fullWidth ? 'span 3' : 'span 2'};
-  }
-`
-
-const SideCol = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`
-
-const Card = styled.div`
-  background: ${p => p.theme.colors.secondary};
-  border: 1px solid ${p => p.theme.colors.tertiary};
-  border-radius: 12px;
-  padding: 20px;
-`
-
-const SectionLabel = styled.span`
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: ${p => p.theme.colors.quaternary};
-`
-
-const PhaseTitle = styled.h2`
-  font-size: 18px;
-  font-weight: 700;
-  color: ${p => p.theme.colors.white};
-`
-
-const PhaseSubtitle = styled.p`
-  font-size: 14px;
-  color: ${p => p.theme.colors.gray};
-`
-
-const FlavorText = styled.p`
-  font-size: 14px;
-  color: ${p => p.theme.colors.gray};
-  margin-top: 12px;
-  font-style: italic;
-`
-
-const MissionsSectionLabel = styled.h3`
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: ${p => p.theme.colors.gray};
-  margin-bottom: 12px;
-`
-
-const MissionsHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-`
-
-const EmptyMissionsText = styled.p`
-  text-align: center;
-  color: ${p => p.theme.colors.gray}99;
-  font-size: 14px;
-  padding: 16px 0;
-`
-
-const FormLabel = styled.label`
-  display: block;
-  font-size: 12px;
-  color: ${p => p.theme.colors.gray};
-  margin-bottom: 4px;
-`
-
-const Input = styled.input`
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: ${p => p.theme.colors.primary};
-  border: 1px solid ${p => p.theme.colors.tertiary};
-  color: ${p => p.theme.colors.white};
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.15s;
-
-  &::placeholder { color: ${p => p.theme.colors.gray}60; }
-  &:focus { border-color: ${p => p.theme.colors.quaternary}; }
-`
-
-const FormFields = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`
-
-const IndicatorRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`
-
-const IndicatorLabel = styled.span`
-  font-size: 12px;
-  color: ${p => p.theme.colors.gray};
-`
-
-const IndicatorValue = styled.span<{ $accent?: boolean; $success?: boolean }>`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${p => p.$success ? p.theme.colors.success : p.$accent ? p.theme.colors.quaternary : p.theme.colors.white};
-`
-
-const Divider = styled.div`
-  border-top: 1px solid ${p => p.theme.colors.white}0d;
-  padding-top: 8px;
-  margin-top: 4px;
-`
-
-const ErrorText = styled.p`
-  color: ${p => p.theme.colors.warning};
-  font-size: 14px;
-`
-
-const LoadingWrap = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 256px;
-`
+import {
+  Page, Header, HeaderText, UserName, UserPhase, UserHandle, Grid, MainCol, SideCol, Card,
+  SectionLabel, PhaseTitle, PhaseSubtitle, FlavorText, MissionsSectionLabel, MissionsHeader,
+  EmptyMissionsText, FormLabel, Input, FormFields, IndicatorRow, IndicatorLabel, IndicatorValue,
+  Divider, ErrorText, LoadingWrap,
+} from './Dashboard.styles'
 
 const PHASE_INTRODUCING = {
   investedAmount: 2,
@@ -287,8 +115,7 @@ export default function Dashboard() {
         showError(interpolate(strings.mission.phaseRolledBack, { phase: getPhaseContent(phaseRes.data.slug).name }))
       }
     } catch (err: unknown) {
-      const data = (err as { response?: { data?: unknown } })?.response?.data
-      showError(translateApiError(data, strings.dashboard.errorMission))
+      showError(translateApiError(extractApiErrorData(err), strings.dashboard.errorMission))
     }
   }
 
@@ -299,8 +126,7 @@ export default function Dashboard() {
       setPhase(phaseRes.data)
       showSuccess(strings.dashboard.trackingStarted)
     } catch (err: unknown) {
-      const data = (err as { response?: { data?: unknown } })?.response?.data
-      showError(translateApiError(data, strings.dashboard.errorTracking))
+      showError(translateApiError(extractApiErrorData(err), strings.dashboard.errorTracking))
     }
   }
 
