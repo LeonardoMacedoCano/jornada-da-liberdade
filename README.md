@@ -1,18 +1,23 @@
 # Jornada da Liberdade
 
+![CI](https://github.com/LeonardoMacedoCano/jornada-da-liberdade/actions/workflows/ci.yml/badge.svg)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white&labelColor=20232a)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Prisma-4169E1?logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
 
-Um RPG de progressão financeira pessoal. Você avança por **10 fases** completando **missões objetivas** — do diagnóstico financeiro e quitação de dívidas até o FIRE completo.
+Um guia gamificado feito para acompanhar sua vida financeira ao longo dos anos, não algo que se resolve numa única sessão. O objetivo final é a liberdade financeira: o app te mostra em qual fase você está hoje e o que fazer para avançar até a próxima, com **10 fases** (da preparação inicial e quitação de dívidas ao FIRE completo), missões objetivas, conquistas, histórico de progresso e a opção de compartilhar sua jornada com amigos.
+
+**→ [liberdade.cano.dev.br](https://liberdade.cano.dev.br/)** — instância em produção, login via Google.
 
 ## Por quê
 
 Investir é simples. O difícil é o mental: a tentação de acelerar, a frustração dos rendimentos que mal aparecem no início, a sensação de que vai levar uma vida. A Jornada da Liberdade transforma isso em um jogo com metas claras e progresso visível, para mostrar que a resposta é sempre a mesma — continuar.
 
 Cada fase tem missões sem ambiguidade. Algumas são financeiras (ex: atingir R$ 10.000 investidos) e se completam sozinhas quando você atualiza seus dados. Outras são comportamentais (ex: abrir uma corretora) e você marca quando fez. Complete todas as obrigatórias de uma fase e ela avança, desbloqueando uma conquista.
+
+O jogo mostra em qual fase você está e o que fazer a seguir — nunca recomenda um ativo, corretora ou momento de compra específico. Isso continua sendo escolha sua. Detalhes de mecânica, fases iniciais de preparação e público-alvo: **[docs/GAME_DESIGN.md](docs/GAME_DESIGN.md)**.
 
 ## O que dá pra fazer no app
 
