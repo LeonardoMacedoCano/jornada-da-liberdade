@@ -72,8 +72,8 @@ describe('advancePhaseIfComplete', () => {
     expect(phaseHistory).toEqual([0])
   })
 
-  // Regressão: antes da correção, um único aporte grande só avançava uma
-  // fase por chamada, mesmo com as missões de várias fases já satisfeitas.
+  // Regression: before the fix, a single large contribution only advanced
+  // one phase per call, even with several phases' missions already met.
   it('avança múltiplas fases em sequência numa única chamada', async () => {
     missions = [
       { id: 1, phaseId: 0, isRequiredForPhase: true },
@@ -97,7 +97,7 @@ describe('advancePhaseIfComplete', () => {
       { id: 3, phaseId: 2, isRequiredForPhase: true },
     ]
     completedMissionIds.add(1)
-    completedMissionIds.add(3) // fase 2 completa, mas fase 1 (intermediária) não
+    completedMissionIds.add(3)
 
     const result = await advancePhaseIfComplete('user-1', 0)
 

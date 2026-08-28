@@ -38,10 +38,8 @@ async function advanceSinglePhase(userId: string, phaseId: number): Promise<bool
   }
 }
 
-// Regra central do jogo: uma fase avança quando todas as suas missões
-// obrigatórias estão concluídas. Percorre fases sucessivas na mesma chamada
-// porque uma única atualização de dados financeiros pode satisfazer os
-// requisitos de várias fases de uma vez (ex: um aporte grande de uma só vez).
+// Loops through consecutive phases in one call, since a single financial
+// update can satisfy several phases' requirements at once.
 export async function advancePhaseIfComplete(userId: string, phaseId: number): Promise<PhaseAdvanceResult> {
   let currentPhaseId = phaseId
   let phaseAdvanced = false

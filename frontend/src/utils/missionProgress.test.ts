@@ -73,7 +73,7 @@ describe('computeMissionProgressPercent', () => {
       monthlyPassiveIncome: 0,
       annualReturnRate: 11,
     }
-    // retorno mensal = 100000 * (11 / 100 / 12) ≈ 916.67
+    // monthly return = 100000 * (11 / 100 / 12) ≈ 916.67
     const result = computeMissionProgressPercent(mission, financials, 1621)
     expect(result).toBe(99)
   })

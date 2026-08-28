@@ -35,10 +35,10 @@ async function autoCompleteMissions(userId: string, progress: {
   const monthlyReturn = invested * (annualRate / 100 / 12)
   const { value: minimumWage } = getMinimumWage()
 
-  // Sem limitar por fase: um único aporte grande pode satisfazer o alvo
-  // financeiro de várias fases futuras de uma vez, e o avanço de fase em
-  // si continua bloqueado pelas missões manuais (behavioral/habit) de cada
-  // fase intermediária — ver advancePhaseIfComplete.
+  // Not capped by phase: a single large contribution can satisfy the
+  // financial target of several future phases at once. Phase advancement
+  // itself stays gated by each intermediate phase's manual missions — see
+  // advancePhaseIfComplete.
   const missions = await prisma.mission.findMany({
     where: { missionType: { in: ['portfolio_value', 'passive_income_sm', 'crossover'] } },
   })

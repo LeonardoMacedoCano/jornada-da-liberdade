@@ -1,10 +1,8 @@
 import { z } from 'zod'
 import { ErrorCode } from './errors'
 
-// As mensagens de erro dos schemas são os próprios ErrorCode — o middleware
-// de validação (middleware/validate.ts) repassa `issue.message` como
-// `error` na resposta, mantendo o mesmo contrato que os controllers usavam
-// com validação manual (o frontend traduz o código em i18n/strings.ts).
+// Schema messages double as ErrorCode values — validate.ts forwards
+// `issue.message` straight through as `error` in the response.
 const nonNegativeNumber = () =>
   z.coerce.number({ invalid_type_error: ErrorCode.INVALID_NON_NEGATIVE_FIELD })
     .refine(v => v >= 0, { message: ErrorCode.INVALID_NON_NEGATIVE_FIELD })
