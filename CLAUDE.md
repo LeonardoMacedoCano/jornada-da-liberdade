@@ -2,7 +2,9 @@
 
 ## Propósito
 
-RPG de progressão financeira. O jogador avança por 10 fases completando missões objetivas que representam marcos reais da jornada rumo à independência financeira — começando pela eliminação de dívidas. O foco é mostrar que a liberdade financeira é lenta e gradual — e que essa lentidão é parte do jogo, não um problema.
+Guia gamificado de progressão financeira. O jogador avança por 10 fases completando missões objetivas que representam marcos reais da jornada rumo à independência financeira — começando pela eliminação de dívidas. O foco é mostrar que a liberdade financeira é lenta e gradual — e que essa lentidão é parte do jogo, não um problema.
+
+O jogo nunca recomenda ativos, corretoras ou timing de compra/venda — só mostra em qual fase o jogador está e o que fazer em termos de comportamento e disciplina. Ao escrever ou editar conteúdo de missão (`frontend/src/i18n/content/missions.ts`), não citar ticker, corretora, banco ou empresa específicos — só categorias genéricas (renda fixa, ETF, BDR etc.).
 
 O desafio central é **mental**: o jogo existe para mostrar que pequenas vitórias acumuladas vencem o desejo de acelerar a qualquer custo.
 
