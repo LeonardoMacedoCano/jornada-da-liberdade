@@ -2,6 +2,25 @@
 
 ← [Voltar ao README](../README.md)
 
+## Para quem é
+
+Pra quem está no início ou no meio do caminho e quer saber, sem enrolação, o que fazer agora: quem ainda tem dívidas, quem já quitou tudo mas não sabe o próximo passo, ou quem já investe mas nunca teve um norte de longo prazo com metas claras entre o "hoje" e a liberdade financeira.
+
+Não é indicado pra quem já tem uma estratégia de investimento definida e só quer acompanhar performance, nem pra quem busca análise de mercado, recomendação de ativo específico ou timing de compra e venda — isso não é o papel do jogo.
+
+## O jogo não recomenda ativos
+
+O papel do jogo é mostrar **onde você está** e **o que fazer em termos de comportamento e disciplina** — nunca **em que investir**. As missões falam de categorias (renda fixa, renda variável, ativos internacionais) e de metas de valor, nunca de ticker, corretora ou empresa específica. Qual ativo comprar, quando comprar e com quem investir é sempre decisão do jogador.
+
+## Como funciona, na prática
+
+A jornada tem dois grandes momentos:
+
+- **Preparação** (fases 0 e 1): antes de qualquer meta de patrimônio, o jogador organiza a casa — mapeia dívidas e gastos, abre conta em corretora, estuda o básico de investimentos e quita as dívidas caras. São fases inteiramente comportamentais e racionais: sem meta de valor investido, só ações concretas a marcar como feitas.
+- **Acumulação e renda passiva** (fases 2 a 9): a partir daqui as missões passam a incluir metas de patrimônio, de renda passiva em salários mínimos e o Ponto de Cruzamento (quando o retorno mensal supera o aporte mensal) — sempre intercaladas com hábitos e ações comportamentais, pra garantir que o avanço é disciplina sustentada e não sorte de mercado de um mês.
+
+Cada fase avança quando todas as suas missões obrigatórias são concluídas.
+
 ## Missões
 
 Cada fase contém missões, que podem ser obrigatórias (bloqueiam o avanço de fase) ou opcionais (ficam disponíveis, mas não travam o progresso). Existem cinco tipos:

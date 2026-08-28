@@ -18,7 +18,7 @@ const missions: Record<string, MissionContent> = {
   },
   'open-brokerage-account': {
     title: 'Abrir conta em corretora ou banco digital',
-    description: 'Crie conta em uma corretora séria (XP, Rico, Clear, Nu Invest) ou banco digital com rendimento automático (Nubank, Inter, C6 Bank). Não precisa aportar ainda — só ter a plataforma pronta e explorar as opções disponíveis.',
+    description: 'Crie conta em uma corretora séria ou banco digital com rendimento automático — pesquise e escolha a que fizer mais sentido pra você. Não precisa aportar ainda — só ter a plataforma pronta e explorar as opções disponíveis.',
   },
   'learn-3-pillars': {
     title: 'Estudar os 3 pilares do investimento',
@@ -50,7 +50,7 @@ const missions: Record<string, MissionContent> = {
   },
   'goal-500': {
     title: 'Atingir R$ 500 investidos',
-    description: 'Primeiro contato real com o mercado. Pode ser Tesouro Selic, CDB de qualquer banco ou um ETF (fundo negociado em bolsa que replica um índice) como o BOVA11, que replica o Ibovespa. O objetivo não é o rendimento — é quebrar a inércia e sentir o dinheiro crescendo fora da conta corrente.',
+    description: 'Primeiro contato real com o mercado. Pode ser Tesouro Selic, CDB de qualquer banco ou um ETF (fundo negociado em bolsa que replica um índice, como o Ibovespa) — a escolha do ativo específico é sua. O objetivo não é o rendimento — é quebrar a inércia e sentir o dinheiro crescendo fora da conta corrente.',
   },
   'automate-contribution': {
     title: 'Automatizar aporte mensal fixo (pague-se primeiro)',
@@ -118,7 +118,7 @@ const missions: Record<string, MissionContent> = {
   },
   'two-international-assets': {
     title: 'Ter pelo menos 2 ativos internacionais na carteira',
-    description: 'Inclua ETFs globais como IVVB11 (replica o S&P 500) ou WRLD11 (replica um índice de ações do mundo todo), ou BDRs — recibos negociados na B3 que representam ações de empresas estrangeiras (ex: Apple, Google). Diversificação geográfica protege a carteira de crises localizadas no Brasil — quando o real desvaloriza, ativos em dólar ou euro compensam parte das perdas.',
+    description: 'Inclua ETFs internacionais (que repliquem índices de ações estrangeiras, como um índice americano ou mundial) ou BDRs — recibos negociados na B3 que representam ações de empresas estrangeiras. A escolha de qual índice ou empresa é sua. Diversificação geográfica protege a carteira de crises localizadas no Brasil — quando o real desvaloriza, ativos em dólar ou euro compensam parte das perdas.',
   },
   'goal-200k': {
     title: 'Atingir R$ 200.000 investidos',
